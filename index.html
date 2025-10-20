@@ -9,7 +9,7 @@
   :root{
     --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
     --a:#8b5cf6; --a2:#5b3dff; --ok:#14f195; --bad:#ff6b6b; --chip:#1b2340;
-    --neon:#1fb6ff; /* azul eléctrico para el neón */
+    --neon:#1fb6ff; /* azul eléctrico */
   }
   *{box-sizing:border-box} html,body{height:100%}
   body{
@@ -46,7 +46,7 @@
   }
   .hero-inner{ text-align:center; padding:0 16px }
   .neon{
-    font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif; /* estilo D: metal potente */
+    font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
     font-size: clamp(28px, 5vw, 54px);
     color: var(--neon);
     text-shadow:
@@ -81,10 +81,9 @@
   #emoji{max-height:120px;overflow:auto;display:grid;grid-template-columns:repeat(10, 1fr);gap:6px}
   #emoji button{background:#1a2236;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:6px;cursor:pointer}
 
-  /* --- Soporte de emojis (Twemoji + fuentes nativas) --- */
+  /* Emojis visibles en Edge (Twemoji) */
   .emoji-font, #emoji button, #chatLog, #msg, #nick {
-    font-family:
-      "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","EmojiOne Color",
+    font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","EmojiOne Color",
       system-ui,"Segoe UI",Roboto,Arial,sans-serif;
     font-size:16px; line-height:1.15;
   }
@@ -97,11 +96,14 @@
   @media (max-width:580px){.socials{grid-template-columns:1fr}}
   .soc{display:flex;align-items:center;gap:10px;padding:12px;border-radius:12px;background:#0a0f1c;border:1px solid rgba(255,255,255,.08);text-decoration:none;color:var(--text);font-weight:700}
   .soc small{color:var(--muted);font-weight:500}
+  .soc.disabled{opacity:.55;cursor:not-allowed;border-style:dashed}
+  .soc .ico{width:22px;height:22px;display:inline-grid;place-items:center}
+  .soc .txt{display:flex;flex-direction:column;line-height:1.15}
   .chips{display:flex;flex-wrap:wrap;gap:10px}
   .chip{background:var(--chip);border:1px solid rgba(36,211,238,.35);color:#cfefff;padding:6px 12px;border-radius:999px}
 </style>
-<!-- Twemoji (para que los emojis se vean bien en Edge/Windows) -->
-<script src="https://twemoji.maxcdn.com/v/latest/twemoji.min.js" crossorigin="anonymous"></script>
+<!-- Twemoji estable para Edge/Windows -->
+<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div class="wrap">
@@ -200,15 +202,12 @@ const CONFIG = {
   STATION_NAME: "RADIO IVANPLAY ESPAÑA",
   PLAYLIST_JSON_URL: "/music/playlist.json",
   SHUFFLE: true,
-  /* Si subes /assets/banner.jpg, se usará como imagen del banner.
-     Si lo dejas vacío, se verá el gradiente bonito (fallback). */
-  BANNER_URL: "/assets/banner.jpg",
+  BANNER_URL: "/assets/banner.jpg",     // súbelo cuando lo tengas
   SOCIALS: [
-    // Rellena cuando tengas los links:
-    {name:"YouTube", icon:"▶️", url:""},
-    {name:"Twitch", icon:"🎮", url:""},
-    {name:"Twitter / X", icon:"✖️", url:""},
-    {name:"Spotify", icon:"🎵", url:""}
+    {name:"YouTube", icon:"▶️", url:"https://www.youtube.com/@ivanplays8012"},
+    {name:"Twitch",  icon:"🎮", url:"https://www.twitch.tv/ivanplays_offi"},
+    {name:"Twitter / X", icon:"✖️", url:""},   // si quieres añade tu link
+    {name:"Spotify",    icon:"🎵", url:""}     // idem
   ],
   GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"]
 };
@@ -217,7 +216,7 @@ const CONFIG = {
 const $ = s => document.querySelector(s);
 document.getElementById("year").textContent = new Date().getFullYear();
 
-/* ====== HERO IMAGE HANDLER ====== */
+/* ====== HERO IMAGE ====== */
 (function(){
   const hero = document.getElementById("hero");
   if(CONFIG.BANNER_URL){
@@ -318,17 +317,19 @@ dlBtn.addEventListener("click", ()=>{
   setTimeout(()=>URL.revokeObjectURL(a.href),1200);
 });
 
-/* ====== CHAT + EMOJIS ====== */
+/* ====== CHAT + EMOJIS con Twemoji SVG ====== */
 const log=$("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"), saveNick=$("#saveNick");
-const EMOJIS="😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
+const EMO_UNI="😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
 const emojiBox=document.getElementById("emoji");
-EMOJIS.forEach(e=>{ const b=document.createElement("button"); b.className="emoji-font"; b.textContent=e; b.onclick=()=>{ msg.value+=e; msg.focus(); }; emojiBox.appendChild(b); });
+function twemojiUrl(chr){ const cp=Array.from(chr).map(c=>c.codePointAt(0).toString(16)).join("-"); return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/svg/${cp}.svg`; }
+function renderEmojiButtons(){ emojiBox.innerHTML=""; EMO_UNI.forEach(e=>{ const b=document.createElement("button"); b.className="emoji-font"; b.innerHTML=`<img alt="${e}" src="${twemojiUrl(e)}" width="20" height="20">`; b.onclick=()=>{ msg.value+=e; msg.focus(); }; emojiBox.appendChild(b); }); }
+renderEmojiButtons();
 const CH_KEY="ivanplay_chat_v1"; const bc=("BroadcastChannel" in window)? new BroadcastChannel("ivanplay_chat_v1"):null;
 function getNick(){ let n=(nick.value||"").trim(); if(!n){ n=localStorage.getItem("ivanplay_nick")||("User"+Math.floor(Math.random()*900+100)); nick.value=n; } return n; }
 function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); pushSys("Nick guardado: "+getNick()); }
 saveNick.addEventListener("click", saveNickLS); nick.value=localStorage.getItem("ivanplay_nick")||"";
 function pushSys(t){ append({t:new Date().toLocaleTimeString(),u:"Sistema",m:t,sys:true}); }
-function append(o){ const p=document.createElement("div"); p.className="msg"+(o.sys?" sys":""); p.textContent=`[${o.t}] ${o.u}: ${o.m}`; log.appendChild(p); log.scrollTop=log.scrollHeight; }
+function append(o){ const p=document.createElement("div"); p.className="msg"+(o.sys?" sys":""); p.textContent=`[${o.t}] ${o.u}: ${o.m}`; log.appendChild(p); log.scrollTop=log.scrollHeight; try{ twemoji.parse(p,{folder:"svg",ext:".svg"}); }catch{} }
 function loadChat(){ try{ (JSON.parse(localStorage.getItem(CH_KEY)||"[]")).slice(-200).forEach(append);}catch{} }
 function store(o){ try{ const a=JSON.parse(localStorage.getItem(CH_KEY)||"[]"); a.push(o); localStorage.setItem(CH_KEY, JSON.stringify(a.slice(-300))); }catch{} }
 function sendMsg(){ const m=(msg.value||"").trim(); if(!m) return; const o={t:new Date().toLocaleTimeString(),u:getNick(),m}; append(o); store(o); msg.value=""; if(bc) bc.postMessage(o); }
@@ -340,16 +341,15 @@ loadChat(); pushSys("Bienvenido al chat de RADIO IVANPLAY. Respeta a los demás 
 /* ====== SOCIALS + GENRES ====== */
 const socials=$("#socials"), chips=$("#chips");
 CONFIG.SOCIALS.forEach(s=>{
-  if(!s.url) return; // si no hay link, no lo mostramos
-  const a=document.createElement("a");
-  a.className="soc emoji-font"; a.href=s.url; a.target="_blank"; a.rel="noopener";
-  a.innerHTML=`<span>${s.icon}</span><div><div>${s.name}</div><small>${new URL(s.url).hostname}</small></div>`;
-  socials.appendChild(a);
+  const hasLink = !!(s.url && s.url.trim());
+  const base = document.createElement(hasLink ? "a" : "div");
+  base.className = "soc emoji-font" + (hasLink ? "" : " disabled");
+  if(hasLink){ base.href=s.url; base.target="_blank"; base.rel="noopener"; }
+  const host = hasLink ? new URL(s.url).hostname : "Próximamente";
+  base.innerHTML = `<span class="ico">${s.icon}</span><div class="txt"><div>${s.name}</div><small>${host}</small></div>`;
+  socials.appendChild(base);
 });
 CONFIG.GENRES.forEach(g=>{ const c=document.createElement("span"); c.className="chip"; c.textContent=g; chips.appendChild(c); });
-
-/* Twemoji: convierte todos los emojis a SVG (soporte perfecto en Edge) */
-document.addEventListener("DOMContentLoaded", ()=> { try{ twemoji.parse(document.body,{folder:"svg",ext:".svg"}); }catch{} });
 </script>
 </body>
 </html>
