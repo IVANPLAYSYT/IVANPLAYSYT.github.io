@@ -9,7 +9,6 @@
   :root{
     --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
     --a:#8b5cf6; --a2:#5b3dff; --ok:#14f195; --bad:#ff6b6b; --chip:#1b2340;
-    --neon:#1fb6ff;
   }
   *{box-sizing:border-box} html,body{height:100%}
   body{
@@ -28,47 +27,16 @@
     box-shadow:0 10px 30px rgba(0,0,0,.25)
   }
 
-  /* ====== HERO / BANNER ====== */
-  .hero{
-    position:relative; border-radius:22px; overflow:hidden;
-    height:280px; margin:18px 0; display:grid; place-items:center;
-    background:
-      linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
-      radial-gradient(1000px 600px at -10% 120%,rgba(31,182,255,.20),transparent 60%),
-      radial-gradient(900px 500px at 110% -10%,rgba(139,92,246,.25),transparent 60%),
-      var(--bg);
-    background-size:cover; background-position:center;
-  }
-  .hero.has-image{
-    background-image:
-      linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
-      var(--hero-image);
-  }
-  .hero-inner{ text-align:center; padding:0 16px }
-  .neon{
-    font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
-    font-size: clamp(28px, 5vw, 54px);
-    color: var(--neon);
-    text-shadow:
-      0 0 6px  rgba(31,182,255,.9),
-      0 0 16px rgba(31,182,255,.7),
-      0 0 36px rgba(31,182,255,.55),
-      0 0 64px rgba(31,182,255,.35);
-    letter-spacing:.5px; margin:0 0 6px;
-  }
-  .neon-sub{
-    color:#cfe9ff; font-weight:700; letter-spacing:2px; text-transform:uppercase;
-    text-shadow: 0 0 10px rgba(31,182,255,.35);
-  }
-
   header.card{display:flex;gap:16px;align-items:center;justify-content:space-between}
   .brand{display:flex;align-items:center;gap:12px}
   .brand .logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#6a5cf6,#24d3ee)}
-  .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:18px}
-  @media (max-width:950px){.grid{grid-template-columns:1fr}}
   .title{margin:0;font-size:28px}
   .muted{color:var(--muted)}
   .tag{font-size:12px;border:1px solid rgba(255,255,255,.2);padding:5px 10px;border-radius:999px}
+
+  .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:18px}
+  @media (max-width:950px){.grid{grid-template-columns:1fr}}
+
   .btn{cursor:pointer;border:none;padding:11px 14px;border-radius:12px;background:rgba(255,255,255,.06);color:var(--text);font-weight:700;border:1px solid rgba(255,255,255,.12)}
   .btn.primary{background:linear-gradient(180deg,var(--a),var(--a2));border:none;box-shadow:0 10px 24px rgba(139,92,246,.35)}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -81,13 +49,14 @@
   #emoji{max-height:120px;overflow:auto;display:grid;grid-template-columns:repeat(10, 1fr);gap:6px}
   #emoji button{background:#1a2236;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:6px;cursor:pointer}
 
-  /* Tipografía con soporte emoji (por si PNG falla) */
+  /* Pila de fuentes con soporte emoji (si no hay color, se verá en B/N, pero nunca roto) */
   .emoji-font, #emoji button, #chatLog, #msg, #nick {
-    font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji","EmojiOne Color",
+    font-family:
+      "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",
       system-ui,"Segoe UI",Roboto,Arial,sans-serif;
     font-size:16px; line-height:1.15;
   }
-  #emoji button{font-size:18px}
+
   ol#plist{padding-left:22px;max-height:220px;overflow:auto}
   footer{color:var(--muted);text-align:center;margin-top:16px}
 
@@ -102,26 +71,17 @@
   .chips{display:flex;flex-wrap:wrap;gap:10px}
   .chip{background:var(--chip);border:1px solid rgba(36,211,238,.35);color:#cfefff;padding:6px 12px;border-radius:999px}
 </style>
-<!-- Twemoji (parser JS) -->
-<script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- BANNER / PORTADA -->
-  <section id="hero" class="hero">
-    <div class="hero-inner">
-      <h1 class="neon">RADIO IVANPLAY ESPAÑA</h1>
-      <div class="neon-sub">24/7 MUSIC EXPERIENCE</div>
-    </div>
-  </section>
-
+  <!-- ENCABEZADO (sin banner). Con reloj de Madrid -->
   <header class="card">
     <div class="brand">
       <div class="logo">🎧</div>
       <div>
-        <h2 class="title" style="margin:0">Mi Radio Online</h2>
-        <div class="muted">Emite tu música en directo • 24/7</div>
+        <h1 class="title" style="margin:0">RADIO IVANPLAY ESPAÑA</h1>
+        <div class="muted">AutoDJ 24/7 • Chat interno • <span id="clock" title="Hora de Madrid (Europe/Madrid)"></span></div>
       </div>
     </div>
     <div class="tag">EN VIVO</div>
@@ -175,7 +135,10 @@
         <textarea id="msg" rows="2" placeholder="Escribe un mensaje…" class="emoji-font"></textarea>
         <button id="send" class="btn primary">Enviar</button>
       </div>
+
+      <!-- Selector de emojis (UNICODE texto, sin imágenes externas) -->
       <div id="emoji" style="margin-top:6px" class="emoji-font"></div>
+
       <p class="muted">Chat interno en esta página. El historial se guarda en tu navegador.</p>
     </div>
   </section>
@@ -202,7 +165,6 @@ const CONFIG = {
   STATION_NAME: "RADIO IVANPLAY ESPAÑA",
   PLAYLIST_JSON_URL: "/music/playlist.json",
   SHUFFLE: true,
-  BANNER_URL: "/assets/banner.jpg",
   SOCIALS: [
     {name:"YouTube", icon:"▶️", url:"https://www.youtube.com/@ivanplays8012"},
     {name:"Twitch",  icon:"🎮", url:"https://www.twitch.tv/ivanplays_offi"},
@@ -216,13 +178,17 @@ const CONFIG = {
 const $ = s => document.querySelector(s);
 document.getElementById("year").textContent = new Date().getFullYear();
 
-/* ====== HERO IMAGE ====== */
-(function(){
-  const hero = document.getElementById("hero");
-  if(CONFIG.BANNER_URL){
-    hero.style.setProperty("--hero-image", `url('${CONFIG.BANNER_URL}')`);
-    hero.classList.add("has-image");
+/* ====== RELOJ EUROPE/MADRID ====== */
+(function clock(){
+  const el = $("#clock");
+  function tick(){
+    const fmt = new Intl.DateTimeFormat('es-ES',{
+      timeZone:'Europe/Madrid', hour:'2-digit', minute:'2-digit', second:'2-digit',
+      weekday:'short', day:'2-digit', month:'short'
+    });
+    el.textContent = fmt.format(new Date()) + " (Madrid)";
   }
+  tick(); setInterval(tick, 1000);
 })();
 
 /* ====== Helpers ====== */
@@ -261,7 +227,7 @@ async function loadPlaylist(){
     const arr = await r.json();
     let files = Array.isArray(arr) ? arr.filter(isAudio) : [];
     if(!files.length){ setStatus("playlist.json está vacío o mal formateado", false); return; }
-    playlist = files.map(u=>enc(u));  // normaliza y codifica
+    playlist = files.map(u=>enc(u));
     if(CONFIG.SHUFFLE && playlist.length>1){
       for(let k=playlist.length-1;k>0;k--){ const j=Math.floor(Math.random()*(k+1)); [playlist[k],playlist[j]]=[playlist[j],playlist[k]]; }
     }
@@ -341,24 +307,17 @@ dlBtn.addEventListener("click", ()=>{
   setTimeout(()=>URL.revokeObjectURL(a.href),1200);
 });
 
-/* ====== CHAT + EMOJIS: picker PNG Twemoji + mensajes PNG ====== */
+/* ====== CHAT + EMOJIS (UNICODE, sin imágenes externas) ====== */
 const log=$("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"), saveNick=$("#saveNick");
 const EMO_UNI="😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
+
 const emojiBox=document.getElementById("emoji");
-function twemojiPng(chr){
-  const cp=Array.from(chr).map(c=>c.codePointAt(0).toString(16)).join("-");
-  return `https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/${cp}.png`;
-}
 function renderEmojiButtons(){
   emojiBox.innerHTML="";
   EMO_UNI.forEach(e=>{
     const b=document.createElement("button");
     b.className="emoji-font";
-    const img=document.createElement("img");
-    img.alt=e; img.width=20; img.height=20; img.decoding="async";
-    img.src=twemojiPng(e);
-    img.onerror=()=>{ b.textContent=e; }; // fallback a texto si falla PNG
-    b.appendChild(img);
+    b.textContent=e; // texto Unicode — nunca icono roto
     b.onclick=()=>{ msg.value += e; msg.focus(); };
     emojiBox.appendChild(b);
   });
@@ -370,15 +329,7 @@ function getNick(){ let n=(nick.value||"").trim(); if(!n){ n=localStorage.getIte
 function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); pushSys("Nick guardado: "+getNick()); }
 saveNick.addEventListener("click", saveNickLS); nick.value=localStorage.getItem("ivanplay_nick")||"";
 function pushSys(t){ append({t:new Date().toLocaleTimeString(),u:"Sistema",m:t,sys:true}); }
-function append(o){
-  const p=document.createElement("div");
-  p.className="msg"+(o.sys?" sys":"");
-  p.textContent=`[${o.t}] ${o.u}: ${o.m}`;
-  log.appendChild(p);
-  log.scrollTop=log.scrollHeight;
-  // Convierte emojis del mensaje a PNG Twemoji
-  try{ twemoji.parse(p,{folder:"72x72",ext:".png"}); }catch{}
-}
+function append(o){ const p=document.createElement("div"); p.className="msg"+(o.sys?" sys":""); p.textContent=`[${o.t}] ${o.u}: ${o.m}`; log.appendChild(p); log.scrollTop=log.scrollHeight; }
 function loadChat(){ try{ (JSON.parse(localStorage.getItem(CH_KEY)||"[]")).slice(-200).forEach(append);}catch{} }
 function store(o){ try{ const a=JSON.parse(localStorage.getItem(CH_KEY)||"[]"); a.push(o); localStorage.setItem(CH_KEY, JSON.stringify(a.slice(-300))); }catch{} }
 function sendMsg(){ const m=(msg.value||"").trim(); if(!m) return; const o={t:new Date().toLocaleTimeString(),u:getNick(),m}; append(o); store(o); msg.value=""; if(bc) bc.postMessage(o); }
