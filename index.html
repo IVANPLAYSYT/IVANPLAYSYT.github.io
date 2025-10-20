@@ -11,13 +11,27 @@
     --a:#8b5cf6; --a2:#5b3dff; --ok:#14f195; --bad:#ff6b6b;
   }
   *{box-sizing:border-box} html,body{height:100%}
-  body{margin:0;background:radial-gradient(1200px 800px at 110% -10%,rgba(139,92,246,.18),transparent),radial-gradient(900px 600px at -10% 120%,rgba(91,61,255,.12),transparent),var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Inter,Arial}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 800px at 110% -10%,rgba(139,92,246,.18),transparent),
+      radial-gradient(900px 600px at -10% 120%,rgba(91,61,255,.12),transparent),
+      var(--bg);
+    color:var(--text);
+    font-family:system-ui,Segoe UI,Roboto,Inter,Arial;
+  }
   .wrap{max-width:1100px;margin:0 auto;padding:22px}
-  .card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  .card{
+    background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));
+    border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,.25)
+  }
   header.card{display:flex;gap:16px;align-items:center;justify-content:space-between}
   .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:18px}
   @media (max-width:950px){.grid{grid-template-columns:1fr}}
-  .title{margin:0;font-size:28px} .muted{color:var(--muted)} .tag{font-size:12px;border:1px solid rgba(255,255,255,.2);padding:5px 10px;border-radius:999px}
+  .title{margin:0;font-size:28px}
+  .muted{color:var(--muted)}
+  .tag{font-size:12px;border:1px solid rgba(255,255,255,.2);padding:5px 10px;border-radius:999px}
   .btn{cursor:pointer;border:none;padding:11px 14px;border-radius:12px;background:rgba(255,255,255,.06);color:var(--text);font-weight:700;border:1px solid rgba(255,255,255,.12)}
   .btn.primary{background:linear-gradient(180deg,var(--a),var(--a2));border:none;box-shadow:0 10px 24px rgba(139,92,246,.35)}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -29,6 +43,22 @@
   .me{color:#d2d9ff} .sys{color:var(--muted);font-style:italic}
   #emoji{max-height:120px;overflow:auto;display:grid;grid-template-columns:repeat(10, 1fr);gap:6px}
   #emoji button{background:#1a2236;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:6px;cursor:pointer}
+
+  /* --- Soporte de emojis (caras + música) --- */
+  .emoji-font,
+  #emoji button,
+  #chatLog,
+  #msg,
+  #nick {
+    font-family:
+      "Apple Color Emoji",
+      "Segoe UI Emoji",
+      "Noto Color Emoji",
+      "EmojiOne Color",
+      system-ui, "Segoe UI", Roboto, Arial, sans-serif;
+    font-size:16px; line-height:1.15;
+  }
+  #emoji button{font-size:18px}
   ol#plist{padding-left:22px;max-height:220px;overflow:auto}
   footer{color:var(--muted);text-align:center;margin-top:16px}
 </style>
@@ -83,15 +113,15 @@
     <div class="card">
       <h2 style="margin:4px 0 10px">Chat</h2>
       <div class="row">
-        <input id="nick" type="text" placeholder="Tu nick" style="max-width:220px">
+        <input id="nick" type="text" placeholder="Tu nick" style="max-width:220px" class="emoji-font">
         <button id="saveNick" class="btn">Guardar</button>
       </div>
-      <div id="chatLog"></div>
+      <div id="chatLog" class="emoji-font"></div>
       <div class="row" style="margin-top:8px">
-        <textarea id="msg" rows="2" placeholder="Escribe un mensaje…"></textarea>
+        <textarea id="msg" rows="2" placeholder="Escribe un mensaje…" class="emoji-font"></textarea>
         <button id="send" class="btn primary">Enviar</button>
       </div>
-      <div id="emoji" style="margin-top:6px"></div>
+      <div id="emoji" style="margin-top:6px" class="emoji-font"></div>
       <p class="muted">Chat interno en esta página. El historial se guarda en tu navegador.</p>
     </div>
   </section>
@@ -220,12 +250,27 @@ dlBtn.addEventListener("click", ()=>{
 
 /* ================ CHAT ================ */
 const log = $("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"), saveNick=$("#saveNick");
-const EMOJIS = "😀😂🤣😊😉😍😘🤩🤔😎😴😇😡😭🙌👏👍👎🔥🎧🎵🎶🎤🎛️🎹🎸🥁🎮💜".split("");
-const emojiBox = $("#emoji");
-EMOJIS.forEach(e=>{ const b=document.createElement("button"); b.textContent=e; b.onclick=()=>{ msg.value += e; msg.focus(); }; emojiBox.appendChild(b); });
+const EMOJIS = "😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
+const emojiBox = document.getElementById("emoji");
+EMOJIS.forEach(e=>{
+  const b=document.createElement("button");
+  b.className="emoji-font";          // << usa fuente con emojis
+  b.textContent=e;
+  b.onclick=()=>{ msg.value += e; msg.focus(); };
+  emojiBox.appendChild(b);
+});
 
-const CH_KEY="ivanplay_chat_v1"; const bc = ("BroadcastChannel" in window)? new BroadcastChannel("ivanplay_chat_v1") : null;
-function getNick(){ let n = (nick.value||"").trim(); if(!n){ n = localStorage.getItem("ivanplay_nick") || ("User"+Math.floor(Math.random()*900+100)); nick.value=n; } return n; }
+const CH_KEY="ivanplay_chat_v1";
+const bc = ("BroadcastChannel" in window)? new BroadcastChannel("ivanplay_chat_v1") : null;
+
+function getNick(){
+  let n = (nick.value||"").trim();
+  if(!n){
+    n = localStorage.getItem("ivanplay_nick") || ("User"+Math.floor(Math.random()*900+100));
+    nick.value = n;
+  }
+  return n;
+}
 function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); pushSys("Nick guardado: "+getNick()); }
 saveNick.addEventListener("click", saveNickLS);
 nick.value = localStorage.getItem("ivanplay_nick") || "";
@@ -234,7 +279,7 @@ function pushSys(t){ append({t:new Date().toLocaleTimeString(), u:"Sistema", m:t
 function append(obj){
   const p=document.createElement("div");
   p.className="msg"+(obj.sys?" sys":"");
-  p.textContent = `[${obj.t}] ${obj.u}: ${obj.m}`;
+  p.textContent=`[${obj.t}] ${obj.u}: ${obj.m}`;
   log.appendChild(p);
   log.scrollTop = log.scrollHeight;
 }
