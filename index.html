@@ -9,6 +9,7 @@
   :root{
     --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
     --a:#8b5cf6; --a2:#5b3dff; --ok:#14f195; --bad:#ff6b6b; --chip:#1b2340;
+    --neon:#1fb6ff; /* azul eléctrico para el neón */
   }
   *{box-sizing:border-box} html,body{height:100%}
   body{
@@ -26,6 +27,40 @@
     border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;
     box-shadow:0 10px 30px rgba(0,0,0,.25)
   }
+
+  /* ====== HERO / BANNER ====== */
+  .hero{
+    position:relative; border-radius:22px; overflow:hidden;
+    height:280px; margin:18px 0; display:grid; place-items:center;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
+      radial-gradient(1000px 600px at -10% 120%,rgba(31,182,255,.20),transparent 60%),
+      radial-gradient(900px 500px at 110% -10%,rgba(139,92,246,.25),transparent 60%),
+      var(--bg);
+    background-size:cover; background-position:center;
+  }
+  .hero.has-image{
+    background-image:
+      linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
+      var(--hero-image);
+  }
+  .hero-inner{ text-align:center; padding:0 16px }
+  .neon{
+    font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif; /* estilo D: metal potente */
+    font-size: clamp(28px, 5vw, 54px);
+    color: var(--neon);
+    text-shadow:
+      0 0 6px  rgba(31,182,255,.9),
+      0 0 16px rgba(31,182,255,.7),
+      0 0 36px rgba(31,182,255,.55),
+      0 0 64px rgba(31,182,255,.35);
+    letter-spacing:.5px; margin:0 0 6px;
+  }
+  .neon-sub{
+    color:#cfe9ff; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+    text-shadow: 0 0 10px rgba(31,182,255,.35);
+  }
+
   header.card{display:flex;gap:16px;align-items:center;justify-content:space-between}
   .brand{display:flex;align-items:center;gap:12px}
   .brand .logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#6a5cf6,#24d3ee)}
@@ -71,11 +106,19 @@
 <body>
 <div class="wrap">
 
+  <!-- BANNER / PORTADA -->
+  <section id="hero" class="hero">
+    <div class="hero-inner">
+      <h1 class="neon">RADIO IVANPLAY ESPAÑA</h1>
+      <div class="neon-sub">24/7 MUSIC EXPERIENCE</div>
+    </div>
+  </section>
+
   <header class="card">
     <div class="brand">
       <div class="logo">🎧</div>
       <div>
-        <h1 class="title">RADIO IVANPLAY ESPAÑA</h1>
+        <h2 class="title" style="margin:0">Mi Radio Online</h2>
         <div class="muted">Emite tu música en directo • 24/7</div>
       </div>
     </div>
@@ -157,6 +200,9 @@ const CONFIG = {
   STATION_NAME: "RADIO IVANPLAY ESPAÑA",
   PLAYLIST_JSON_URL: "/music/playlist.json",
   SHUFFLE: true,
+  /* Si subes /assets/banner.jpg, se usará como imagen del banner.
+     Si lo dejas vacío, se verá el gradiente bonito (fallback). */
+  BANNER_URL: "/assets/banner.jpg",
   SOCIALS: [
     // Rellena cuando tengas los links:
     {name:"YouTube", icon:"▶️", url:""},
@@ -170,6 +216,15 @@ const CONFIG = {
 
 const $ = s => document.querySelector(s);
 document.getElementById("year").textContent = new Date().getFullYear();
+
+/* ====== HERO IMAGE HANDLER ====== */
+(function(){
+  const hero = document.getElementById("hero");
+  if(CONFIG.BANNER_URL){
+    hero.style.setProperty("--hero-image", `url('${CONFIG.BANNER_URL}')`);
+    hero.classList.add("has-image");
+  }
+})();
 
 /* ====== PLAYER ====== */
 const audio=$("#audio"), now=$("#now"), statusEl=$("#status");
