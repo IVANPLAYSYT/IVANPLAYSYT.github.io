@@ -1,65 +1,266 @@
 <!DOCTYPE html>
-<html lang="es"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>RADIO IVANPLAY ESPAÑA - Online 24/7</title>
-<meta name="description" content="Radio online con AutoDJ 24/7 — Música, Gaming y más." />
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RADIO IVANPLAY ESPAÑA — 24/7</title>
+<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada. Chat interno, editor de playlist y estilo morado gaming." />
 <style>
-:root{ --bg:#0b0d12; --card:#121621; --muted:#8a93a5; --text:#e7ecf3; --acc:#8b5cf6; --acc2:#a855f7; --danger:#ff6b6b; --ok:#14f195 }
-*{box-sizing:border-box} html,body{height:100%} body{margin:0;font-family:system-ui,Segoe UI,Roboto,Ubuntu;background:#0b0d12;color:#e7ecf3}
-.container{max-width:1000px;margin:0 auto;padding:24px} .card{background:#121621;border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px}
-.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:20px} @media (max-width:900px){.grid{grid-template-columns:1fr}} .muted{color:#8a93a5}
-.btn{display:inline-flex;gap:8px;align-items:center;padding:10px 14px;border-radius:12px;border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));color:#e7ecf3;font-weight:700;cursor:pointer}
-.btn.primary{background:linear-gradient(180deg,#8b5cf6,#5c3bff);border:none;box-shadow:0 10px 20px rgba(124,92,255,.35)}
-.badge{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 12px;font-size:12px;background:rgba(124,92,255,.14);border:1px solid rgba(124,92,255,.4)}
-.marquee{overflow:hidden;white-space:nowrap;mask:linear-gradient(90deg,transparent,black 8%,black 92%,transparent);} .marquee span{display:inline-block;padding-left:100%;animation:scroll 20s linear infinite}
-input[type=range]{width:100%} .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(25,211,218,.12);border:1px solid rgba(25,211,218,.4);font-size:12px}
-</style></head>
-<body><div class="container">
-<header class="card" style="text-align:center">
-<h1 style="font-size:36px;margin:6px 0 4px">RADIO IVANPLAY ESPAÑA</h1>
-<div class="muted">AutoDJ 24/7 — Música variada</div>
-</header>
-<main class="grid">
-<section id="player" class="card">
-  <div style="display:flex;justify-content:space-between;align-items:center"><h2 style="margin:0">Reproductor</h2><span class="badge">EN VIVO</span></div>
-  <div class="muted" style="font-size:14px">Oyentes: —</div>
-  <div class="marquee" aria-live="polite"><span id="nowPlaying">Listo</span></div>
-  <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:8px">
-    <button id="btnPlay" class="btn primary"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5v14l11-7z"/></svg><span>Reproducir</span></button>
-    <button id="btnStop" class="btn"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6h12v12H6z"/></svg><span>Detener</span></button>
-    <label style="flex:1"><input id="vol" type="range" min="0" max="1" step="0.01" value="0.8"/></label>
-    <audio id="audio" crossorigin="anonymous"></audio>
-    <div id="autoplayGate" style="display:none;gap:10px;align-items:center;background:rgba(0,0,0,.35);padding:8px 10px;border-radius:10px">
-      <span class="muted">Toca para iniciar</span><button id="btnStart" class="btn primary">Iniciar Radio</button>
-    </div>
-  </div>
-</section>
-<section class="card">
-  <h2 style="margin-top:0">Editor de Playlist (JSON)</h2>
-  <p class="muted" id="playlistStatus">Carga y edita <code>/music/playlist.json</code></p>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-    <input id="plInput" type="text" placeholder="/music/track01.mp3" style="flex:1;min-width:220px;padding:10px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0a0d18;color:#e7ecf3">
-    <button id="plAdd" class="btn primary">Añadir</button>
-    <button id="plLoad" class="btn">Cargar</button>
-    <button id="plShuffle" class="btn">Mezclar</button>
-    <button id="plClear" class="btn">Vaciar</button>
-    <button id="plDownload" class="btn">Descargar JSON</button>
-  </div>
-  <ol id="plList" style="margin:0 0 0 18px; display:flex; flex-direction:column; gap:6px"></ol>
-</section>
-</main>
-<footer style="text-align:center;color:#8a93a5;margin-top:20px"><span class="pill">Hecho con ♥ para IVANPLAY</span><br/>© <span id="year"></span></footer>
-</div>
-<script>
-const CONFIG={STREAM_URL:"",STATUS_URL:"",STATION_NAME:"RADIO IVANPLAY ESPAÑA",PLAYLIST:[],PLAYLIST_JSON_URL:"/music/playlist.json",SHUFFLE:true,FALLBACK_TO_STREAM:false,FALLBACK_TO_SAMPLE:true,PREVIEW_MODE:false};
-const audio=document.getElementById('audio'),btnPlay=document.getElementById('btnPlay'),btnStop=document.getElementById('btnStop'),btnStart=document.getElementById('btnStart'),gate=document.getElementById('autoplayGate'),range=document.getElementById('vol'),nowSpan=document.getElementById('nowPlaying'),playlistStatus=document.getElementById('playlistStatus');document.getElementById('year').textContent=new Date().getFullYear();audio.preload='none';audio.volume=parseFloat(range.value||'0.8');
-let playlist=[],currentIndex=0;function isAudioUrl(u){return/\.(mp3|wav|aac|m4a|ogg)$/i.test((u||'').split('?')[0])}function fileName(u){try{const p=new URL(u,location.href);return decodeURIComponent(p.pathname.split('/').pop())}catch{return u}}function setStatus(m,ok){playlistStatus.textContent=m;playlistStatus.style.color=ok?'#14f195':'#ff6b6b'}
-async function safeFetchJson(url){try{const r=await fetch(url,{cache:'no-store'});if(!r.ok){setStatus(`playlist.json no accesible (HTTP ${r.status})`,false);return null}const ct=(r.headers.get('content-type')||'').toLowerCase();if(!ct.includes('application/json')){setStatus('El archivo no es JSON',false);return null}return await r.json()}catch{setStatus('No se pudo cargar playlist.json (ruta o CORS)',false);return null}}
-async function loadPlaylist(){playlist=[];if(CONFIG.PLAYLIST_JSON_URL){const a=await safeFetchJson(CONFIG.PLAYLIST_JSON_URL);if(Array.isArray(a))playlist=a.filter(isAudioUrl)}if(!playlist.length&&Array.isArray(CONFIG.PLAYLIST))playlist=CONFIG.PLAYLIST.filter(isAudioUrl);if(!playlist.length&&CONFIG.FALLBACK_TO_SAMPLE)playlist=["data:audio/mp3;base64,//uQZAAAAAAAAAAAAAAAAAAAAAAAWGinZwAAAA8AAAACAAACcQAA"];if(CONFIG.SHUFFLE&&playlist.length>1){for(let i=playlist.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[playlist[i],playlist[j]]=[playlist[j],playlist[i]]}}setStatus(`Playlist activa (${playlist.length} pistas)`,!!playlist.length)}
-function setTrack(i){if(!playlist.length)return;currentIndex=(i+playlist.length)%playlist.length;const url=playlist[currentIndex];audio.src=url;nowSpan.textContent=`Reproduciendo: ${fileName(url)}`}
-async function playCurrent(){try{if(!audio.src)setTrack(0);await audio.play();btnPlay.classList.remove('primary');btnPlay.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg><span>Pausar</span>';if(gate)gate.style.display='none'}catch{if(gate)gate.style.display='inline-flex'}}
-function nextTrack(){if(!playlist.length)return;setTrack(currentIndex+1);playCurrent()} btnPlay.addEventListener('click',async()=>{if(audio.paused){await playCurrent()}else{audio.pause();btnPlay.classList.add('primary');btnPlay.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5v14l11-7z"/></svg><span>Reproducir</span>'}});btnStop.addEventListener('click',()=>{audio.pause();audio.currentTime=0;btnPlay.classList.add('primary');btnPlay.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18"><path d="M8 5v14l11-7z"/></svg><span>Reproducir</span>'});range.addEventListener('input',()=>audio.volume=parseFloat(range.value||'0.8'));if(btnStart)btnStart.addEventListener('click',()=>playCurrent());audio.addEventListener('ended',nextTrack);audio.addEventListener('error',nextTrack);
-(async()=>{await loadPlaylist();if(playlist.length){setTrack(0)}else{nowSpan.textContent='Sube canciones a /music y edita playlist.json'}})();
+  :root{
+    --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
+    --a:#8b5cf6; --a2:#5b3dff; --ok:#14f195; --bad:#ff6b6b;
+  }
+  *{box-sizing:border-box} html,body{height:100%}
+  body{margin:0;background:radial-gradient(1200px 800px at 110% -10%,rgba(139,92,246,.18),transparent),radial-gradient(900px 600px at -10% 120%,rgba(91,61,255,.12),transparent),var(--bg);color:var(--text);font-family:system-ui,Segoe UI,Roboto,Inter,Arial}
+  .wrap{max-width:1100px;margin:0 auto;padding:22px}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+  header.card{display:flex;gap:16px;align-items:center;justify-content:space-between}
+  .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:18px}
+  @media (max-width:950px){.grid{grid-template-columns:1fr}}
+  .title{margin:0;font-size:28px} .muted{color:var(--muted)} .tag{font-size:12px;border:1px solid rgba(255,255,255,.2);padding:5px 10px;border-radius:999px}
+  .btn{cursor:pointer;border:none;padding:11px 14px;border-radius:12px;background:rgba(255,255,255,.06);color:var(--text);font-weight:700;border:1px solid rgba(255,255,255,.12)}
+  .btn.primary{background:linear-gradient(180deg,var(--a),var(--a2));border:none;box-shadow:0 10px 24px rgba(139,92,246,.35)}
+  .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  input[type="text"],textarea{width:100%;background:#0a0f1c;color:var(--text);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:10px}
+  input[type="range"]{width:180px}
+  #now{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  #chatLog{height:280px;overflow:auto;background:#0a0f1c;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px}
+  .msg{margin:4px 0}
+  .me{color:#d2d9ff} .sys{color:var(--muted);font-style:italic}
+  #emoji{max-height:120px;overflow:auto;display:grid;grid-template-columns:repeat(10, 1fr);gap:6px}
+  #emoji button{background:#1a2236;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:6px;cursor:pointer}
+  ol#plist{padding-left:22px;max-height:220px;overflow:auto}
+  footer{color:var(--muted);text-align:center;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="wrap">
 
-(function(){const input=document.getElementById('plInput'),list=document.getElementById('plList'),add=document.getElementById('plAdd'),load=document.getElementById('plLoad'),shuf=document.getElementById('plShuffle'),clear=document.getElementById('plClear'),dl=document.getElementById('plDownload');if(!input||!list)return;let data=[];function render(){list.innerHTML='';data.forEach((u,i)=>{const li=document.createElement('li');li.style.display='flex';li.style.gap='8px';li.style.alignItems='center';li.innerHTML=`<span class="muted" style="width:28px">${i+1}.</span><code style="flex:1">${u}</code>`;const up=document.createElement('button');up.className='btn';up.textContent='↑';up.onclick=()=>{if(i>0){[data[i-1],data[i]]=[data[i],data[i-1]];render()}};const down=document.createElement('button');down.className='btn';down.textContent='↓';down.onclick=()=>{if(i<data.length-1){[data[i+1],data[i]]=[data[i],data[i+1]];render()}};const del=document.createElement('button');del.className='btn';del.textContent='Eliminar';del.onclick=()=>{data.splice(i,1);render()};li.append(up,down,del);list.appendChild(li)})}
-add.onclick=()=>{const u=(input.value||'').trim();if(!isAudioUrl(u))return alert('Usa rutas tipo /music/archivo.mp3');data.push(u);input.value='';render()};load.onclick=async()=>{const a=await safeFetchJson(CONFIG.PLAYLIST_JSON_URL);if(Array.isArray(a)){data=a.slice();render();setStatus(`Playlist cargada (${data.length})`,true)}};shuf.onclick=()=>{for(let i=data.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[data[i],data[j]]=[data[j],data[i]]}render()};clear.onclick=()=>{if(confirm('¿Vaciar lista?')){data=[];render()}};dl.onclick=()=>{const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='playlist.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1200)};(async()=>{const a=await safeFetchJson(CONFIG.PLAYLIST_JSON_URL);if(Array.isArray(a)){data=a.slice();render()}})()})();</script>
-</body></html>
+  <header class="card">
+    <div>
+      <h1 class="title">RADIO IVANPLAY ESPAÑA</h1>
+      <div class="muted">AutoDJ 24/7 — Música variada (MP3/WAV) · Chat interno</div>
+    </div>
+    <div class="tag">LIVE</div>
+  </header>
+
+  <section class="grid">
+    <!-- PLAYER -->
+    <div class="card" id="playerCard">
+      <h2 style="margin:4px 0 10px">Reproductor</h2>
+      <div class="row">
+        <button id="playBtn" class="btn primary">▶ Reproducir</button>
+        <button id="stopBtn" class="btn">■ Detener</button>
+        <button id="prevBtn" class="btn">⏮</button>
+        <button id="nextBtn" class="btn">⏭</button>
+        <label class="muted" style="display:flex;align-items:center;gap:8px">Volumen
+          <input id="vol" type="range" min="0" max="1" step="0.01" value="0.8">
+        </label>
+      </div>
+      <p class="muted" id="status">Cargando playlist…</p>
+      <p id="now">—</p>
+      <audio id="audio" preload="none" crossorigin="anonymous"></audio>
+      <div id="gate" class="row" style="display:none;margin-top:8px">
+        <span class="muted">Pulsa para iniciar audio</span>
+        <button id="startBtn" class="btn primary">Iniciar</button>
+      </div>
+
+      <hr style="border:0;border-top:1px solid rgba(255,255,255,.1);margin:12px 0">
+
+      <h3 style="margin:0 0 8px">Editor de playlist</h3>
+      <div class="row">
+        <input id="addUrl" type="text" placeholder="/music/tema.mp3" style="flex:1;min-width:220px">
+        <button id="addBtn" class="btn">Añadir</button>
+        <button id="loadBtn" class="btn">Cargar JSON</button>
+        <button id="shuffleBtn" class="btn">Mezclar</button>
+        <button id="downloadBtn" class="btn">Descargar JSON</button>
+      </div>
+      <ol id="plist"></ol>
+      <p class="muted">Sube tus archivos a <code>/music</code> del repositorio y mantén <code>/music/playlist.json</code> actualizado.</p>
+    </div>
+
+    <!-- CHAT -->
+    <div class="card">
+      <h2 style="margin:4px 0 10px">Chat</h2>
+      <div class="row">
+        <input id="nick" type="text" placeholder="Tu nick" style="max-width:220px">
+        <button id="saveNick" class="btn">Guardar</button>
+      </div>
+      <div id="chatLog"></div>
+      <div class="row" style="margin-top:8px">
+        <textarea id="msg" rows="2" placeholder="Escribe un mensaje…"></textarea>
+        <button id="send" class="btn primary">Enviar</button>
+      </div>
+      <div id="emoji" style="margin-top:6px"></div>
+      <p class="muted">Chat interno en esta página. El historial se guarda en tu navegador.</p>
+    </div>
+  </section>
+
+  <footer>© <span id="year"></span> RADIO IVANPLAY · Hecho con ♥</footer>
+</div>
+
+<script>
+/* ================= CONFIG ================= */
+const CONFIG = {
+  STATION_NAME: "RADIO IVANPLAY ESPAÑA",
+  PLAYLIST_JSON_URL: "/music/playlist.json",   // ← aquí vive tu JSON
+  SHUFFLE: true,                               // modo aleatorio
+};
+/* ========================================== */
+
+const $ = s => document.querySelector(s);
+const audio = $("#audio");
+const now = $("#now");
+const statusEl = $("#status");
+const playBtn = $("#playBtn");
+const stopBtn = $("#stopBtn");
+const prevBtn = $("#prevBtn");
+const nextBtn = $("#nextBtn");
+const vol = $("#vol");
+const gate = $("#gate");
+const startBtn = $("#startBtn");
+document.getElementById("year").textContent = new Date().getFullYear();
+
+let playlist = [];
+let i = 0;
+
+function isAudio(u){ return /\.(mp3|wav|aac|m4a|ogg)$/i.test((u||'').split('?')[0]); }
+function baseName(u){ try{const p=new URL(u,location.href); return decodeURIComponent(p.pathname.split('/').pop());}catch{return u;} }
+function setStatus(msg, ok){ statusEl.textContent = msg; statusEl.style.color = ok ? "#14f195" : "#ff7777"; }
+
+async function loadPlaylist(){
+  try{
+    const r = await fetch(CONFIG.PLAYLIST_JSON_URL, {cache:"no-store"});
+    if(!r.ok){ setStatus("No se pudo cargar playlist.json ("+r.status+")", false); return; }
+    const arr = await r.json();
+    const files = Array.isArray(arr) ? arr.filter(isAudio) : [];
+    if(!files.length){ setStatus("playlist.json está vacío o mal formateado", false); return; }
+    playlist = files.slice();
+    if(CONFIG.SHUFFLE && playlist.length>1){
+      for(let k=playlist.length-1;k>0;k--){ const j=Math.floor(Math.random()*(k+1)); [playlist[k],playlist[j]]=[playlist[j],playlist[k]]; }
+    }
+    i = 0;
+    setStatus(`Playlist cargada (${playlist.length} pistas)`, true);
+    renderPlEditor();
+    setTrack(i);
+  }catch(e){
+    setStatus("Error cargando playlist.json", false);
+  }
+}
+
+function setTrack(idx){
+  if(!playlist.length) return;
+  i = (idx + playlist.length) % playlist.length;
+  const url = playlist[i];
+  audio.src = url;
+  now.textContent = "Reproduciendo: " + baseName(url);
+}
+
+async function play(){
+  try{
+    if(!audio.src) setTrack(0);
+    await audio.play();
+    gate.style.display = "none";
+    playBtn.textContent = "⏸ Pausar";
+    playBtn.classList.remove("primary");
+  }catch{
+    gate.style.display = "flex";
+  }
+}
+function pause(){
+  audio.pause();
+  playBtn.textContent = "▶ Reproducir";
+  playBtn.classList.add("primary");
+}
+
+function next(){ if(!playlist.length) return; setTrack(i+1); play(); }
+function prev(){ if(!playlist.length) return; setTrack(i-1); play(); }
+
+playBtn.addEventListener("click", ()=> audio.paused ? play() : pause());
+stopBtn.addEventListener("click", ()=>{ audio.pause(); audio.currentTime=0; playBtn.textContent="▶ Reproducir"; playBtn.classList.add("primary"); });
+prevBtn.addEventListener("click", prev);
+nextBtn.addEventListener("click", next);
+startBtn.addEventListener("click", play);
+vol.addEventListener("input", ()=> audio.volume = parseFloat(vol.value || "0.8"));
+audio.volume = parseFloat(vol.value || "0.8");
+audio.addEventListener("ended", next);
+audio.addEventListener("error", next);
+
+loadPlaylist();
+
+/* ====== Editor simple de playlist ====== */
+const addUrl = $("#addUrl"), addBtn = $("#addBtn"), loadBtn = $("#loadBtn"), shuffleBtn=$("#shuffleBtn"), dlBtn=$("#downloadBtn"), plist=$("#plist");
+function renderPlEditor(){
+  plist.innerHTML = "";
+  playlist.forEach((u,idx)=>{
+    const li = document.createElement("li");
+    li.className = "row";
+    const code = document.createElement("code"); code.textContent = u; code.style.flex="1";
+    const del = document.createElement("button"); del.className="btn"; del.textContent="Eliminar";
+    del.onclick = ()=>{ playlist.splice(idx,1); renderPlEditor(); };
+    li.append(code, del);
+    plist.appendChild(li);
+  });
+}
+addBtn.addEventListener("click", ()=>{
+  const u = (addUrl.value||"").trim();
+  if(!isAudio(u)) return alert("Usa rutas como /music/tuarchivo.mp3 o .wav");
+  playlist.push(u); addUrl.value=""; renderPlEditor();
+});
+loadBtn.addEventListener("click", loadPlaylist);
+shuffleBtn.addEventListener("click", ()=>{
+  for(let k=playlist.length-1;k>0;k--){ const j=Math.floor(Math.random()*(k+1)); [playlist[k],playlist[j]]=[playlist[j],playlist[k]]; }
+  renderPlEditor();
+});
+dlBtn.addEventListener("click", ()=>{
+  const blob = new Blob([JSON.stringify(playlist, null, 2)], {type:"application/json"});
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "playlist.json"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1200);
+});
+
+/* ================ CHAT ================ */
+const log = $("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"), saveNick=$("#saveNick");
+const EMOJIS = "😀😂🤣😊😉😍😘🤩🤔😎😴😇😡😭🙌👏👍👎🔥🎧🎵🎶🎤🎛️🎹🎸🥁🎮💜".split("");
+const emojiBox = $("#emoji");
+EMOJIS.forEach(e=>{ const b=document.createElement("button"); b.textContent=e; b.onclick=()=>{ msg.value += e; msg.focus(); }; emojiBox.appendChild(b); });
+
+const CH_KEY="ivanplay_chat_v1"; const bc = ("BroadcastChannel" in window)? new BroadcastChannel("ivanplay_chat_v1") : null;
+function getNick(){ let n = (nick.value||"").trim(); if(!n){ n = localStorage.getItem("ivanplay_nick") || ("User"+Math.floor(Math.random()*900+100)); nick.value=n; } return n; }
+function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); pushSys("Nick guardado: "+getNick()); }
+saveNick.addEventListener("click", saveNickLS);
+nick.value = localStorage.getItem("ivanplay_nick") || "";
+
+function pushSys(t){ append({t:new Date().toLocaleTimeString(), u:"Sistema", m:t, sys:true}); }
+function append(obj){
+  const p=document.createElement("div");
+  p.className="msg"+(obj.sys?" sys":"");
+  p.textContent = `[${obj.t}] ${obj.u}: ${obj.m}`;
+  log.appendChild(p);
+  log.scrollTop = log.scrollHeight;
+}
+function loadChat(){
+  try{
+    const arr = JSON.parse(localStorage.getItem(CH_KEY)||"[]");
+    arr.slice(-200).forEach(append);
+  }catch{}
+}
+function store(obj){
+  try{
+    const arr = JSON.parse(localStorage.getItem(CH_KEY)||"[]");
+    arr.push(obj); localStorage.setItem(CH_KEY, JSON.stringify(arr.slice(-300)));
+  }catch{}
+}
+function sendMsg(){
+  const m=(msg.value||"").trim(); if(!m) return;
+  const obj={t:new Date().toLocaleTimeString(), u:getNick(), m};
+  append(obj); store(obj); msg.value="";
+  if(bc) bc.postMessage(obj);
+}
+send.addEventListener("click", sendMsg);
+msg.addEventListener("keydown", e=>{ if(e.key==="Enter" && (e.ctrlKey||e.metaKey)) sendMsg(); });
+if(bc) bc.onmessage = ev => { if(ev && ev.data) append(ev.data); };
+loadChat(); pushSys("Bienvenido al chat de RADIO IVANPLAY. Respeta a los demás 🙂");
+
+</script>
+</body>
+</html>
