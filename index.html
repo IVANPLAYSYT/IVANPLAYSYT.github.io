@@ -4,11 +4,12 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>RADIO IVANPLAY ESPAÑA — 24/7</title>
-<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada. Chat interno, editor de playlist y estilo morado gaming." />
+<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada. Chat interno y estilo morado gaming." />
 <style>
   :root{
     --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
     --a:#8b5cf6; --a2:#5b3dff; --ok:#14f195; --bad:#ff6b6b; --chip:#1b2340;
+    --neon:#1fb6ff;
   }
   *{box-sizing:border-box} html,body{height:100%}
   body{
@@ -25,6 +26,38 @@
     background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));
     border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;
     box-shadow:0 10px 30px rgba(0,0,0,.25)
+  }
+
+  /* ====== BANNER (HERO) ====== */
+  .hero{
+    position:relative; border-radius:22px; overflow:hidden;
+    height:280px; margin:18px 0; display:grid; place-items:center;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
+      radial-gradient(1000px 600px at -10% 120%,rgba(31,182,255,.20),transparent 60%),
+      radial-gradient(900px 500px at 110% -10%,rgba(139,92,246,.25),transparent 60%),
+      var(--bg);
+    background-size:cover; background-position:center;
+  }
+  .hero.has-image{
+    background-image:
+      linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
+      var(--hero-image);
+  }
+  .hero-inner{ text-align:center; padding:0 16px }
+  .neon{
+    font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
+    font-size: clamp(28px, 5vw, 54px);
+    color: var(--neon);
+    text-shadow:
+      0 0 6px  rgba(31,182,255,.9),
+      0 0 16px rgba(31,182,255,.7),
+      0 0 36px rgba(31,182,255,.55),
+      0 0 64px rgba(31,182,255,.35);
+    letter-spacing:.5px; margin:0 0 6px;
+  }
+  .neon-sub{
+    color:#cfe9ff; font-weight:700; letter-spacing:2px; text-transform:uppercase;
   }
 
   header.card{display:flex;gap:16px;align-items:center;justify-content:space-between}
@@ -49,7 +82,7 @@
   #emoji{max-height:120px;overflow:auto;display:grid;grid-template-columns:repeat(10, 1fr);gap:6px}
   #emoji button{background:#1a2236;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:6px;cursor:pointer}
 
-  /* Pila de fuentes con soporte emoji (si no hay color, se verá en B/N, pero nunca roto) */
+  /* Pila de fuentes con soporte emoji */
   .emoji-font, #emoji button, #chatLog, #msg, #nick {
     font-family:
       "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",
@@ -57,7 +90,7 @@
     font-size:16px; line-height:1.15;
   }
 
-  ol#plist{padding-left:22px;max-height:220px;overflow:auto}
+  ol#plist{padding-left:22px;max-height:220px;overflow:auto;display:none}
   footer{color:var(--muted);text-align:center;margin-top:16px}
 
   /* Socials + chips */
@@ -75,12 +108,20 @@
 <body>
 <div class="wrap">
 
-  <!-- ENCABEZADO (sin banner). Con reloj de Madrid -->
+  <!-- ✅ BANNER RESTAURADO -->
+  <section id="hero" class="hero">
+    <div class="hero-inner">
+      <h1 class="neon">RADIO IVANPLAY ESPAÑA</h1>
+      <div class="neon-sub">24/7 MUSIC EXPERIENCE</div>
+    </div>
+  </section>
+
+  <!-- Encabezado con hora de Madrid -->
   <header class="card">
     <div class="brand">
       <div class="logo">🎧</div>
       <div>
-        <h1 class="title" style="margin:0">RADIO IVANPLAY ESPAÑA</h1>
+        <h2 class="title" style="margin:0">Mi Radio Online</h2>
         <div class="muted">AutoDJ 24/7 • Chat interno • <span id="clock" title="Hora de Madrid (Europe/Madrid)"></span></div>
       </div>
     </div>
@@ -89,7 +130,7 @@
 
   <!-- BLOQUE REPRODUCTOR + CHAT -->
   <section class="grid">
-    <!-- PLAYER -->
+    <!-- PLAYER (sin editor público) -->
     <div class="card" id="playerCard">
       <h2 style="margin:4px 0 10px">Reproductor en vivo</h2>
       <div class="row">
@@ -108,19 +149,6 @@
         <span class="muted">Pulsa para iniciar audio</span>
         <button id="startBtn" class="btn primary">Iniciar</button>
       </div>
-
-      <hr style="border:0;border-top:1px solid rgba(255,255,255,.1);margin:12px 0">
-
-      <h3 style="margin:0 0 8px">Editor de playlist</h3>
-      <div class="row">
-        <input id="addUrl" type="text" placeholder="/music/tema.mp3" style="flex:1;min-width:220px">
-        <button id="addBtn" class="btn">Añadir</button>
-        <button id="loadBtn" class="btn">Cargar JSON</button>
-        <button id="shuffleBtn" class="btn">Mezclar</button>
-        <button id="downloadBtn" class="btn">Descargar JSON</button>
-      </div>
-      <ol id="plist"></ol>
-      <p class="muted">Sube tus archivos a <code>/music</code> del repositorio y mantén <code>/music/playlist.json</code> actualizado.</p>
     </div>
 
     <!-- CHAT -->
@@ -135,10 +163,8 @@
         <textarea id="msg" rows="2" placeholder="Escribe un mensaje…" class="emoji-font"></textarea>
         <button id="send" class="btn primary">Enviar</button>
       </div>
-
-      <!-- Selector de emojis (UNICODE texto, sin imágenes externas) -->
+      <!-- Selector de emojis en texto (Unicode) -->
       <div id="emoji" style="margin-top:6px" class="emoji-font"></div>
-
       <p class="muted">Chat interno en esta página. El historial se guarda en tu navegador.</p>
     </div>
   </section>
@@ -160,11 +186,11 @@
 </div>
 
 <script>
-/* ================= CONFIG ================= */
+/* =============== CONFIG =============== */
 const CONFIG = {
-  STATION_NAME: "RADIO IVANPLAY ESPAÑA",
   PLAYLIST_JSON_URL: "/music/playlist.json",
   SHUFFLE: true,
+  BANNER_URL: "/assets/banner.jpg", // Súbela si quieres usar imagen real
   SOCIALS: [
     {name:"YouTube", icon:"▶️", url:"https://www.youtube.com/@ivanplays8012"},
     {name:"Twitch",  icon:"🎮", url:"https://www.twitch.tv/ivanplays_offi"},
@@ -173,12 +199,21 @@ const CONFIG = {
   ],
   GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"]
 };
-/* ========================================== */
+/* ===================================== */
 
 const $ = s => document.querySelector(s);
 document.getElementById("year").textContent = new Date().getFullYear();
 
-/* ====== RELOJ EUROPE/MADRID ====== */
+/* HERO image si existe */
+(function(){
+  const hero = document.getElementById("hero");
+  if(CONFIG.BANNER_URL){
+    hero.style.setProperty("--hero-image", `url('${CONFIG.BANNER_URL}')`);
+    hero.classList.add("has-image");
+  }
+})();
+
+/* Reloj Madrid */
 (function clock(){
   const el = $("#clock");
   function tick(){
@@ -191,7 +226,7 @@ document.getElementById("year").textContent = new Date().getFullYear();
   tick(); setInterval(tick, 1000);
 })();
 
-/* ====== Helpers ====== */
+/* Helpers */
 function baseName(u){ try{const p=new URL(u,location.href); return decodeURIComponent(p.pathname.split('/').pop());}catch{return u;} }
 function setStatus(msg, ok){ const el=$("#status"); el.textContent = msg; el.style.color = ok ? "#14f195" : "#ff7777"; }
 function enc(u){
@@ -214,7 +249,7 @@ function showErrorTrack(url, detail){
   }
 }
 
-/* ====== PLAYER ====== */
+/* PLAYER (sin editor) */
 const audio=$("#audio"), now=$("#now"), playBtn=$("#playBtn"), stopBtn=$("#stopBtn"), prevBtn=$("#prevBtn"), nextBtn=$("#nextBtn"), vol=$("#vol"), gate=$("#gate"), startBtn=$("#startBtn");
 let playlist=[], i=0;
 
@@ -233,7 +268,6 @@ async function loadPlaylist(){
     }
     i = 0;
     setStatus(`Playlist cargada (${playlist.length} pistas)`, true);
-    renderPlEditor();
     setTrack(i);
   }catch{ setStatus("Error cargando playlist.json", false); }
 }
@@ -279,56 +313,16 @@ audio.addEventListener("error", ()=>{
 });
 loadPlaylist();
 
-/* ====== EDITOR PLAYLIST ====== */
-const addUrl=$("#addUrl"), addBtn=$("#addBtn"), loadBtn=$("#loadBtn"), shuffleBtn=$("#shuffleBtn"), dlBtn=$("#downloadBtn"), plist=$("#plist");
-function renderPlEditor(){
-  plist.innerHTML = "";
-  playlist.forEach((u,idx)=>{
-    const li=document.createElement("li"); li.className="row";
-    const code=document.createElement("code"); code.textContent=u; code.style.flex="1";
-    const del=document.createElement("button"); del.className="btn"; del.textContent="Eliminar";
-    del.onclick=()=>{ playlist.splice(idx,1); renderPlEditor(); };
-    li.append(code,del); plist.appendChild(li);
-  });
-}
-addBtn.addEventListener("click", ()=>{
-  const u=(addUrl.value||"").trim();
-  if(!isAudio(u)) return alert("Usa rutas como /music/tuarchivo.mp3");
-  playlist.push(enc(u)); addUrl.value=""; renderPlEditor();
-});
-loadBtn.addEventListener("click", loadPlaylist);
-shuffleBtn.addEventListener("click", ()=>{
-  for(let k=playlist.length-1;k>0;k--){ const j=Math.floor(Math.random()*(k+1)); [playlist[k],playlist[j]]=[playlist[j],playlist[k]]; }
-  renderPlEditor();
-});
-dlBtn.addEventListener("click", ()=>{
-  const blob = new Blob([JSON.stringify(playlist, null, 2)], {type:"application/json"});
-  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="playlist.json"; a.click();
-  setTimeout(()=>URL.revokeObjectURL(a.href),1200);
-});
-
-/* ====== CHAT + EMOJIS (UNICODE, sin imágenes externas) ====== */
+/* CHAT + EMOJIS (texto Unicode) */
 const log=$("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"), saveNick=$("#saveNick");
 const EMO_UNI="😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
-
 const emojiBox=document.getElementById("emoji");
-function renderEmojiButtons(){
-  emojiBox.innerHTML="";
-  EMO_UNI.forEach(e=>{
-    const b=document.createElement("button");
-    b.className="emoji-font";
-    b.textContent=e; // texto Unicode — nunca icono roto
-    b.onclick=()=>{ msg.value += e; msg.focus(); };
-    emojiBox.appendChild(b);
-  });
-}
+function renderEmojiButtons(){ emojiBox.innerHTML=""; EMO_UNI.forEach(e=>{ const b=document.createElement("button"); b.className="emoji-font"; b.textContent=e; b.onclick=()=>{ msg.value+=e; msg.focus(); }; emojiBox.appendChild(b); }); }
 renderEmojiButtons();
-
 const CH_KEY="ivanplay_chat_v1"; const bc=("BroadcastChannel" in window)? new BroadcastChannel("ivanplay_chat_v1"):null;
 function getNick(){ let n=(nick.value||"").trim(); if(!n){ n=localStorage.getItem("ivanplay_nick")||("User"+Math.floor(Math.random()*900+100)); nick.value=n; } return n; }
-function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); pushSys("Nick guardado: "+getNick()); }
+function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Nick guardado: "+getNick(),sys:true}); }
 saveNick.addEventListener("click", saveNickLS); nick.value=localStorage.getItem("ivanplay_nick")||"";
-function pushSys(t){ append({t:new Date().toLocaleTimeString(),u:"Sistema",m:t,sys:true}); }
 function append(o){ const p=document.createElement("div"); p.className="msg"+(o.sys?" sys":""); p.textContent=`[${o.t}] ${o.u}: ${o.m}`; log.appendChild(p); log.scrollTop=log.scrollHeight; }
 function loadChat(){ try{ (JSON.parse(localStorage.getItem(CH_KEY)||"[]")).slice(-200).forEach(append);}catch{} }
 function store(o){ try{ const a=JSON.parse(localStorage.getItem(CH_KEY)||"[]"); a.push(o); localStorage.setItem(CH_KEY, JSON.stringify(a.slice(-300))); }catch{} }
@@ -336,9 +330,9 @@ function sendMsg(){ const m=(msg.value||"").trim(); if(!m) return; const o={t:ne
 send.addEventListener("click", sendMsg);
 msg.addEventListener("keydown", e=>{ if(e.key==="Enter" && (e.ctrlKey||e.metaKey)) sendMsg(); });
 if(bc) bc.onmessage=ev=>{ if(ev&&ev.data) append(ev.data); };
-loadChat(); pushSys("Bienvenido al chat de RADIO IVANPLAY. Respeta a los demás 🙂");
+loadChat(); append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Bienvenido al chat de RADIO IVANPLAY 🙂",sys:true});
 
-/* ====== SOCIALS + GENRES ====== */
+/* SOCIALS + GÉNEROS */
 const socials=$("#socials"), chips=$("#chips");
 CONFIG.SOCIALS.forEach(s=>{
   const hasLink = !!(s.url && s.url.trim());
