@@ -15,7 +15,7 @@
     img-src 'self' data:;
     font-src 'self' data:;
     media-src 'self';
-    connect-src 'self';
+    connect-src 'self' https://api.countapi.xyz;
     frame-src 'none';
     frame-ancestors 'none';
     base-uri 'none';
@@ -218,6 +218,41 @@
     </div>
   </section>
 
+  <!-- === ESTADÍSTICAS + COMPARTIR === -->
+  <section class="grid" style="margin-top:18px">
+    <div class="card">
+      <h2 style="margin:4px 0 12px">Estadísticas</h2>
+      <div class="row" style="flex-wrap:wrap;gap:14px">
+        <div>
+          <div class="muted">Reproducciones hoy</div>
+          <div id="statToday" style="font-size:22px;font-weight:800">0</div>
+        </div>
+        <div>
+          <div class="muted">Canciones emitidas (este navegador)</div>
+          <div id="statTotalLocal" style="font-size:22px;font-weight:800">0</div>
+        </div>
+        <div>
+          <div class="muted">Visitas totales (opcional)</div>
+          <div id="statVisits" style="font-size:22px;font-weight:800">—</div>
+        </div>
+      </div>
+      <p class="muted" style="margin-top:8px">
+        * “Visitas totales” usa CountAPI (puedes desactivarlo).
+      </p>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:4px 0 12px">Compartir la radio</h2>
+      <div class="row" style="gap:10px;flex-wrap:wrap">
+        <button id="shareBtn" class="btn primary">🔗 Compartir</button>
+        <a class="btn" id="shareWa" target="_blank" rel="noopener">WhatsApp</a>
+        <a class="btn" id="shareTg" target="_blank" rel="noopener">Telegram</a>
+        <a class="btn" id="shareTw" target="_blank" rel="noopener">Twitter/X</a>
+      </div>
+      <p class="muted" style="margin-top:8px">¡Ayúdanos compartiendo <code>https://ivanplaysyt.github.io/</code>!</p>
+    </div>
+  </section>
+
   <footer>© <span id="year"></span> RADIO IVANPLAY · Hecho con ♥</footer>
 </div>
 
@@ -235,7 +270,13 @@ const CONFIG = {
     {name:"Twitch",    icon:"🎮", url:"https://www.twitch.tv/ivanplays_offi"},
     {name:"SoundCloud",icon:"☁️", url:"https://soundcloud.com/ivanzombiz"}
   ],
-  GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"]
+  GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"],
+
+  // === NUEVO ===
+  JINGLE_URLS: [ "/music/ads/IVANPLAY-Comparte-la-Radio.mp3" ],
+  JINGLE_SCHEDULE: "hourly", // "hourly" o lista ["12:00","18:30"]
+  COUNTAPI_NAMESPACE: "ivanplayradio",
+  COUNTAPI_KEY: "visitas_totales"
 };
 
 /* Emojis exclusivos (globales) */
@@ -502,6 +543,123 @@ if (top !== self) { try { top.location = self.location; } catch(_){} }
 document.addEventListener("dragstart", e => { if (e.target.closest("img,a,button")) e.preventDefault(); });
 // Desactivar menú contextual (opcional, comenta si no lo quieres)
 document.addEventListener("contextmenu", e => e.preventDefault());
+
+/* ================== ESTADÍSTICAS ================== */
+const LS_TODAY   = "ivanplay_stats_today";
+const LS_TODAY_D = "ivanplay_stats_today_date";
+const LS_TOTAL   = "ivanplay_stats_total";
+function statResetIfDayChanged(){
+  const today = new Date().toISOString().slice(0,10);
+  const saved = localStorage.getItem(LS_TODAY_D);
+  if (saved !== today){
+    localStorage.setItem(LS_TODAY_D, today);
+    localStorage.setItem(LS_TODAY, "0");
+  }
+}
+function statIncToday(){
+  statResetIfDayChanged();
+  let v = parseInt(localStorage.getItem(LS_TODAY)||"0",10)+1;
+  localStorage.setItem(LS_TODAY, String(v));
+  updateStatsUI();
+}
+function statIncTotal(){
+  let v = parseInt(localStorage.getItem(LS_TOTAL)||"0",10)+1;
+  localStorage.setItem(LS_TOTAL, String(v));
+  updateStatsUI();
+}
+function updateStatsUI(){
+  const t = parseInt(localStorage.getItem(LS_TODAY)||"0",10);
+  const g = parseInt(localStorage.getItem(LS_TOTAL)||"0",10);
+  const $t = document.getElementById("statToday");
+  const $g = document.getElementById("statTotalLocal");
+  if($t) $t.textContent = t;
+  if($g) $g.textContent = g;
+}
+statResetIfDayChanged(); updateStatsUI();
+
+async function fetchVisits(){
+  const ns = CONFIG.COUNTAPI_NAMESPACE||"";
+  const key = CONFIG.COUNTAPI_KEY||"";
+  const el = document.getElementById("statVisits");
+  if (!el) return;
+  if (!ns || !key){ el.textContent = "—"; return; }
+  try{
+    const url = `https://api.countapi.xyz/hit/${encodeURIComponent(ns)}/${encodeURIComponent(key)}`;
+    const r = await fetch(url, {cache:"no-store"});
+    const j = await r.json();
+    el.textContent = (j && typeof j.value==="number") ? j.value : "—";
+  }catch{ el.textContent = "—"; }
+}
+fetchVisits();
+
+/* ================== COMPARTIR ================== */
+(function initShare(){
+  const url  = "https://ivanplaysyt.github.io/";
+  const text = "🎧 Radio IVANPLAY — música 24/7. ¡Entra ya!";
+  const title= "Radio IVANPLAY";
+
+  const $btn = document.getElementById("shareBtn");
+  const $wa  = document.getElementById("shareWa");
+  const $tg  = document.getElementById("shareTg");
+  const $tw  = document.getElementById("shareTw");
+
+  if($btn){
+    $btn.onclick = async () =>{
+      if (navigator.share){
+        try{ await navigator.share({title, text, url}); }catch{}
+      }else{
+        try{ await navigator.clipboard.writeText(url); $btn.textContent="Copiado ✅"; setTimeout(()=>{$btn.textContent="🔗 Compartir";},1500);}catch{}
+      }
+    };
+  }
+  if($wa) $wa.href = `https://wa.me/?text=${encodeURIComponent(text+" "+url)}`;
+  if($tg) $tg.href = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+  if($tw) $tw.href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+})();
+
+/* ================== CUÑAS PROGRAMADAS ================== */
+let lastHourFired = null;
+function shouldFireHourly(){
+  if (CONFIG.JINGLE_SCHEDULE === "hourly"){
+    const h = new Date().getHours();
+    if (lastHourFired === h) return false;
+    return (new Date().getMinutes() === 0);
+  }
+  if (Array.isArray(CONFIG.JINGLE_SCHEDULE)){
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,"0");
+    const mm = String(now.getMinutes()).padStart(2,"0");
+    const curr = `${hh}:${mm}`;
+    if (CONFIG.JINGLE_SCHEDULE.includes(curr)){
+      const key = `fired_${curr}_${now.toDateString()}`;
+      if (sessionStorage.getItem(key)) return false;
+      sessionStorage.setItem(key,"1");
+      return true;
+    }
+  }
+  return false;
+}
+function enqueueJingleNext(){
+  if(!Array.isArray(CONFIG.JINGLE_URLS) || !CONFIG.JINGLE_URLS.length) return;
+  const pick = CONFIG.JINGLE_URLS[Math.floor(Math.random()*CONFIG.JINGLE_URLS.length)];
+  if (Array.isArray(playlist) && playlist.length){
+    playlist.splice(i+1, 0, {url: pick, type: "ad"});
+  }
+}
+setInterval(()=>{
+  if (shouldFireHourly()){
+    enqueueJingleNext();
+    lastHourFired = new Date().getHours();
+  }
+}, 20000);
+
+// Estadísticas: incrementa al empezar cada tema (no anuncios)
+audio.addEventListener("playing", ()=>{
+  try{
+    const item = (playlist && playlist[i]) ? playlist[i] : null;
+    if (item && item.type==="music"){ statIncToday(); statIncTotal(); }
+  }catch{}
+});
 </script>
 </body>
 </html>
