@@ -217,7 +217,6 @@ const CUSTOM_EMOJIS = [
 /* ===== EMOJIS SVG LOCALES – FIX FINAL UNA PASADA ===== */
 const EMO_EXT = ".svg";
 const TW_BASE = CONFIG.TW_BASE;
-// ✅ correcto (codepoints completos)
 const EMO_UNI = Array.from("😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸");
 
 function toCodepoints(str){ const out=[]; for(const ch of str){ out.push(ch.codePointAt(0).toString(16).toLowerCase()); } return out.join("-"); }
@@ -228,7 +227,7 @@ function emojiImgTag(chr){
   const ent = toEntity(chr);
   return `<img class="emo" src="${src}" alt="" data-f="${ent}" onerror="this.outerHTML=this.dataset.f">`;
 }
-function escapeForRegex(s){ return s.replace(/([.*+?^${}()|[\]\\\\])/g,"\\$1"); }
+function escapeForRegex(s){ return s.replace(/([.*+?^${}()|[\]\\])/g,"\\$1"); }
 const EMO_REGEX = new RegExp("(?:"+EMO_UNI.map(escapeForRegex).join("|")+")","g");
 
 /* ================== UI generales ================== */
