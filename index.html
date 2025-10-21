@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RADIO IVANPLAY ESPAÑA — 24/7</title>
-<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada. Chat interno, banner épico, publicidad y audio-ads." />
+<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada, chat interno, emojis SVG, publicidad y audio-ads.">
 <style>
   :root{
     --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
@@ -25,7 +25,6 @@
     border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;
     box-shadow:0 10px 30px rgba(0,0,0,.25)
   }
-
   /* ====== BANNER ====== */
   .hero{
     position:relative; border-radius:22px; overflow:hidden;
@@ -52,8 +51,7 @@
       0 0 16px rgba(31,182,255,.7),
       0 0 36px rgba(31,182,255,.55),
       0 0 64px rgba(31,182,255,.35);
-    margin:0 0 6px;
-    letter-spacing:.5px;
+    margin:0 0 6px; letter-spacing:.5px;
   }
   .neon-sub{color:#cfe9ff;font-weight:700;letter-spacing:2px;text-transform:uppercase}
 
@@ -82,7 +80,6 @@
   .emoji-font,#emoji button,#chatLog,#msg,#nick{
     font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;line-height:1.15
   }
-
   footer{color:var(--muted);text-align:center;margin-top:16px}
   .socials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   @media (max-width:580px){.socials{grid-template-columns:1fr}}
@@ -93,9 +90,8 @@
   .soc .txt{display:flex;flex-direction:column;line-height:1.15}
   .chips{display:flex;flex-wrap:wrap;gap:10px}
   .chip{background:var(--chip);border:1px solid rgba(36,211,238,.35);color:#cfefff;padding:6px 12px;border-radius:999px}
-
   /* EMOJIS */
-  .emo { width:20px; height:20px; vertical-align:-3px; }
+  .emo{width:20px;height:20px;vertical-align:-3px}
   .adtag{color:var(--muted);font-size:12px;margin-top:6px;text-align:center}
 </style>
 </head>
@@ -112,7 +108,7 @@
 
   <!-- Publicidad estática: bloque grande debajo del banner -->
   <section class="card" style="margin:12px 0">
-    <a href="https://tu-enlace-del-anunciante.example" target="_blank" rel="noopener" style="display:block;text-align:center">
+    <a href="#" target="_blank" rel="noopener" style="display:block;text-align:center">
       <img src="./assets/ads/banner_top_970x250.jpg" alt="Publicidad" style="max-width:100%;height:auto;border-radius:12px">
     </a>
     <div class="adtag">Publicidad</div>
@@ -171,7 +167,7 @@
 
       <!-- Publicidad estática: bloque en columna chat -->
       <section class="card" style="margin-top:12px;text-align:center">
-        <a href="https://tu-otro-anunciante.example" target="_blank" rel="noopener" style="display:block">
+        <a href="#" target="_blank" rel="noopener" style="display:block">
           <img src="./assets/ads/sidebar_300x250.jpg" alt="Publicidad" style="max-width:100%;height:auto;border-radius:12px">
         </a>
         <div class="adtag">Publicidad</div>
@@ -211,30 +207,31 @@ const CONFIG = {
   ],
   GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"]
 };
-/* Emojis exclusivos (SVG locales) */
+/* Emojis exclusivos SVG */
 const CUSTOM_EMOJIS = [
   { short: ":ivanheadset:", src: "./assets/custom/ivan_headset.svg",   title: "Headset IVANPLAY" },
   { short: ":ivangame:",    src: "./assets/custom/ivan_controller.svg", title: "Gamepad IVANPLAY" }
 ];
 
 /* ===== Emojis locales (SVG) ===== */
-const EMO_EXT = ".svg";                              // SVG ahora
-const TW_BASE = CONFIG.TW_BASE;                      // "./assets/twemoji/"
+const EMO_EXT = ".svg";                       // usamos SVG
+const TW_BASE = CONFIG.TW_BASE;               // "./assets/twemoji/"
 const EMO_UNI = "😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
-function codepoints(chr){ return Array.from(chr).map(c=>c.codePointAt(0).toString(16)).join("-").toLowerCase(); }
+
+function toCodepoints(str){ const out=[]; for(const ch of str) out.push(ch.codePointAt(0).toString(16).toLowerCase()); return out.join("-"); }
+function toEntity(str){ let s=""; for(const ch of str) s+= "&#x"+ch.codePointAt(0).toString(16)+";"; return s; }
+const EMO_MAP = Object.fromEntries(EMO_UNI.map(e=>[e, `${TW_BASE}${toCodepoints(e)}${EMO_EXT}`]));
 function emojiImgTag(chr){
-  const cp = codepoints(chr);
-  const src = `${TW_BASE}${cp}${EMO_EXT}`;
-  return `<img class="emo" alt="${chr}" src="${src}" onerror="this.outerHTML='${chr.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')}'">`;
+  const src = `${TW_BASE}${toCodepoints(chr)}${EMO_EXT}`;
+  const ent = toEntity(chr);
+  return `<img class="emo" alt="${chr}" src="${src}" data-f="${ent}" onerror="this.outerHTML=this.dataset.f">`;
 }
-const EMO_MAP = Object.fromEntries(EMO_UNI.map(e => [e, `${TW_BASE}${codepoints(e)}${EMO_EXT}`]));
 
-/* ============================================ */
-
+/* ================== UI generales ================== */
 const $ = s => document.querySelector(s);
 document.getElementById("year").textContent = new Date().getFullYear();
 
-/* Banner: usa imagen si existe */
+/* Banner */
 (function(){
   const hero = $("#hero");
   if(CONFIG.BANNER_URL){ hero.style.setProperty("--hero-image", `url('${CONFIG.BANNER_URL}')`); hero.classList.add("has-image"); }
@@ -312,91 +309,159 @@ function prev(){ if(!playlist.length) return; setTrack(i-1); play(); }
 async function tryAutoplay(){ try{ await play(); }catch{} }
 
 playBtn.addEventListener("click", ()=> audio.paused ? play() : pause());
-stopBtn.addEventListener("click", ()=>{ audio.pause(); audio.currentTime=0; playBtn.textContent="▶ Reproducir"; playBtn.classList.add("primary"); });
+stopBtn.addEventListener("click", ()=>{
+  audio.pause();
+  audio.currentTime = 0;
+  playBtn.textContent = "▶ Reproducir";
+  playBtn.classList.add("primary");
+});
 prevBtn.addEventListener("click", prev);
 nextBtn.addEventListener("click", next);
 startBtn.addEventListener("click", play);
-vol.addEventListener("input", ()=> audio.volume=parseFloat(vol.value||"0.8"));
-audio.volume=parseFloat(vol.value||"0.8");
+vol.addEventListener("input", ()=> audio.volume = parseFloat(vol.value||"0.8"));
+audio.volume = parseFloat(vol.value||"0.8");
 audio.addEventListener("ended", next);
 audio.addEventListener("error", ()=>{
-  let d=""; try{ if(audio.error){ const m={1:"ABORTED",2:"NETWORK",3:"DECODE",4:"SRC_NOT_SUPPORTED"}; d=m[audio.error.code]||`ERR ${audio.error.code}`; } }catch{}
+  let d = "";
+  try{
+    if(audio.error){
+      const m={1:"ABORTED",2:"NETWORK",3:"DECODE",4:"SRC_NOT_SUPPORTED"};
+      d = m[audio.error.code] || `ERR ${audio.error.code}`;
+    }
+  }catch{}
   setStatus(`Fallo al reproducir: ${baseName(audio.src)}${d? " · "+d:""}`, false);
-  if(!$("#skipErr")){ const b=document.createElement("button"); b.id="skipErr"; b.className="btn"; b.style.marginLeft="8px"; b.textContent="Saltar error y continuar ⏭"; b.onclick=()=>{ b.remove(); next(); }; $("#status").after(b); }
+  if(!$("#skipErr")){
+    const b=document.createElement("button");
+    b.id="skipErr"; b.className="btn"; b.style.marginLeft="8px";
+    b.textContent="Saltar error y continuar ⏭";
+    b.onclick=()=>{ b.remove(); next(); };
+    $("#status").after(b);
+  }
 });
-document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && audio.paused){ tryAutoplay(); } });
-
+document.addEventListener("visibilitychange", ()=>{
+  if(document.visibilityState==="visible" && audio.paused){ tryAutoplay(); }
+});
 loadPlaylist();
 
-/* ===== CHAT + EMOJIS (SVG locales y exclusivos) ===== */
-const log=$("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"), saveNick=$("#saveNick"), emojiBox=$("#emoji");
+/* ================== CHAT (localStorage + BroadcastChannel) ================== */
+const log  = $("#chatLog");
+const send = $("#send");
+const msg  = $("#msg");
+const nick = $("#nick");
+const saveNick = $("#saveNick");
+const emojiBox = $("#emoji");
 
+const CH_KEY = "ivanplay_chat_v1";
+const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("ivanplay_chat_v1") : null;
+
+function getNick(){
+  let n = (nick.value||"").trim();
+  if(!n){
+    n = localStorage.getItem("ivanplay_nick") || ("User"+Math.floor(Math.random()*900+100));
+    nick.value = n;
+  }
+  return n;
+}
+function saveNickLS(){
+  localStorage.setItem("ivanplay_nick", getNick());
+  append({t:new Date().toLocaleTimeString(), u:"Sistema", m:"Nick guardado: "+getNick(), sys:true});
+}
+saveNick.addEventListener("click", saveNickLS);
+nick.value = localStorage.getItem("ivanplay_nick") || "";
+
+/* Render del selector de emojis (SVG locales + exclusivos) */
 function renderEmojiButtons(){
-  if(!emojiBox) return; emojiBox.innerHTML="";
+  if(!emojiBox) return;
+  emojiBox.innerHTML = "";
+
   // Twemoji locales (SVG)
   EMO_UNI.forEach(e=>{
-    const b=document.createElement("button"); b.className="emoji-font"; b.style.padding="6px";
+    const b=document.createElement("button");
+    b.className="emoji-font"; b.style.padding="6px";
     const img=document.createElement("img");
     img.alt=e; img.width=20; img.height=20; img.decoding="async";
     img.src = EMO_MAP[e];
-    img.onerror = ()=>{ b.textContent=e; };
+    img.onerror = ()=>{ b.textContent = e; };
     b.appendChild(img);
-    b.onclick=()=>{ msg.value+=e; msg.focus(); };
+    b.onclick=()=>{ msg.value += e; msg.focus(); };
     emojiBox.appendChild(b);
   });
+
   // Exclusivos (SVG)
-  CUSTOM_EMOJIS.forEach(e => {
-    const b = document.createElement("button"); b.className="emoji-font"; b.style.padding="6px";
-    const img = document.createElement("img");
-    img.src = e.src; img.alt = e.short; img.width = 20; img.height = 20; img.decoding="async";
+  (window.CUSTOM_EMOJIS||[]).forEach(e=>{
+    const b=document.createElement("button");
+    b.className="emoji-font"; b.style.padding="6px";
+    const img=document.createElement("img");
+    img.src=e.src; img.alt=e.short; img.width=20; img.height=20; img.decoding="async";
     b.appendChild(img);
-    b.title = e.title;
-    b.onclick = ()=>{ msg.value += " " + e.short + " "; msg.focus(); };
+    b.title=e.title||"";
+    b.onclick=()=>{ msg.value += " " + e.short + " "; msg.focus(); };
     emojiBox.appendChild(b);
   });
 }
 renderEmojiButtons();
 
-const CH_KEY="ivanplay_chat_v1"; const bc=("BroadcastChannel" in window)? new BroadcastChannel("ivanplay_chat_v1"):null;
-function getNick(){ let n=(nick.value||"").trim(); if(!n){ n=localStorage.getItem("ivanplay_nick")||("User"+Math.floor(Math.random()*900+100)); nick.value=n; } return n; }
-function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Nick guardado: "+getNick(),sys:true}); }
-saveNick.addEventListener("click", saveNickLS); nick.value=localStorage.getItem("ivanplay_nick")||"";
-
+/* Dibuja un mensaje en el chat con soporte de emojis SVG + exclusivos */
 function append(o){
-  const p=document.createElement("div"); p.className="msg"+(o.sys?" sys":"");
+  if(!log) return;
+  const p=document.createElement("div");
+  p.className = "msg" + (o.sys ? " sys" : "");
   let html = `[${o.t}] ${o.u}: ${o.m}`;
 
-  CUSTOM_EMOJIS.forEach(e => {
+  // Shortcodes exclusivos -> <img svg>
+  (window.CUSTOM_EMOJIS||[]).forEach(e=>{
     const re = new RegExp(e.short.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), "g");
     html = html.replace(re, `<img class="emo" src="${e.src}" alt="${e.short}">`);
   });
 
-  EMO_UNI.forEach(e => {
+  // Emojis unicode -> <img> local con fallback seguro (dataset.f)
+  EMO_UNI.forEach(e=>{
     const re = new RegExp(e.replace(/([.*+?^${}()|[\]\\\\])/g, '\\$1'), "g");
     html = html.replace(re, emojiImgTag(e));
   });
 
   p.innerHTML = html;
-  log.appendChild(p); log.scrollTop=log.scrollHeight;
+  log.appendChild(p);
+  log.scrollTop = log.scrollHeight;
 }
+
+/* Persistencia local y sincronización multi-pestaña */
 function loadChat(){ try{ (JSON.parse(localStorage.getItem(CH_KEY)||"[]")).slice(-200).forEach(append);}catch{} }
 function store(o){ try{ const a=JSON.parse(localStorage.getItem(CH_KEY)||"[]"); a.push(o); localStorage.setItem(CH_KEY, JSON.stringify(a.slice(-300))); }catch{} }
-function sendMsg(){ const m=(msg.value||"").trim(); if(!m) return; const o={t:new Date().toLocaleTimeString(),u:getNick(),m}; append(o); store(o); if(bc) bc.postMessage(o); msg.value=""; }
+function sendMsg(){
+  const m=(msg.value||"").trim();
+  if(!m) return;
+  const o={t:new Date().toLocaleTimeString(), u:getNick(), m};
+  append(o); store(o);
+  if(bc) bc.postMessage(o);
+  msg.value = "";
+}
 send.addEventListener("click", sendMsg);
 msg.addEventListener("keydown", e=>{ if(e.key==="Enter" && (e.ctrlKey||e.metaKey)) sendMsg(); });
-if(bc) bc.onmessage=ev=>{ if(ev&&ev.data) append(ev.data); };
-append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Bienvenido al chat de RADIO IVANPLAY 🙂",sys:true});
+if(bc) bc.onmessage = ev=>{ if(ev && ev.data) append(ev.data); };
+append({t:new Date().toLocaleTimeString(), u:"Sistema", m:"Bienvenido al chat de RADIO IVANPLAY 🙂", sys:true});
+loadChat();
 
-/* REDES + GÉNEROS */
-const socials=$("#socials"), chips=$("#chips");
+/* ================== REDES + GÉNEROS ================== */
+const socials = $("#socials");
+const chips   = $("#chips");
+
 CONFIG.SOCIALS.forEach(s=>{
-  const hasLink=!!(s.url&&s.url.trim()); const base=document.createElement(hasLink?"a":"div");
-  base.className="soc emoji-font"+(hasLink?"":" disabled"); if(hasLink){ base.href=s.url; base.target="_blank"; base.rel="noopener"; }
-  const host=hasLink? new URL(s.url).hostname : "Próximamente";
-  base.innerHTML=`<span class="ico">${s.icon}</span><div class="txt"><div>${s.name}</div><small>${host}</small></div>`;
+  const hasLink = !!(s.url && s.url.trim());
+  const base = document.createElement(hasLink? "a" : "div");
+  base.className = "soc emoji-font" + (hasLink? "" : " disabled");
+  if(hasLink){ base.href=s.url; base.target="_blank"; base.rel="noopener"; }
+  const host = hasLink ? new URL(s.url).hostname : "Próximamente";
+  base.innerHTML = `<span class="ico">${s.icon}</span><div class="txt"><div>${s.name}</div><small>${host}</small></div>`;
   socials.appendChild(base);
 });
-CONFIG.GENRES.forEach(g=>{ const c=document.createElement("span"); c.className="chip"; c.textContent=g; chips.appendChild(c); });
+
+CONFIG.GENRES.forEach(g=>{
+  const c=document.createElement("span");
+  c.className="chip"; c.textContent=g;
+  chips.appendChild(c);
+});
 </script>
 </body>
 </html>
+
