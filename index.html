@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>RADIO IVANPLAY ESPAÑA — 24/7</title>
-<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada. Chat interno, banner épico y estilo morado gaming. Con publicidad y audio-ads." />
+<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada. Chat interno, banner épico, publicidad y audio-ads." />
 <style>
   :root{
     --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
@@ -94,7 +94,7 @@
   .chips{display:flex;flex-wrap:wrap;gap:10px}
   .chip{background:var(--chip);border:1px solid rgba(36,211,238,.35);color:#cfefff;padding:6px 12px;border-radius:999px}
 
-  /* tamaño estándar para imágenes emoji */
+  /* EMOJIS */
   .emo { width:20px; height:20px; vertical-align:-3px; }
   .adtag{color:var(--muted);font-size:12px;margin-top:6px;text-align:center}
 </style>
@@ -102,7 +102,7 @@
 <body>
 <div class="wrap">
 
-  <!-- BANNER (usa imagen si existe) -->
+  <!-- BANNER -->
   <section id="hero" class="hero">
     <div class="hero-inner">
       <h1 class="neon">RADIO IVANPLAY ESPAÑA</h1>
@@ -198,13 +198,12 @@
 <script>
 /* ================== CONFIG ================== */
 const CONFIG = {
-  PLAYLIST_JSON_URL: "./music/playlist.json",     // tu lista principal
-  ADS_JSON_URL: "./music/anuncios.json",          // promos de audio (si no existe, se ignoran)
-  AUDIO_ADS_EVERY: 4,                              // inserta 1 anuncio cada N canciones
+  PLAYLIST_JSON_URL: "./music/playlist.json",
+  ADS_JSON_URL: "./music/anuncios.json",   // promos (si no existe, se ignoran)
+  AUDIO_ADS_EVERY: 4,                       // 1 anuncio cada N canciones
   SHUFFLE: true,
   BANNER_URL: "./assets/banner.jpg",
   TW_BASE: "./assets/twemoji/",
-
   SOCIALS: [
     {name:"YouTube",   icon:"▶️", url:"https://www.youtube.com/@ivanplays8012"},
     {name:"Twitch",    icon:"🎮", url:"https://www.twitch.tv/ivanplays_offi"},
@@ -212,18 +211,22 @@ const CONFIG = {
   ],
   GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"]
 };
-
 /* Emojis exclusivos (SVG locales) */
 const CUSTOM_EMOJIS = [
   { short: ":ivanheadset:", src: "./assets/custom/ivan_headset.svg",   title: "Headset IVANPLAY" },
   { short: ":ivangame:",    src: "./assets/custom/ivan_controller.svg", title: "Gamepad IVANPLAY" }
 ];
 
-/* ===== Emojis locales (sin twemoji.parse, a prueba de balas) ===== */
-const EMO_EXT = ".png";                       // cambia a ".svg" si subes todos como SVG
-const TW_BASE = CONFIG.TW_BASE;               // "./assets/twemoji/"
+/* ===== Emojis locales (SVG) ===== */
+const EMO_EXT = ".svg";                              // SVG ahora
+const TW_BASE = CONFIG.TW_BASE;                      // "./assets/twemoji/"
 const EMO_UNI = "😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
-function codepoints(chr){ return Array.from(chr).map(c=>c.codePointAt(0).toString(16)).join("-"); }
+function codepoints(chr){ return Array.from(chr).map(c=>c.codePointAt(0).toString(16)).join("-").toLowerCase(); }
+function emojiImgTag(chr){
+  const cp = codepoints(chr);
+  const src = `${TW_BASE}${cp}${EMO_EXT}`;
+  return `<img class="emo" alt="${chr}" src="${src}" onerror="this.outerHTML='${chr.replace(/\\/g,'\\\\').replace(/'/g,'\\\'')}'">`;
+}
 const EMO_MAP = Object.fromEntries(EMO_UNI.map(e => [e, `${TW_BASE}${codepoints(e)}${EMO_EXT}`]));
 
 /* ============================================ */
@@ -260,14 +263,7 @@ const audio=$("#audio"), now=$("#now"), playBtn=$("#playBtn"), stopBtn=$("#stopB
 let playlist=[], ads=[], mixed=[], i=0;
 
 function isAudio(u){ return /\.(mp3|wav|aac|m4a|ogg)$/i.test((u||'').split('?')[0]); }
-
-async function fetchJSONSafe(url){
-  try{
-    const r = await fetch(url, {cache:"no-store"});
-    if(!r.ok) return null;
-    return await r.json();
-  }catch{ return null; }
-}
+async function fetchJSONSafe(url){ try{ const r=await fetch(url,{cache:"no-store"}); if(!r.ok) return null; return await r.json(); }catch{ return null; } }
 
 async function loadPlaylist(){
   const pl = await fetchJSONSafe(CONFIG.PLAYLIST_JSON_URL);
@@ -278,13 +274,11 @@ async function loadPlaylist(){
     for(let k=main.length-1;k>0;k--){ const j=Math.floor(Math.random()*(k+1)); [main[k],main[j]]=[main[j],main[k]]; }
   }
 
-  // anuncios opcionales
   const adsJson = await fetchJSONSafe(CONFIG.ADS_JSON_URL);
   ads = Array.isArray(adsJson) ? adsJson.filter(isAudio).map(u=>enc(u)) : [];
 
-  // mezcla: cada N canciones, inserta 1 anuncio aleatorio de ads (si hay)
   mixed = [];
-  const N = Math.max(2, parseInt(CONFIG.AUDIO_ADS_EVERY||4,10)); // mínimo cada 2 para no saturar
+  const N = Math.max(2, parseInt(CONFIG.AUDIO_ADS_EVERY||4,10));
   let count=0;
   for(const track of main){
     mixed.push({url:track, type:"music"});
@@ -311,7 +305,6 @@ function setTrack(idx){
   now.textContent = (item.type==="ad" ? "Anuncio: " : "Reproduciendo: ") + baseName(item.url);
   const b=$("#skipErr"); if(b) b.remove();
 }
-
 async function play(){ try{ if(!audio.src) setTrack(0); await audio.play(); gate.style.display="none"; playBtn.textContent="⏸ Pausar"; playBtn.classList.remove("primary"); }catch{ gate.style.display="flex"; } }
 function pause(){ audio.pause(); playBtn.textContent="▶ Reproducir"; playBtn.classList.add("primary"); }
 function next(){ if(!playlist.length) return; setTrack(i+1); play(); }
@@ -335,26 +328,25 @@ document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState=
 
 loadPlaylist();
 
-/* ===== CHAT + EMOJIS (locales y exclusivos) ===== */
+/* ===== CHAT + EMOJIS (SVG locales y exclusivos) ===== */
 const log=$("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"), saveNick=$("#saveNick"), emojiBox=$("#emoji");
 
-/* Picker: Twemoji locales + exclusivos (inyectados como <img>) */
 function renderEmojiButtons(){
-  emojiBox.innerHTML="";
-  // Twemoji locales
+  if(!emojiBox) return; emojiBox.innerHTML="";
+  // Twemoji locales (SVG)
   EMO_UNI.forEach(e=>{
-    const b=document.createElement("button"); b.className="emoji-font";
+    const b=document.createElement("button"); b.className="emoji-font"; b.style.padding="6px";
     const img=document.createElement("img");
     img.alt=e; img.width=20; img.height=20; img.decoding="async";
-    img.src = EMO_MAP[e];                   // ./assets/twemoji/1f600.png, etc.
-    img.onerror = ()=>{ b.textContent=e; }; // fallback a texto si faltara el archivo
+    img.src = EMO_MAP[e];
+    img.onerror = ()=>{ b.textContent=e; };
     b.appendChild(img);
     b.onclick=()=>{ msg.value+=e; msg.focus(); };
     emojiBox.appendChild(b);
   });
   // Exclusivos (SVG)
   CUSTOM_EMOJIS.forEach(e => {
-    const b = document.createElement("button");
+    const b = document.createElement("button"); b.className="emoji-font"; b.style.padding="6px";
     const img = document.createElement("img");
     img.src = e.src; img.alt = e.short; img.width = 20; img.height = 20; img.decoding="async";
     b.appendChild(img);
@@ -365,7 +357,6 @@ function renderEmojiButtons(){
 }
 renderEmojiButtons();
 
-/* Chat local + BroadcastChannel + reemplazo manual de emojis */
 const CH_KEY="ivanplay_chat_v1"; const bc=("BroadcastChannel" in window)? new BroadcastChannel("ivanplay_chat_v1"):null;
 function getNick(){ let n=(nick.value||"").trim(); if(!n){ n=localStorage.getItem("ivanplay_nick")||("User"+Math.floor(Math.random()*900+100)); nick.value=n; } return n; }
 function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Nick guardado: "+getNick(),sys:true}); }
@@ -373,19 +364,16 @@ saveNick.addEventListener("click", saveNickLS); nick.value=localStorage.getItem(
 
 function append(o){
   const p=document.createElement("div"); p.className="msg"+(o.sys?" sys":"");
-  // texto base
   let html = `[${o.t}] ${o.u}: ${o.m}`;
 
-  // 1) Shortcodes exclusivos -> <img svg>
   CUSTOM_EMOJIS.forEach(e => {
     const re = new RegExp(e.short.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), "g");
     html = html.replace(re, `<img class="emo" src="${e.src}" alt="${e.short}">`);
   });
 
-  // 2) Emojis unicode (los 30) -> <img local> (PNG o SVG según EMO_EXT)
   EMO_UNI.forEach(e => {
     const re = new RegExp(e.replace(/([.*+?^${}()|[\]\\\\])/g, '\\$1'), "g");
-    html = html.replace(re, `<img class="emo" src="${EMO_MAP[e]}" alt="${e}">`);
+    html = html.replace(re, emojiImgTag(e));
   });
 
   p.innerHTML = html;
