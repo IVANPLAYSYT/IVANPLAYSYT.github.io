@@ -99,7 +99,7 @@
 <body>
 <div class="wrap">
 
-  <!-- BANNER (se usa imagen si existe) -->
+  <!-- BANNER (usa imagen si existe) -->
   <section id="hero" class="hero">
     <div class="hero-inner">
       <h1 class="neon">RADIO IVANPLAY ESPAÑA</h1>
@@ -178,8 +178,8 @@
 const CONFIG = {
   PLAYLIST_JSON_URL: "./music/playlist.json",
   SHUFFLE: true,
-  BANNER_URL: "./assets/banner.jpg",
-  TW_BASE: "./assets/twemoji/",
+  BANNER_URL: "./assets/banner.jpg",      // si subes esta imagen, el banner la usa
+  TW_BASE: "./assets/twemoji/",           // 👈 tus PNG están aquí (sin /72x72/)
   SOCIALS: [
     {name:"YouTube",   icon:"▶️", url:"https://www.youtube.com/@ivanplays8012"},
     {name:"Twitch",    icon:"🎮", url:"https://www.twitch.tv/ivanplays_offi"},
@@ -187,12 +187,10 @@ const CONFIG = {
   ],
   GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"]
 };
-
-
 /* Emojis exclusivos (SVG locales) */
 const CUSTOM_EMOJIS = [
-  { short: ":ivanheadset:", src: "/assets/custom/ivan_headset.svg",   title: "Headset IVANPLAY" },
-  { short: ":ivangame:",    src: "/assets/custom/ivan_controller.svg", title: "Gamepad IVANPLAY" }
+  { short: ":ivanheadset:", src: "./assets/custom/ivan_headset.svg",   title: "Headset IVANPLAY" },
+  { short: ":ivangame:",    src: "./assets/custom/ivan_controller.svg", title: "Gamepad IVANPLAY" }
 ];
 /* ============================================ */
 
@@ -268,13 +266,13 @@ document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState=
 loadPlaylist();
 
 /* ===== CHAT + EMOJIS (Twemoji local + exclusivos SVG) ===== */
-const TW_BASE = CONFIG.TW_BASE; // "/assets/twemoji/"
+const TW_BASE = CONFIG.TW_BASE; // "./assets/twemoji/"
 function codepoints(chr){ return Array.from(chr).map(c=>c.codePointAt(0).toString(16)).join("-"); }
 const EMO_UNI = "😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
 
 const log=$("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"), saveNick=$("#saveNick"), emojiBox=$("#emoji");
 
-/* Picker: Twemoji locales + exclusivos */
+/* Picker: Twemoji locales + exclusivos (sin /72x72) */
 function renderEmojiButtons(){
   emojiBox.innerHTML="";
   // Twemoji locales
@@ -282,7 +280,7 @@ function renderEmojiButtons(){
     const b=document.createElement("button"); b.className="emoji-font";
     const img=document.createElement("img");
     img.alt=e; img.width=20; img.height=20; img.decoding="async";
-    img.src = `${TW_BASE}72x72/${codepoints(e)}.png`;
+    img.src = `${TW_BASE}${codepoints(e)}.png`;   // 👈 ahora sin 72x72
     img.onerror = ()=>{ b.textContent=e; }; // fallback a texto
     b.appendChild(img);
     b.onclick=()=>{ msg.value+=e; msg.focus(); };
@@ -301,25 +299,23 @@ function renderEmojiButtons(){
 }
 renderEmojiButtons();
 
-/* Chat básico con storage local + BroadcastChannel */
+/* Chat con storage local + BroadcastChannel */
 const CH_KEY="ivanplay_chat_v1"; const bc=("BroadcastChannel" in window)? new BroadcastChannel("ivanplay_chat_v1"):null;
 function getNick(){ let n=(nick.value||"").trim(); if(!n){ n=localStorage.getItem("ivanplay_nick")||("User"+Math.floor(Math.random()*900+100)); nick.value=n; } return n; }
 function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Nick guardado: "+getNick(),sys:true}); }
 saveNick.addEventListener("click", saveNickLS); nick.value=localStorage.getItem("ivanplay_nick")||"";
 
-/* Append con soporte de shortcodes + Twemoji local */
+/* Append con shortcodes + Twemoji local */
+/* Twemoji.parse configurado sin carpeta (folder:"") para usar ./assets/twemoji/<code>.png */
 function append(o){
   const p=document.createElement("div"); p.className="msg"+(o.sys?" sys":"");
-  // 1) texto plano inicial
   let html = `[${o.t}] ${o.u}: ${o.m}`;
-  // 2) reemplazar shortcodes por <img> (exclusivos)
   CUSTOM_EMOJIS.forEach(e => {
     const re = new RegExp(e.short.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), "g");
     html = html.replace(re, `<img src="${e.src}" alt="${e.short}" style="width:20px;height:20px;vertical-align:-3px">`);
   });
-  // 3) insertar HTML y parsear Twemoji local (para unicode 😀🔥…)
   p.innerHTML = html;
-  try{ twemoji.parse(p,{folder:"72x72",ext:".png",base:TW_BASE}); }catch{}
+  try{ twemoji.parse(p,{folder:"",ext:".png",base:TW_BASE}); }catch{}
   log.appendChild(p); log.scrollTop=log.scrollHeight;
 }
 function loadChat(){ try{ (JSON.parse(localStorage.getItem(CH_KEY)||"[]")).slice(-200).forEach(append);}catch{} }
