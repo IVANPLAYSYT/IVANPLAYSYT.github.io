@@ -358,28 +358,39 @@ nick.value = localStorage.getItem("ivanplay_nick") || "";
 
 /* Picker */
 function renderEmojiButtons(){
-  if(!emojiBox) return; emojiBox.innerHTML="";
-  // Twemoji locales (SVG)
+  const box = document.getElementById("emoji");
+  if(!box) return;
+  box.innerHTML = "";
+
   EMO_UNI.forEach(e=>{
-    const b=document.createElement("button");
-    b.className="emoji-font"; b.style.padding="6px";
-    const img=document.createElement("img");
-    img.alt=""; img.width=20; img.height=20; img.decoding="async";
-    img.src = EMO_MAP[e];
-    img.onerror = ()=>{ b.textContent = e; };
+    const b = document.createElement("button");
+    b.className = "emoji-font";
+    b.style.padding = "6px";
+
+    const img = document.createElement("img");
+    img.alt = ""; img.width = 20; img.height = 20; img.decoding = "async";
+
+    // ⬇️ Guard: si no hay entrada en EMO_MAP, la calculamos al vuelo
+    const fallbackSrc = `${TW_BASE}${toCodepoints(e)}${EMO_EXT}`;
+    img.src = (EMO_MAP && EMO_MAP[e]) ? EMO_MAP[e] : fallbackSrc;
+
+    // Si aún así no carga, muestra el emoji como texto
+    img.onerror = () => { b.textContent = e; };
+
     b.appendChild(img);
-    b.onclick=()=>{ msg.value += e; msg.focus(); };
-    emojiBox.appendChild(b);
+    b.onclick = () => { const t = document.getElementById("msg"); t.value += e; t.focus(); };
+    box.appendChild(b);
   });
-  // Exclusivos
-  (CUSTOM_EMOJIS||[]).forEach(e=>{
+
+  // Exclusivos SVG (igual que ya lo tienes)
+  (window.CUSTOM_EMOJIS||[]).forEach(e=>{
     const b=document.createElement("button");
     b.className="emoji-font"; b.style.padding="6px";
     const img=document.createElement("img");
     img.src=e.src; img.alt=""; img.width=20; img.height=20; img.decoding="async";
     b.appendChild(img); b.title=e.title||"";
-    b.onclick=()=>{ msg.value += " " + e.short + " "; msg.focus(); };
-    emojiBox.appendChild(b);
+    b.onclick=()=>{ const t=document.getElementById("msg"); t.value+=" "+e.short+" "; t.focus(); };
+    box.appendChild(b);
   });
 }
 renderEmojiButtons();
