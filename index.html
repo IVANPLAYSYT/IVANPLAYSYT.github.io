@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>RADIO IVANPLAY ESPAÑA — 24/7</title>
 <meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada, chat interno, emojis SVG, publicidad y audio-ads.">
 <style>
@@ -25,6 +25,7 @@
     border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;
     box-shadow:0 10px 30px rgba(0,0,0,.25)
   }
+
   /* ====== BANNER ====== */
   .hero{
     position:relative; border-radius:22px; overflow:hidden;
@@ -213,19 +214,21 @@ const CUSTOM_EMOJIS = [
   { short: ":ivangame:",    src: "./assets/custom/ivan_controller.svg", title: "Gamepad IVANPLAY" }
 ];
 
-/* ===== Emojis locales (SVG) ===== */
-const EMO_EXT = ".svg";                       // usamos SVG
-const TW_BASE = CONFIG.TW_BASE;               // "./assets/twemoji/"
+/* ===== EMOJIS SVG LOCALES – FIX FINAL UNA PASADA ===== */
+const EMO_EXT = ".svg";
+const TW_BASE = CONFIG.TW_BASE;
 const EMO_UNI = "😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
 
-function toCodepoints(str){ const out=[]; for(const ch of str) out.push(ch.codePointAt(0).toString(16).toLowerCase()); return out.join("-"); }
-function toEntity(str){ let s=""; for(const ch of str) s+= "&#x"+ch.codePointAt(0).toString(16)+";"; return s; }
-const EMO_MAP = Object.fromEntries(EMO_UNI.map(e=>[e, `${TW_BASE}${toCodepoints(e)}${EMO_EXT}`]));
+function toCodepoints(str){ const out=[]; for(const ch of str){ out.push(ch.codePointAt(0).toString(16).toLowerCase()); } return out.join("-"); }
+function toEntity(str){ let s=""; for(const ch of str){ s += "&#x"+ch.codePointAt(0).toString(16)+";"; } return s; }
+const EMO_MAP = Object.fromEntries(EMO_UNI.map(e => [e, `${TW_BASE}${toCodepoints(e)}${EMO_EXT}`]));
 function emojiImgTag(chr){
   const src = `${TW_BASE}${toCodepoints(chr)}${EMO_EXT}`;
   const ent = toEntity(chr);
-  return `<img class="emo" alt="${chr}" src="${src}" data-f="${ent}" onerror="this.outerHTML=this.dataset.f">`;
+  return `<img class="emo" src="${src}" alt="" data-f="${ent}" onerror="this.outerHTML=this.dataset.f">`;
 }
+function escapeForRegex(s){ return s.replace(/([.*+?^${}()|[\]\\\\])/g,"\\$1"); }
+const EMO_REGEX = new RegExp("(?:"+EMO_UNI.map(escapeForRegex).join("|")+")","g");
 
 /* ================== UI generales ================== */
 const $ = s => document.querySelector(s);
@@ -310,25 +313,17 @@ async function tryAutoplay(){ try{ await play(); }catch{} }
 
 playBtn.addEventListener("click", ()=> audio.paused ? play() : pause());
 stopBtn.addEventListener("click", ()=>{
-  audio.pause();
-  audio.currentTime = 0;
-  playBtn.textContent = "▶ Reproducir";
-  playBtn.classList.add("primary");
+  audio.pause(); audio.currentTime=0;
+  playBtn.textContent="▶ Reproducir"; playBtn.classList.add("primary");
 });
 prevBtn.addEventListener("click", prev);
 nextBtn.addEventListener("click", next);
 startBtn.addEventListener("click", play);
-vol.addEventListener("input", ()=> audio.volume = parseFloat(vol.value||"0.8"));
-audio.volume = parseFloat(vol.value||"0.8");
+vol.addEventListener("input", ()=> audio.volume=parseFloat(vol.value||"0.8"));
+audio.volume=parseFloat(vol.value||"0.8");
 audio.addEventListener("ended", next);
 audio.addEventListener("error", ()=>{
-  let d = "";
-  try{
-    if(audio.error){
-      const m={1:"ABORTED",2:"NETWORK",3:"DECODE",4:"SRC_NOT_SUPPORTED"};
-      d = m[audio.error.code] || `ERR ${audio.error.code}`;
-    }
-  }catch{}
+  let d=""; try{ if(audio.error){ const m={1:"ABORTED",2:"NETWORK",3:"DECODE",4:"SRC_NOT_SUPPORTED"}; d=m[audio.error.code]||`ERR ${audio.error.code}`; } }catch{}
   setStatus(`Fallo al reproducir: ${baseName(audio.src)}${d? " · "+d:""}`, false);
   if(!$("#skipErr")){
     const b=document.createElement("button");
@@ -338,9 +333,7 @@ audio.addEventListener("error", ()=>{
     $("#status").after(b);
   }
 });
-document.addEventListener("visibilitychange", ()=>{
-  if(document.visibilityState==="visible" && audio.paused){ tryAutoplay(); }
-});
+document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && audio.paused){ tryAutoplay(); } });
 loadPlaylist();
 
 /* ================== CHAT (localStorage + BroadcastChannel) ================== */
@@ -355,113 +348,86 @@ const CH_KEY = "ivanplay_chat_v1";
 const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("ivanplay_chat_v1") : null;
 
 function getNick(){
-  let n = (nick.value||"").trim();
-  if(!n){
-    n = localStorage.getItem("ivanplay_nick") || ("User"+Math.floor(Math.random()*900+100));
-    nick.value = n;
-  }
+  let n=(nick.value||"").trim();
+  if(!n){ n=localStorage.getItem("ivanplay_nick")||("User"+Math.floor(Math.random()*900+100)); nick.value=n; }
   return n;
 }
-function saveNickLS(){
-  localStorage.setItem("ivanplay_nick", getNick());
-  append({t:new Date().toLocaleTimeString(), u:"Sistema", m:"Nick guardado: "+getNick(), sys:true});
-}
+function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Nick guardado: "+getNick(),sys:true}); }
 saveNick.addEventListener("click", saveNickLS);
 nick.value = localStorage.getItem("ivanplay_nick") || "";
 
-/* Render del selector de emojis (SVG locales + exclusivos) */
+/* Picker */
 function renderEmojiButtons(){
-  if(!emojiBox) return;
-  emojiBox.innerHTML = "";
-
+  if(!emojiBox) return; emojiBox.innerHTML="";
   // Twemoji locales (SVG)
   EMO_UNI.forEach(e=>{
     const b=document.createElement("button");
     b.className="emoji-font"; b.style.padding="6px";
     const img=document.createElement("img");
-    img.alt=e; img.width=20; img.height=20; img.decoding="async";
+    img.alt=""; img.width=20; img.height=20; img.decoding="async";
     img.src = EMO_MAP[e];
     img.onerror = ()=>{ b.textContent = e; };
     b.appendChild(img);
     b.onclick=()=>{ msg.value += e; msg.focus(); };
     emojiBox.appendChild(b);
   });
-
-  // Exclusivos (SVG)
-  (window.CUSTOM_EMOJIS||[]).forEach(e=>{
+  // Exclusivos
+  (CUSTOM_EMOJIS||[]).forEach(e=>{
     const b=document.createElement("button");
     b.className="emoji-font"; b.style.padding="6px";
     const img=document.createElement("img");
-    img.src=e.src; img.alt=e.short; img.width=20; img.height=20; img.decoding="async";
-    b.appendChild(img);
-    b.title=e.title||"";
+    img.src=e.src; img.alt=""; img.width=20; img.height=20; img.decoding="async";
+    b.appendChild(img); b.title=e.title||"";
     b.onclick=()=>{ msg.value += " " + e.short + " "; msg.focus(); };
     emojiBox.appendChild(b);
   });
 }
 renderEmojiButtons();
 
-/* Dibuja un mensaje en el chat con soporte de emojis SVG + exclusivos */
+/* Dibuja un mensaje con reemplazo en UNA pasada */
 function append(o){
   if(!log) return;
+  const base = `[${o.t}] ${o.u}: ${o.m}`;
+  let html = base;
+
+  // Shortcodes exclusivos primero (no contienen unicode)
+  (CUSTOM_EMOJIS||[]).forEach(e=>{
+    const re = new RegExp(e.short.replace(/[-/\\^$*+?.()|[\]{}]/g,'\\$&'),"g");
+    html = html.replace(re, `<img class="emo" src="${e.src}" alt="">`);
+  });
+
+  // Todos los emojis unicode en UNA sola pasada
+  html = html.replace(EMO_REGEX, m => emojiImgTag(m));
+
   const p=document.createElement("div");
-  p.className = "msg" + (o.sys ? " sys" : "");
-  let html = `[${o.t}] ${o.u}: ${o.m}`;
-
-  // Shortcodes exclusivos -> <img svg>
-  (window.CUSTOM_EMOJIS||[]).forEach(e=>{
-    const re = new RegExp(e.short.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), "g");
-    html = html.replace(re, `<img class="emo" src="${e.src}" alt="${e.short}">`);
-  });
-
-  // Emojis unicode -> <img> local con fallback seguro (dataset.f)
-  EMO_UNI.forEach(e=>{
-    const re = new RegExp(e.replace(/([.*+?^${}()|[\]\\\\])/g, '\\$1'), "g");
-    html = html.replace(re, emojiImgTag(e));
-  });
-
-  p.innerHTML = html;
+  p.className="msg"+(o.sys?" sys":"");
+  p.innerHTML=html;
   log.appendChild(p);
-  log.scrollTop = log.scrollHeight;
+  log.scrollTop=log.scrollHeight;
 }
 
-/* Persistencia local y sincronización multi-pestaña */
+/* Persistencia + sync */
 function loadChat(){ try{ (JSON.parse(localStorage.getItem(CH_KEY)||"[]")).slice(-200).forEach(append);}catch{} }
 function store(o){ try{ const a=JSON.parse(localStorage.getItem(CH_KEY)||"[]"); a.push(o); localStorage.setItem(CH_KEY, JSON.stringify(a.slice(-300))); }catch{} }
-function sendMsg(){
-  const m=(msg.value||"").trim();
-  if(!m) return;
-  const o={t:new Date().toLocaleTimeString(), u:getNick(), m};
-  append(o); store(o);
-  if(bc) bc.postMessage(o);
-  msg.value = "";
-}
+function sendMsg(){ const m=(msg.value||"").trim(); if(!m) return; const o={t:new Date().toLocaleTimeString(),u:getNick(),m}; append(o); store(o); if(bc) bc.postMessage(o); msg.value=""; }
 send.addEventListener("click", sendMsg);
 msg.addEventListener("keydown", e=>{ if(e.key==="Enter" && (e.ctrlKey||e.metaKey)) sendMsg(); });
-if(bc) bc.onmessage = ev=>{ if(ev && ev.data) append(ev.data); };
-append({t:new Date().toLocaleTimeString(), u:"Sistema", m:"Bienvenido al chat de RADIO IVANPLAY 🙂", sys:true});
+if(bc) bc.onmessage=ev=>{ if(ev&&ev.data) append(ev.data); };
+append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Bienvenido al chat de RADIO IVANPLAY 🙂",sys:true});
 loadChat();
 
 /* ================== REDES + GÉNEROS ================== */
-const socials = $("#socials");
-const chips   = $("#chips");
-
+const socials=$("#socials"), chips=$("#chips");
 CONFIG.SOCIALS.forEach(s=>{
-  const hasLink = !!(s.url && s.url.trim());
-  const base = document.createElement(hasLink? "a" : "div");
-  base.className = "soc emoji-font" + (hasLink? "" : " disabled");
+  const hasLink=!!(s.url&&s.url.trim());
+  const base=document.createElement(hasLink?"a":"div");
+  base.className="soc emoji-font"+(hasLink?"":" disabled");
   if(hasLink){ base.href=s.url; base.target="_blank"; base.rel="noopener"; }
-  const host = hasLink ? new URL(s.url).hostname : "Próximamente";
-  base.innerHTML = `<span class="ico">${s.icon}</span><div class="txt"><div>${s.name}</div><small>${host}</small></div>`;
+  const host=hasLink? new URL(s.url).hostname : "Próximamente";
+  base.innerHTML=`<span class="ico">${s.icon}</span><div class="txt"><div>${s.name}</div><small>${host}</small></div>`;
   socials.appendChild(base);
 });
-
-CONFIG.GENRES.forEach(g=>{
-  const c=document.createElement("span");
-  c.className="chip"; c.textContent=g;
-  chips.appendChild(c);
-});
+CONFIG.GENRES.forEach(g=>{ const c=document.createElement("span"); c.className="chip"; c.textContent=g; chips.appendChild(c); });
 </script>
 </body>
 </html>
-
