@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>RADIO IVANPLAY ESPAÑA — 24/7</title>
-<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada. Chat interno y estilo morado gaming." />
+<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada. Chat interno, banner épico y estilo morado gaming." />
 <style>
   :root{
     --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
@@ -25,18 +25,38 @@
     border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;
     box-shadow:0 10px 30px rgba(0,0,0,.25)
   }
-  /* BANNER */
-  .hero{position:relative;border-radius:22px;overflow:hidden;height:280px;margin:18px 0;display:grid;place-items:center;background:
-    linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
-    radial-gradient(1000px 600px at -10% 120%,rgba(31,182,255,.20),transparent 60%),
-    radial-gradient(900px 500px at 110% -10%,rgba(139,92,246,.25),transparent 60%),
-    var(--bg); background-size:cover;background-position:center}
-  .hero.has-image{background-image:
-    linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),var(--hero-image)}
-  .hero-inner{text-align:center;padding:0 16px}
-  .neon{font-family:Impact,Haettenschweiler,'Arial Black',sans-serif;font-size:clamp(28px,5vw,54px);color:var(--neon);
-    text-shadow:0 0 6px rgba(31,182,255,.9),0 0 16px rgba(31,182,255,.7),0 0 36px rgba(31,182,255,.55),0 0 64px rgba(31,182,255,.35);margin:0 0 6px}
+
+  /* ====== BANNER ====== */
+  .hero{
+    position:relative; border-radius:22px; overflow:hidden;
+    height:280px; margin:18px 0; display:grid; place-items:center;
+    background:
+      linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
+      radial-gradient(1000px 600px at -10% 120%,rgba(31,182,255,.20),transparent 60%),
+      radial-gradient(900px 500px at 110% -10%,rgba(139,92,246,.25),transparent 60%),
+      var(--bg);
+    background-size:cover; background-position:center;
+  }
+  .hero.has-image{
+    background-image:
+      linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
+      var(--hero-image);
+  }
+  .hero-inner{ text-align:center; padding:0 16px }
+  .neon{
+    font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
+    font-size: clamp(28px, 5vw, 54px);
+    color: var(--neon);
+    text-shadow:
+      0 0 6px  rgba(31,182,255,.9),
+      0 0 16px rgba(31,182,255,.7),
+      0 0 36px rgba(31,182,255,.55),
+      0 0 64px rgba(31,182,255,.35);
+    margin:0 0 6px;
+    letter-spacing:.5px;
+  }
   .neon-sub{color:#cfe9ff;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+
   header.card{display:flex;gap:16px;align-items:center;justify-content:space-between}
   .brand{display:flex;align-items:center;gap:12px}
   .brand .logo{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#6a5cf6,#24d3ee)}
@@ -45,8 +65,10 @@
   .live{display:flex;align-items:center;gap:8px;font-size:12px;padding:5px 10px;border:1px solid rgba(255,255,255,.2);border-radius:999px}
   .dot{width:10px;height:10px;border-radius:50%;background:#16f195;box-shadow:0 0 8px #16f195;animation:pulse 1.5s infinite}
   @keyframes pulse{0%{transform:scale(.9);opacity:.8}50%{transform:scale(1);opacity:1}100%{transform:scale(.9);opacity:.8}}
+
   .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:18px}
   @media (max-width:950px){.grid{grid-template-columns:1fr}}
+
   .btn{cursor:pointer;border:none;padding:11px 14px;border-radius:12px;background:rgba(255,255,255,.06);color:var(--text);font-weight:700;border:1px solid rgba(255,255,255,.12)}
   .btn.primary{background:linear-gradient(180deg,var(--a),var(--a2));border:none;box-shadow:0 10px 24px rgba(139,92,246,.35)}
   .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -55,11 +77,12 @@
   #now{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   #chatLog{height:280px;overflow:auto;background:#0a0f1c;border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px}
   .msg{margin:4px 0}
-  #emoji{max-height:120px;overflow:auto;display:grid;grid-template-columns:repeat(10,1fr);gap:6px}
+  #emoji{max-height:120px;overflow:auto;display:grid;grid-template-columns:repeat(10, 1fr);gap:6px}
   #emoji button{background:#1a2236;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:6px;cursor:pointer}
   .emoji-font,#emoji button,#chatLog,#msg,#nick{
     font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",system-ui,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px;line-height:1.15
   }
+
   footer{color:var(--muted);text-align:center;margin-top:16px}
   .socials{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
   @media (max-width:580px){.socials{grid-template-columns:1fr}}
@@ -71,13 +94,12 @@
   .chips{display:flex;flex-wrap:wrap;gap:10px}
   .chip{background:var(--chip);border:1px solid rgba(36,211,238,.35);color:#cfefff;padding:6px 12px;border-radius:999px}
 </style>
-<!-- Twemoji parser (solo JS) -->
 <script src="https://cdn.jsdelivr.net/npm/twemoji@14.0.2/dist/twemoji.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 <div class="wrap">
 
-  <!-- BANNER -->
+  <!-- BANNER (se usa imagen si existe) -->
   <section id="hero" class="hero">
     <div class="hero-inner">
       <h1 class="neon">RADIO IVANPLAY ESPAÑA</h1>
@@ -85,7 +107,6 @@
     </div>
   </section>
 
-  <!-- Encabezado -->
   <header class="card">
     <div class="brand">
       <div class="logo">🎧</div>
@@ -130,8 +151,8 @@
         <textarea id="msg" rows="2" placeholder="Escribe un mensaje…" class="emoji-font"></textarea>
         <button id="send" class="btn primary">Enviar</button>
       </div>
-      <!-- Picker de emojis con PNG locales -->
       <div id="emoji" style="margin-top:6px" class="emoji-font"></div>
+      <p class="muted">Atajos: escribe <code>:ivanheadset:</code> o <code>:ivangame:</code> para usar los exclusivos.</p>
       <p class="muted">Chat interno en esta página. El historial se guarda en tu navegador.</p>
     </div>
   </section>
@@ -153,26 +174,31 @@
 </div>
 
 <script>
-/* ===== CONFIG ===== */
+/* ================== CONFIG ================== */
 const CONFIG = {
   PLAYLIST_JSON_URL: "/music/playlist.json",
   SHUFFLE: true,
-  BANNER_URL: "/assets/banner.jpg", // si subes imagen, se usa
-  TW_BASE: "/assets/twemoji/",      // 📌 base local para PNG twemoji
+  BANNER_URL: "/assets/banner.jpg",      // si subes esta imagen, el banner la usa
+  TW_BASE: "/assets/twemoji/",           // base local para Twemoji PNG 72x72
   SOCIALS: [
     {name:"YouTube",   icon:"▶️", url:"https://www.youtube.com/@ivanplays8012"},
     {name:"Twitch",    icon:"🎮", url:"https://www.twitch.tv/ivanplays_offi"},
-    {name:"SoundCloud",icon:"☁️", url:"https://soundcloud.com/ivanzombiz"},
-    {name:"Twitter / X", icon:"✖️", url:""},
-    {name:"Spotify",     icon:"🎵", url:""}
+    {name:"SoundCloud",icon:"☁️", url:"https://soundcloud.com/ivanzombiz"}
   ],
   GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"]
 };
 
+/* Emojis exclusivos (SVG locales) */
+const CUSTOM_EMOJIS = [
+  { short: ":ivanheadset:", src: "/assets/custom/ivan_headset.svg",   title: "Headset IVANPLAY" },
+  { short: ":ivangame:",    src: "/assets/custom/ivan_controller.svg", title: "Gamepad IVANPLAY" }
+];
+/* ============================================ */
+
 const $ = s => document.querySelector(s);
 document.getElementById("year").textContent = new Date().getFullYear();
 
-/* Banner image si existe */
+/* Banner: usa imagen si existe */
 (function(){
   const hero = $("#hero");
   if(CONFIG.BANNER_URL){ hero.style.setProperty("--hero-image", `url('${CONFIG.BANNER_URL}')`); hero.classList.add("has-image"); }
@@ -185,18 +211,18 @@ document.getElementById("year").textContent = new Date().getFullYear();
     const fmt = new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'short',day:'2-digit',month:'short'});
     el.textContent = fmt.format(new Date()) + " (Madrid)";
   }
-  tick(); setInterval(tick,1000);
+  tick(); setInterval(tick, 1000);
 })();
 
 /* Helpers */
 function baseName(u){ try{const p=new URL(u,location.href); return decodeURIComponent(p.pathname.split('/').pop());}catch{return u;} }
-function setStatus(msg, ok){ const el=$("#status"); el.textContent=msg; el.style.color = ok ? "#14f195" : "#ff7777"; }
+function setStatus(msg, ok){ const el=$("#status"); el.textContent = msg; el.style.color = ok ? "#14f195" : "#ff7777"; }
 function enc(u){
   try{ const url=new URL(u,location.origin); url.pathname=url.pathname.split('/').map(encodeURIComponent).join('/'); return url.toString().replace(location.origin,""); }
   catch{ return u.split('/').map((seg,i)=> i===0?seg:encodeURIComponent(seg)).join('/'); }
 }
 
-/* ===== PLAYER ===== */
+/* ================== PLAYER ================== */
 const audio=$("#audio"), now=$("#now"), playBtn=$("#playBtn"), stopBtn=$("#stopBtn"), prevBtn=$("#prevBtn"), nextBtn=$("#nextBtn"), vol=$("#vol"), gate=$("#gate"), startBtn=$("#startBtn");
 let playlist=[], i=0;
 
@@ -213,7 +239,8 @@ async function loadPlaylist(){
     if(CONFIG.SHUFFLE && playlist.length>1){
       for(let k=playlist.length-1;k>0;k--){ const j=Math.floor(Math.random()*(k+1)); [playlist[k],playlist[j]]=[playlist[j],playlist[k]]; }
     }
-    i=0; setStatus(`Playlist cargada (${playlist.length} pistas)`, true); setTrack(i); setTimeout(tryAutoplay,200);
+    i=0; setStatus(`Playlist cargada (${playlist.length} pistas)`, true); setTrack(i);
+    setTimeout(tryAutoplay, 200); // intenta reproducir al entrar
   }catch{ setStatus("Error cargando playlist.json", false); }
 }
 function setTrack(idx){ if(!playlist.length) return; i=(idx+playlist.length)%playlist.length; const url=playlist[i]; audio.src=url; now.textContent="Reproduciendo: "+baseName(url); const b=$("#skipErr"); if(b) b.remove(); }
@@ -222,11 +249,14 @@ function pause(){ audio.pause(); playBtn.textContent="▶ Reproducir"; playBtn.c
 function next(){ if(!playlist.length) return; setTrack(i+1); play(); }
 function prev(){ if(!playlist.length) return; setTrack(i-1); play(); }
 async function tryAutoplay(){ try{ await play(); }catch{} }
+
 playBtn.addEventListener("click", ()=> audio.paused ? play() : pause());
 stopBtn.addEventListener("click", ()=>{ audio.pause(); audio.currentTime=0; playBtn.textContent="▶ Reproducir"; playBtn.classList.add("primary"); });
-prevBtn.addEventListener("click", prev); nextBtn.addEventListener("click", next);
+prevBtn.addEventListener("click", prev);
+nextBtn.addEventListener("click", next);
 startBtn.addEventListener("click", play);
-vol.addEventListener("input", ()=> audio.volume=parseFloat(vol.value||"0.8")); audio.volume=parseFloat(vol.value||"0.8");
+vol.addEventListener("input", ()=> audio.volume=parseFloat(vol.value||"0.8"));
+audio.volume=parseFloat(vol.value||"0.8");
 audio.addEventListener("ended", next);
 audio.addEventListener("error", ()=>{
   let d=""; try{ if(audio.error){ const m={1:"ABORTED",2:"NETWORK",3:"DECODE",4:"SRC_NOT_SUPPORTED"}; d=m[audio.error.code]||`ERR ${audio.error.code}`; } }catch{}
@@ -236,36 +266,60 @@ audio.addEventListener("error", ()=>{
 document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && audio.paused){ tryAutoplay(); } });
 loadPlaylist();
 
-/* ===== CHAT + EMOJIS (LOCAL PNG TWEMOJI) ===== */
+/* ===== CHAT + EMOJIS (Twemoji local + exclusivos SVG) ===== */
 const TW_BASE = CONFIG.TW_BASE; // "/assets/twemoji/"
 function codepoints(chr){ return Array.from(chr).map(c=>c.codePointAt(0).toString(16)).join("-"); }
 const EMO_UNI = "😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
 
 const log=$("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"), saveNick=$("#saveNick"), emojiBox=$("#emoji");
+
+/* Picker: Twemoji locales + exclusivos */
 function renderEmojiButtons(){
   emojiBox.innerHTML="";
+  // Twemoji locales
   EMO_UNI.forEach(e=>{
     const b=document.createElement("button"); b.className="emoji-font";
     const img=document.createElement("img");
     img.alt=e; img.width=20; img.height=20; img.decoding="async";
     img.src = `${TW_BASE}72x72/${codepoints(e)}.png`;
-    img.onerror = ()=>{ b.textContent=e; };
+    img.onerror = ()=>{ b.textContent=e; }; // fallback a texto
     b.appendChild(img);
     b.onclick=()=>{ msg.value+=e; msg.focus(); };
+    emojiBox.appendChild(b);
+  });
+  // Exclusivos
+  CUSTOM_EMOJIS.forEach(e => {
+    const b = document.createElement("button");
+    const img = document.createElement("img");
+    img.src = e.src; img.alt = e.short; img.width = 20; img.height = 20; img.decoding="async";
+    b.appendChild(img);
+    b.title = e.title;
+    b.onclick = ()=>{ msg.value += " " + e.short + " "; msg.focus(); };
     emojiBox.appendChild(b);
   });
 }
 renderEmojiButtons();
 
+/* Chat básico con storage local + BroadcastChannel */
 const CH_KEY="ivanplay_chat_v1"; const bc=("BroadcastChannel" in window)? new BroadcastChannel("ivanplay_chat_v1"):null;
 function getNick(){ let n=(nick.value||"").trim(); if(!n){ n=localStorage.getItem("ivanplay_nick")||("User"+Math.floor(Math.random()*900+100)); nick.value=n; } return n; }
 function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Nick guardado: "+getNick(),sys:true}); }
 saveNick.addEventListener("click", saveNickLS); nick.value=localStorage.getItem("ivanplay_nick")||"";
+
+/* Append con soporte de shortcodes + Twemoji local */
 function append(o){
-  const p=document.createElement("div"); p.className="msg"+(o.sys?" sys":""); p.textContent=`[${o.t}] ${o.u}: ${o.m}`;
-  log.appendChild(p); log.scrollTop=log.scrollHeight;
-  // parse con imágenes locales
+  const p=document.createElement("div"); p.className="msg"+(o.sys?" sys":"");
+  // 1) texto plano inicial
+  let html = `[${o.t}] ${o.u}: ${o.m}`;
+  // 2) reemplazar shortcodes por <img> (exclusivos)
+  CUSTOM_EMOJIS.forEach(e => {
+    const re = new RegExp(e.short.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&'), "g");
+    html = html.replace(re, `<img src="${e.src}" alt="${e.short}" style="width:20px;height:20px;vertical-align:-3px">`);
+  });
+  // 3) insertar HTML y parsear Twemoji local (para unicode 😀🔥…)
+  p.innerHTML = html;
   try{ twemoji.parse(p,{folder:"72x72",ext:".png",base:TW_BASE}); }catch{}
+  log.appendChild(p); log.scrollTop=log.scrollHeight;
 }
 function loadChat(){ try{ (JSON.parse(localStorage.getItem(CH_KEY)||"[]")).slice(-200).forEach(append);}catch{} }
 function store(o){ try{ const a=JSON.parse(localStorage.getItem(CH_KEY)||"[]"); a.push(o); localStorage.setItem(CH_KEY, JSON.stringify(a.slice(-300))); }catch{} }
