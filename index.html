@@ -217,7 +217,8 @@ const CUSTOM_EMOJIS = [
 /* ===== EMOJIS SVG LOCALES – FIX FINAL UNA PASADA ===== */
 const EMO_EXT = ".svg";
 const TW_BASE = CONFIG.TW_BASE;
-const EMO_UNI = "😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
+// ✅ correcto (codepoints completos)
+const EMO_UNI = Array.from("😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸");
 
 function toCodepoints(str){ const out=[]; for(const ch of str){ out.push(ch.codePointAt(0).toString(16).toLowerCase()); } return out.join("-"); }
 function toEntity(str){ let s=""; for(const ch of str){ s += "&#x"+ch.codePointAt(0).toString(16)+";"; } return s; }
