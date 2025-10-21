@@ -5,6 +5,34 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>RADIO IVANPLAY ESPAÑA — 24/7</title>
 <meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada, chat interno, emojis SVG, publicidad y audio-ads.">
+
+<!-- ===== Seguridad (cliente) ===== -->
+<meta http-equiv="Content-Security-Policy"
+  content="
+    default-src 'self';
+    script-src 'self';
+    style-src 'self' 'unsafe-inline';
+    img-src 'self' data:;
+    font-src 'self' data:;
+    media-src 'self';
+    connect-src 'self';
+    frame-src 'none';
+    frame-ancestors 'none';
+    base-uri 'none';
+    form-action 'none';
+    upgrade-insecure-requests;
+  ">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Permissions-Policy"
+  content="
+    geolocation=(),
+    microphone=(),
+    camera=(),
+    payment=(),
+    usb=(),
+    interest-cohort=()
+  ">
+
 <style>
   :root{
     --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
@@ -91,6 +119,7 @@
   .soc .txt{display:flex;flex-direction:column;line-height:1.15}
   .chips{display:flex;flex-wrap:wrap;gap:10px}
   .chip{background:var(--chip);border:1px solid rgba(36,211,238,.35);color:#cfefff;padding:6px 12px;border-radius:999px}
+
   /* EMOJIS */
   .emo{width:20px;height:20px;vertical-align:-3px}
   .adtag{color:var(--muted);font-size:12px;margin-top:6px;text-align:center}
@@ -208,15 +237,17 @@ const CONFIG = {
   ],
   GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"]
 };
-/* Emojis exclusivos SVG */
-const CUSTOM_EMOJIS = [
+
+/* Emojis exclusivos (globales) */
+window.CUSTOM_EMOJIS = [
   { short: ":ivanheadset:", src: "./assets/custom/ivan_headset.svg",   title: "Headset IVANPLAY" },
   { short: ":ivangame:",    src: "./assets/custom/ivan_controller.svg", title: "Gamepad IVANPLAY" }
 ];
 
-/* ===== EMOJIS SVG LOCALES – FIX FINAL UNA PASADA ===== */
+/* ===== EMOJIS SVG LOCALES – UNA PASADA ===== */
 const EMO_EXT = ".svg";
 const TW_BASE = CONFIG.TW_BASE;
+// ✅ usar codepoints reales (no split(""))
 const EMO_UNI = Array.from("😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸");
 
 function toCodepoints(str){ const out=[]; for(const ch of str){ out.push(ch.codePointAt(0).toString(16).toLowerCase()); } return out.join("-"); }
@@ -227,7 +258,7 @@ function emojiImgTag(chr){
   const ent = toEntity(chr);
   return `<img class="emo" src="${src}" alt="" data-f="${ent}" onerror="this.outerHTML=this.dataset.f">`;
 }
-function escapeForRegex(s){ return s.replace(/([.*+?^${}()|[\]\\])/g,"\\$1"); }
+function escapeForRegex(s){ return s.replace(/([.*+?^${}()|[\]\\\\])/g,"\\$1"); }
 const EMO_REGEX = new RegExp("(?:"+EMO_UNI.map(escapeForRegex).join("|")+")","g");
 
 /* ================== UI generales ================== */
@@ -336,6 +367,20 @@ audio.addEventListener("error", ()=>{
 document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && audio.paused){ tryAutoplay(); } });
 loadPlaylist();
 
+/* ================== Seguridad chat (escape, anti-flood, límites) ================== */
+function escapeHTML(str){
+  const div = document.createElement("div");
+  div.textContent = String(str ?? "");
+  return div.innerHTML;
+}
+function normalizeSpaces(s){ return String(s ?? "").replace(/\s+/g," ").trim(); }
+function clampLen(s,max){ s=String(s??""); return (s.length>max)? s.slice(0,max): s; }
+
+let LAST_MSG_TS = 0;
+const FLOOD_MS = 2500;
+const MAX_MSG_LEN = 500;
+const MAX_NICK_LEN = 24;
+
 /* ================== CHAT (localStorage + BroadcastChannel) ================== */
 const log  = $("#chatLog");
 const send = $("#send");
@@ -348,75 +393,54 @@ const CH_KEY = "ivanplay_chat_v1";
 const bc = ("BroadcastChannel" in window) ? new BroadcastChannel("ivanplay_chat_v1") : null;
 
 function getNick(){
-  let n=(nick.value||"").trim();
-  if(!n){ n=localStorage.getItem("ivanplay_nick")||("User"+Math.floor(Math.random()*900+100)); nick.value=n; }
+  let n = normalizeSpaces(nick.value || localStorage.getItem("ivanplay_nick") || "");
+  n = clampLen(n || ("User"+Math.floor(Math.random()*900+100)), MAX_NICK_LEN);
+  nick.value = n; localStorage.setItem("ivanplay_nick", n);
   return n;
 }
-function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Nick guardado: "+getNick(),sys:true}); }
+function saveNickLS(){ localStorage.setItem("ivanplay_nick", getNick()); append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Nick guardado",sys:true}); }
 saveNick.addEventListener("click", saveNickLS);
 nick.value = localStorage.getItem("ivanplay_nick") || "";
 
-/* Picker */
+/* Picker emojis (SVG locales + exclusivos) */
 function renderEmojiButtons(){
-  const box = document.getElementById("emoji");
-  if(!box) return;
-  box.innerHTML = "";
-
+  if(!emojiBox) return; emojiBox.innerHTML="";
+  // Twemoji locales
   EMO_UNI.forEach(e=>{
-    const b = document.createElement("button");
-    b.className = "emoji-font";
-    b.style.padding = "6px";
-
-    const img = document.createElement("img");
-    img.alt = ""; img.width = 20; img.height = 20; img.decoding = "async";
-
-    // ⬇️ Guard: si no hay entrada en EMO_MAP, la calculamos al vuelo
+    const b=document.createElement("button");
+    b.className="emoji-font"; b.style.padding="6px";
+    const img=document.createElement("img");
+    img.alt=""; img.width=20; img.height=20; img.decoding="async";
     const fallbackSrc = `${TW_BASE}${toCodepoints(e)}${EMO_EXT}`;
-    img.src = (EMO_MAP && EMO_MAP[e]) ? EMO_MAP[e] : fallbackSrc;
-
-    // Si aún así no carga, muestra el emoji como texto
-    img.onerror = () => { b.textContent = e; };
-
+    img.src = EMO_MAP[e] || fallbackSrc;
+    img.onerror = ()=>{ b.textContent = e; };
     b.appendChild(img);
-    b.onclick = () => { const t = document.getElementById("msg"); t.value += e; t.focus(); };
-    box.appendChild(b);
+    b.onclick=()=>{ msg.value += e; msg.focus(); };
+    emojiBox.appendChild(b);
   });
-
-  // Exclusivos (SVG) – ahora desde window y con fallback si 404
-  (window.CUSTOM_EMOJIS || []).forEach(e => {
-    const b = document.createElement("button");
-    b.className = "emoji-font"; b.style.padding = "6px";
-
-    const img = document.createElement("img");
-    img.src = e.src; img.alt = ""; img.width = 20; img.height = 20; img.decoding = "async";
-    img.onerror = () => { b.textContent = e.short; }; // ← muestra el shortcode si falta el svg
-    b.appendChild(img);
-
-    b.title = e.title || "";
-    b.onclick = () => { const t = document.getElementById("msg"); t.value += " " + e.short + " "; t.focus(); };
-    document.getElementById("emoji").appendChild(b);
+  // Exclusivos
+  (window.CUSTOM_EMOJIS||[]).forEach(e=>{
+    const b=document.createElement("button");
+    b.className="emoji-font"; b.style.padding="6px";
+    const img=document.createElement("img");
+    img.src=e.src; img.alt=""; img.width=20; img.height=20; img.decoding="async";
+    img.onerror = ()=>{ b.textContent = e.short; };
+    b.appendChild(img); b.title=e.title||"";
+    b.onclick=()=>{ msg.value += " " + e.short + " "; msg.focus(); };
+    emojiBox.appendChild(b);
   });
 }
 renderEmojiButtons();
 
-/* Dibuja un mensaje con reemplazo en UNA pasada */
+/* Dibuja un mensaje (mensaje ya saneado y con emojis aplicados) */
 function append(o){
   if(!log) return;
-  const base = `[${o.t}] ${o.u}: ${o.m}`;
-  let html = base;
-
-  // Shortcodes exclusivos primero (no contienen unicode)
-  (CUSTOM_EMOJIS||[]).forEach(e=>{
-    const re = new RegExp(e.short.replace(/[-/\\^$*+?.()|[\]{}]/g,'\\$&'),"g");
-    html = html.replace(re, `<img class="emo" src="${e.src}" alt="">`);
-  });
-
-  // Todos los emojis unicode en UNA sola pasada
-  html = html.replace(EMO_REGEX, m => emojiImgTag(m));
-
+  const nickSafe = clampLen(escapeHTML(o.u ?? "Invitado"), MAX_NICK_LEN);
+  const timeSafe = escapeHTML(o.t ?? "");
+  const body = String(o.m ?? "");
   const p=document.createElement("div");
   p.className="msg"+(o.sys?" sys":"");
-  p.innerHTML=html;
+  p.innerHTML = `[${timeSafe}] ${nickSafe}: ${body}`;
   log.appendChild(p);
   log.scrollTop=log.scrollHeight;
 }
@@ -424,10 +448,37 @@ function append(o){
 /* Persistencia + sync */
 function loadChat(){ try{ (JSON.parse(localStorage.getItem(CH_KEY)||"[]")).slice(-200).forEach(append);}catch{} }
 function store(o){ try{ const a=JSON.parse(localStorage.getItem(CH_KEY)||"[]"); a.push(o); localStorage.setItem(CH_KEY, JSON.stringify(a.slice(-300))); }catch{} }
-function sendMsg(){ const m=(msg.value||"").trim(); if(!m) return; const o={t:new Date().toLocaleTimeString(),u:getNick(),m}; append(o); store(o); if(bc) bc.postMessage(o); msg.value=""; }
+
+/* Envío seguro con anti-flood y escape */
+function sendMsg(){
+  const nowTs = Date.now();
+  if (nowTs - LAST_MSG_TS < FLOOD_MS) return;
+
+  const n = getNick();
+  let m = normalizeSpaces(msg.value);
+  if(!m) return;
+  m = clampLen(m, MAX_MSG_LEN);
+
+  // Escapar HTML antes de aplicar emojis
+  let safeMsg = escapeHTML(m);
+
+  // Exclusivos primero
+  (window.CUSTOM_EMOJIS||[]).forEach(e=>{
+    const re = new RegExp(e.short.replace(/[-/\\^$*+?.()|[\]{}]/g,'\\$&'),"g");
+    safeMsg = safeMsg.replace(re, `<img class="emo" src="${e.src}" alt="">`);
+  });
+  // Emojis unicode en UNA pasada
+  safeMsg = safeMsg.replace(EMO_REGEX, chr => emojiImgTag(chr));
+
+  const o = { t:new Date().toLocaleTimeString(), u:n, m:safeMsg, sys:false };
+  append(o); store(o); if(bc) bc.postMessage(o);
+  LAST_MSG_TS = nowTs; msg.value = "";
+}
+
 send.addEventListener("click", sendMsg);
-msg.addEventListener("keydown", e=>{ if(e.key==="Enter" && (e.ctrlKey||e.metaKey)) sendMsg(); });
+msg.addEventListener("keydown", e=>{ if((e.ctrlKey||e.metaKey) && e.key==="Enter") sendMsg(); });
 if(bc) bc.onmessage=ev=>{ if(ev&&ev.data) append(ev.data); };
+
 append({t:new Date().toLocaleTimeString(),u:"Sistema",m:"Bienvenido al chat de RADIO IVANPLAY 🙂",sys:true});
 loadChat();
 
@@ -443,6 +494,14 @@ CONFIG.SOCIALS.forEach(s=>{
   socials.appendChild(base);
 });
 CONFIG.GENRES.forEach(g=>{ const c=document.createElement("span"); c.className="chip"; c.textContent=g; chips.appendChild(c); });
+
+/* ========== Pequeños “duros” (opcional) ========== */
+// Anti clickjacking (complementa frame-ancestors 'none')
+if (top !== self) { try { top.location = self.location; } catch(_){} }
+// Evitar arrastre accidental en imágenes/links/botones
+document.addEventListener("dragstart", e => { if (e.target.closest("img,a,button")) e.preventDefault(); });
+// Desactivar menú contextual (opcional, comenta si no lo quieres)
+document.addEventListener("contextmenu", e => e.preventDefault());
 </script>
 </body>
 </html>
