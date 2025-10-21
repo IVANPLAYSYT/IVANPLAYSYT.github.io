@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>RADIO IVANPLAY ESPAÑA — 24/7</title>
-<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada. Chat interno, banner épico y estilo morado gaming." />
+<meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada. Chat interno, banner épico y estilo morado gaming. Con publicidad y audio-ads." />
 <style>
   :root{
     --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
@@ -96,6 +96,7 @@
 
   /* tamaño estándar para imágenes emoji */
   .emo { width:20px; height:20px; vertical-align:-3px; }
+  .adtag{color:var(--muted);font-size:12px;margin-top:6px;text-align:center}
 </style>
 </head>
 <body>
@@ -107,6 +108,14 @@
       <h1 class="neon">RADIO IVANPLAY ESPAÑA</h1>
       <div class="neon-sub">24/7 MUSIC EXPERIENCE</div>
     </div>
+  </section>
+
+  <!-- Publicidad estática: bloque grande debajo del banner -->
+  <section class="card" style="margin:12px 0">
+    <a href="https://tu-enlace-del-anunciante.example" target="_blank" rel="noopener" style="display:block;text-align:center">
+      <img src="./assets/ads/banner_top_970x250.jpg" alt="Publicidad" style="max-width:100%;height:auto;border-radius:12px">
+    </a>
+    <div class="adtag">Publicidad</div>
   </section>
 
   <header class="card">
@@ -140,22 +149,33 @@
         <span class="muted">Pulsa para iniciar audio</span>
         <button id="startBtn" class="btn primary">Iniciar</button>
       </div>
+      <p class="muted" style="margin-top:10px">Este stream puede incluir mensajes promocionales (audio-ads).</p>
     </div>
 
-    <div class="card">
-      <h2 style="margin:4px 0 10px">Chat</h2>
-      <div id="chatLog" class="emoji-font"></div>
-      <div class="row" style="margin-top:8px">
-        <input id="nick" type="text" placeholder="Tu nick" style="max-width:220px" class="emoji-font">
-        <button id="saveNick" class="btn">Guardar</button>
+    <div>
+      <div class="card">
+        <h2 style="margin:4px 0 10px">Chat</h2>
+        <div id="chatLog" class="emoji-font"></div>
+        <div class="row" style="margin-top:8px">
+          <input id="nick" type="text" placeholder="Tu nick" style="max-width:220px" class="emoji-font">
+          <button id="saveNick" class="btn">Guardar</button>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <textarea id="msg" rows="2" placeholder="Escribe un mensaje…" class="emoji-font"></textarea>
+          <button id="send" class="btn primary">Enviar</button>
+        </div>
+        <div id="emoji" style="margin-top:6px" class="emoji-font"></div>
+        <p class="muted">Atajos: escribe <code>:ivanheadset:</code> o <code>:ivangame:</code> para usar los exclusivos.</p>
+        <p class="muted">Chat interno en esta página. El historial se guarda en tu navegador.</p>
       </div>
-      <div class="row" style="margin-top:8px">
-        <textarea id="msg" rows="2" placeholder="Escribe un mensaje…" class="emoji-font"></textarea>
-        <button id="send" class="btn primary">Enviar</button>
-      </div>
-      <div id="emoji" style="margin-top:6px" class="emoji-font"></div>
-      <p class="muted">Atajos: escribe <code>:ivanheadset:</code> o <code>:ivangame:</code> para usar los exclusivos.</p>
-      <p class="muted">Chat interno en esta página. El historial se guarda en tu navegador.</p>
+
+      <!-- Publicidad estática: bloque en columna chat -->
+      <section class="card" style="margin-top:12px;text-align:center">
+        <a href="https://tu-otro-anunciante.example" target="_blank" rel="noopener" style="display:block">
+          <img src="./assets/ads/sidebar_300x250.jpg" alt="Publicidad" style="max-width:100%;height:auto;border-radius:12px">
+        </a>
+        <div class="adtag">Publicidad</div>
+      </section>
     </div>
   </section>
 
@@ -178,10 +198,13 @@
 <script>
 /* ================== CONFIG ================== */
 const CONFIG = {
-  PLAYLIST_JSON_URL: "./music/playlist.json",
+  PLAYLIST_JSON_URL: "./music/playlist.json",     // tu lista principal
+  ADS_JSON_URL: "./music/anuncios.json",          // promos de audio (si no existe, se ignoran)
+  AUDIO_ADS_EVERY: 4,                              // inserta 1 anuncio cada N canciones
   SHUFFLE: true,
-  BANNER_URL: "./assets/banner.jpg",      // si subes esta imagen, el banner la usa
-  TW_BASE: "./assets/twemoji/",           // carpeta con tus emojis locales
+  BANNER_URL: "./assets/banner.jpg",
+  TW_BASE: "./assets/twemoji/",
+
   SOCIALS: [
     {name:"YouTube",   icon:"▶️", url:"https://www.youtube.com/@ivanplays8012"},
     {name:"Twitch",    icon:"🎮", url:"https://www.twitch.tv/ivanplays_offi"},
@@ -189,13 +212,14 @@ const CONFIG = {
   ],
   GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"]
 };
+
 /* Emojis exclusivos (SVG locales) */
 const CUSTOM_EMOJIS = [
   { short: ":ivanheadset:", src: "./assets/custom/ivan_headset.svg",   title: "Headset IVANPLAY" },
   { short: ":ivangame:",    src: "./assets/custom/ivan_controller.svg", title: "Gamepad IVANPLAY" }
 ];
 
-/* ===== Emojis locales (sin twemoji.parse) ===== */
+/* ===== Emojis locales (sin twemoji.parse, a prueba de balas) ===== */
 const EMO_EXT = ".png";                       // cambia a ".svg" si subes todos como SVG
 const TW_BASE = CONFIG.TW_BASE;               // "./assets/twemoji/"
 const EMO_UNI = "😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸".split("");
@@ -231,28 +255,63 @@ function enc(u){
   catch{ return u.split('/').map((seg,i)=> i===0?seg:encodeURIComponent(seg)).join('/'); }
 }
 
-/* ================== PLAYER ================== */
+/* ================== PLAYER + AUDIO-ADS ================== */
 const audio=$("#audio"), now=$("#now"), playBtn=$("#playBtn"), stopBtn=$("#stopBtn"), prevBtn=$("#prevBtn"), nextBtn=$("#nextBtn"), vol=$("#vol"), gate=$("#gate"), startBtn=$("#startBtn");
-let playlist=[], i=0;
+let playlist=[], ads=[], mixed=[], i=0;
 
 function isAudio(u){ return /\.(mp3|wav|aac|m4a|ogg)$/i.test((u||'').split('?')[0]); }
 
-async function loadPlaylist(){
+async function fetchJSONSafe(url){
   try{
-    const r = await fetch(CONFIG.PLAYLIST_JSON_URL,{cache:"no-store"});
-    if(!r.ok){ setStatus("No se pudo cargar playlist.json ("+r.status+")", false); return; }
-    const arr = await r.json();
-    let files = Array.isArray(arr) ? arr.filter(isAudio) : [];
-    if(!files.length){ setStatus("playlist.json está vacío o mal formateado", false); return; }
-    playlist = files.map(u=>enc(u));
-    if(CONFIG.SHUFFLE && playlist.length>1){
-      for(let k=playlist.length-1;k>0;k--){ const j=Math.floor(Math.random()*(k+1)); [playlist[k],playlist[j]]=[playlist[j],playlist[k]]; }
-    }
-    i=0; setStatus(`Playlist cargada (${playlist.length} pistas)`, true); setTrack(i);
-    setTimeout(tryAutoplay, 200); // intenta reproducir al entrar
-  }catch{ setStatus("Error cargando playlist.json", false); }
+    const r = await fetch(url, {cache:"no-store"});
+    if(!r.ok) return null;
+    return await r.json();
+  }catch{ return null; }
 }
-function setTrack(idx){ if(!playlist.length) return; i=(idx+playlist.length)%playlist.length; const url=playlist[i]; audio.src=url; now.textContent="Reproduciendo: "+baseName(url); const b=$("#skipErr"); if(b) b.remove(); }
+
+async function loadPlaylist(){
+  const pl = await fetchJSONSafe(CONFIG.PLAYLIST_JSON_URL);
+  if(!Array.isArray(pl) || !pl.length){ setStatus("playlist.json está vacío o mal formateado", false); return; }
+
+  const main = pl.filter(isAudio).map(u=>enc(u));
+  if(CONFIG.SHUFFLE && main.length>1){
+    for(let k=main.length-1;k>0;k--){ const j=Math.floor(Math.random()*(k+1)); [main[k],main[j]]=[main[j],main[k]]; }
+  }
+
+  // anuncios opcionales
+  const adsJson = await fetchJSONSafe(CONFIG.ADS_JSON_URL);
+  ads = Array.isArray(adsJson) ? adsJson.filter(isAudio).map(u=>enc(u)) : [];
+
+  // mezcla: cada N canciones, inserta 1 anuncio aleatorio de ads (si hay)
+  mixed = [];
+  const N = Math.max(2, parseInt(CONFIG.AUDIO_ADS_EVERY||4,10)); // mínimo cada 2 para no saturar
+  let count=0;
+  for(const track of main){
+    mixed.push({url:track, type:"music"});
+    count++;
+    if(ads.length && count>=N){
+      const pick = ads[Math.floor(Math.random()*ads.length)];
+      mixed.push({url:pick, type:"ad"});
+      count=0;
+    }
+  }
+  playlist = mixed.length ? mixed : main.map(u=>({url:u,type:"music"}));
+
+  i=0;
+  setStatus(`Playlist cargada (${main.length} pistas${ads.length?` + ${ads.length} anuncios`:''})`, true);
+  setTrack(i);
+  setTimeout(tryAutoplay, 200);
+}
+
+function setTrack(idx){
+  if(!playlist.length) return;
+  i = (idx + playlist.length) % playlist.length;
+  const item = playlist[i];
+  audio.src = item.url;
+  now.textContent = (item.type==="ad" ? "Anuncio: " : "Reproduciendo: ") + baseName(item.url);
+  const b=$("#skipErr"); if(b) b.remove();
+}
+
 async function play(){ try{ if(!audio.src) setTrack(0); await audio.play(); gate.style.display="none"; playBtn.textContent="⏸ Pausar"; playBtn.classList.remove("primary"); }catch{ gate.style.display="flex"; } }
 function pause(){ audio.pause(); playBtn.textContent="▶ Reproducir"; playBtn.classList.add("primary"); }
 function next(){ if(!playlist.length) return; setTrack(i+1); play(); }
@@ -273,6 +332,7 @@ audio.addEventListener("error", ()=>{
   if(!$("#skipErr")){ const b=document.createElement("button"); b.id="skipErr"; b.className="btn"; b.style.marginLeft="8px"; b.textContent="Saltar error y continuar ⏭"; b.onclick=()=>{ b.remove(); next(); }; $("#status").after(b); }
 });
 document.addEventListener("visibilitychange", ()=>{ if(document.visibilityState==="visible" && audio.paused){ tryAutoplay(); } });
+
 loadPlaylist();
 
 /* ===== CHAT + EMOJIS (locales y exclusivos) ===== */
@@ -333,7 +393,7 @@ function append(o){
 }
 function loadChat(){ try{ (JSON.parse(localStorage.getItem(CH_KEY)||"[]")).slice(-200).forEach(append);}catch{} }
 function store(o){ try{ const a=JSON.parse(localStorage.getItem(CH_KEY)||"[]"); a.push(o); localStorage.setItem(CH_KEY, JSON.stringify(a.slice(-300))); }catch{} }
-function sendMsg(){ const m=(msg.value||"").trim(); if(!m) return; const o={t:new Date().toLocaleTimeString(),u:getNick(),m}; append(o); store(o); msg.value=""; if(bc) bc.postMessage(o); }
+function sendMsg(){ const m=(msg.value||"").trim(); if(!m) return; const o={t:new Date().toLocaleTimeString(),u:getNick(),m}; append(o); store(o); if(bc) bc.postMessage(o); msg.value=""; }
 send.addEventListener("click", sendMsg);
 msg.addEventListener("keydown", e=>{ if(e.key==="Enter" && (e.ctrlKey||e.metaKey)) sendMsg(); });
 if(bc) bc.onmessage=ev=>{ if(ev&&ev.data) append(ev.data); };
