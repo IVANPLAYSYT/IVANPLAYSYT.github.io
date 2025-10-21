@@ -382,15 +382,19 @@ function renderEmojiButtons(){
     box.appendChild(b);
   });
 
-  // Exclusivos SVG (igual que ya lo tienes)
-  (window.CUSTOM_EMOJIS||[]).forEach(e=>{
-    const b=document.createElement("button");
-    b.className="emoji-font"; b.style.padding="6px";
-    const img=document.createElement("img");
-    img.src=e.src; img.alt=""; img.width=20; img.height=20; img.decoding="async";
-    b.appendChild(img); b.title=e.title||"";
-    b.onclick=()=>{ const t=document.getElementById("msg"); t.value+=" "+e.short+" "; t.focus(); };
-    box.appendChild(b);
+  // Exclusivos (SVG) – ahora desde window y con fallback si 404
+  (window.CUSTOM_EMOJIS || []).forEach(e => {
+    const b = document.createElement("button");
+    b.className = "emoji-font"; b.style.padding = "6px";
+
+    const img = document.createElement("img");
+    img.src = e.src; img.alt = ""; img.width = 20; img.height = 20; img.decoding = "async";
+    img.onerror = () => { b.textContent = e.short; }; // ← muestra el shortcode si falta el svg
+    b.appendChild(img);
+
+    b.title = e.title || "";
+    b.onclick = () => { const t = document.getElementById("msg"); t.value += " " + e.short + " "; t.focus(); };
+    document.getElementById("emoji").appendChild(b);
   });
 }
 renderEmojiButtons();
