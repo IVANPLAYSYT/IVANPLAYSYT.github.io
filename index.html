@@ -8,15 +8,46 @@
 
 <!-- ===== Seguridad (CSP) ===== -->
 <meta http-equiv="Content-Security-Policy" content="
-  default-src 'self' https:;
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https:;
-  script-src-elem 'self' 'unsafe-inline' https:;
-  style-src 'self' 'unsafe-inline' https:;
-  img-src 'self' data: https:;
-  font-src 'self' data: https:;
+  default-src 'self';
+  script-src 'self' 'unsafe-inline' 'unsafe-eval'
+    https://acscdn.com
+    https://effectivegatecpm.com
+    https://*.effectivegatecpm.com
+    https://highperformanceformat.com
+    https://www.gstatic.com
+    https://www.google.com
+    https://apis.google.com
+    https://www.gstatic.com/firebasejs
+    https://www.googletagmanager.com;
+  script-src-elem 'self' 'unsafe-inline'
+    https://acscdn.com
+    https://effectivegatecpm.com
+    https://*.effectivegatecpm.com
+    https://highperformanceformat.com
+    https://www.gstatic.com
+    https://www.gstatic.com/firebasejs;
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data:
+    https://effectivegatecpm.com
+    https://*.effectivegatecpm.com
+    https://highperformanceformat.com;
+  font-src 'self' data:;
   media-src 'self' https:;
-  connect-src 'self' https: wss:;
-  frame-src https: data:;
+  connect-src 'self'
+    https://api.countapi.xyz
+    https://acscdn.com
+    https://effectivegatecpm.com
+    https://*.effectivegatecpm.com
+    https://highperformanceformat.com
+    https://*.firebaseio.com
+    https://*.firebasedatabase.app
+    wss://*.firebaseio.com
+    wss://*.firebasedatabase.app;
+  frame-src
+    https://effectivegatecpm.com
+    https://*.effectivegatecpm.com
+    https://highperformanceformat.com
+    https://acscdn.com;
   base-uri 'none';
   form-action 'none';
   upgrade-insecure-requests;
