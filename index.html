@@ -656,5 +656,13 @@ setInterval(()=>{ if(shouldFireHourly()){ enqueueJingleNext(); lastHourFired=new
 // Estadísticas: tema iniciado (no anuncios)
 audio.addEventListener("playing", ()=>{ try{ const item=(playlist&&playlist[i])?playlist[i]:null; if(item&&item.type==="music"){ statIncToday(); statIncTotal(); } }catch{} });
 </script>
+    
+    <!-- === [ADCASH] AutoTag (balance UX/$ configurado en tu panel) === -->
+<script>
+  aclib.runAutoTag({
+    zoneId: 'bezob4csg5'
+  });
+</script>
+
 </body>
 </html>
