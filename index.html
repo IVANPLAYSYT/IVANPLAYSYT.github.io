@@ -6,7 +6,7 @@
 <title>RADIO IVANPLAY ESPAÑA — 24/7</title>
 <meta name="description" content="Radio IVANPLAY — AutoDJ 24/7 con música variada, chat en vivo, emojis SVG, publicidad y audio-ads.">
 
-<!-- ===== Seguridad (cliente) ===== -->
+<!-- ===== Seguridad (CSP) ===== -->
 <meta http-equiv="Content-Security-Policy"
   content="
     default-src 'self';
@@ -261,9 +261,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 <script>
-// ======= CONFIGURA AQUÍ TU PROYECTO FIREBASE =======
+/* ======= CONFIGURA AQUÍ TU PROYECTO FIREBASE ======= */
 window.FIREBASE_CONFIG = {
-  apiKey:        "AIzaSyAIlX6svUMeb1_Q0Mn4WvxojDDTqtIYXv0", // <-- pon tus datos aquí
+  apiKey:        "AIzaSyAIlX6svUMeb1_Q0Mn4WvxojDDTqtIYXv0",          /* <- pon tus valores reales */
   authDomain:    "ivanplayradio.firebaseapp.com",
   databaseURL:   "https://ivanplayradio-default-rtdb.europe-west1.firebasedatabase.app/",
   projectId:     "ivanplayradio",
@@ -294,7 +294,8 @@ const CONFIG = {
   COUNTAPI_NAMESPACE: "ivanplayradio",
   COUNTAPI_KEY: "visitas_totales"
 };
-/* Emojis exclusivos (globales) */
+
+/* Emojis exclusivos */
 window.CUSTOM_EMOJIS = [
   { short: ":ivanheadset:", src: "./assets/custom/ivan_headset.svg",   title: "Headset IVANPLAY" },
   { short: ":ivangame:",    src: "./assets/custom/ivan_controller.svg", title: "Gamepad IVANPLAY" }
@@ -449,15 +450,62 @@ function renderMsg(obj){
   log.scrollTop=log.scrollHeight;
 }
 
+/* ===================== Filtro anti-spam / insultos ===================== */
+const SPAM = {
+  blacklist: [
+    "puta","puto","mierda","joder","cabrón","cabron","gilipollas","hdp","imbecil",
+    "estafa","scam","porno","xxx","sex","nazi","racista","negro de mierda"
+  ],
+  allowDomains: [
+    "ivanplaysyt.github.io","twitch.tv","youtube.com","youtu.be","x.com","twitter.com","soundcloud.com"
+  ],
+  maxEmojis: 20,
+  maxRepeatChar: 4,
+  maxShouting: 0.85,
+  minMsgLen: 1,
+  maxMsgLen: 200
+};
+function cleanUnicode(s){ return String(s||"").replace(/[\u200B-\u200D\uFEFF]/g,"").replace(/\u00A0/g," ").replace(/\s+/g," ").trim(); }
+function countEmojis(s){ const re=/([\p{Extended_Pictographic}])|(<img[^>]+class="emo"[^>]*>)/gu; return (String(s).match(re)||[]).length; }
+function hasForbiddenLink(s){
+  const urlRe=/\bhttps?:\/\/[^\s)]+/gi; const found=String(s).match(urlRe)||[];
+  if(found.length===0) return false;
+  return found.some(u=>{ try{ const h=new URL(u).hostname.replace(/^www\./,"").toLowerCase(); return !SPAM.allowDomains.some(ad=>h.endsWith(ad)); }catch{ return true; }});
+}
+function shoutingRatio(s){ const letters=(String(s).match(/[A-Za-zÁÉÍÓÚÜÑáéíóúüñ]/g)||[]); if(!letters.length) return 0; const caps=(String(s).match(/[A-ZÁÉÍÓÚÜÑ]/g)||[]).length; return caps/letters.length; }
+function clampRepeats(s){ return String(s).replace(/(.)\1{5,}/g,(m,ch)=>ch.repeat(SPAM.maxRepeatChar)); }
+function hashStr(s){ let h=0; s=String(s); for(let i=0;i<s.length;i++){ h=(h<<5)-h + s.charCodeAt(i); h|=0; } return h.toString(16); }
+function filterMessage(raw){
+  let msg = cleanUnicode(raw);
+  if(msg.length < SPAM.minMsgLen) return {ok:false, reason:"Mensaje vacío."};
+  if(msg.length > SPAM.maxMsgLen) msg = msg.slice(0, SPAM.maxMsgLen);
+  if(hasForbiddenLink(msg)) return {ok:false, reason:"Enlaces externos no permitidos."};
+  const low = msg.toLowerCase();
+  if(SPAM.blacklist.some(w => low.includes(w))) return {ok:false, reason:"Lenguaje no permitido."};
+  if(countEmojis(msg) > SPAM.maxEmojis) return {ok:false, reason:"Demasiados emojis."};
+  if(shoutingRatio(msg) > SPAM.maxShouting) msg = msg.toLowerCase();
+  msg = clampRepeats(msg);
+  const n = getNick(); const key="dup_"+n; const h=hashStr(msg);
+  if(sessionStorage.getItem(key) === h) return {ok:false, reason:"Mensaje repetido."};
+  sessionStorage.setItem(key, h);
+  return {ok:true, cleaned: msg};
+}
+
 /* ===== Fallback local (sin Firebase) ===== */
 function loadChatLocal(){ try{ (JSON.parse(localStorage.getItem(CH_KEY)||"[]")).slice(-200).forEach(renderMsg);}catch{} }
 function storeLocal(o){ try{ const a=JSON.parse(localStorage.getItem(CH_KEY)||"[]"); a.push(o); localStorage.setItem(CH_KEY, JSON.stringify(a.slice(-300))); }catch{} }
 function sendLocal(){
   const nowTs = Date.now(); if (nowTs - LAST_MSG_TS < FLOOD_MS) return;
-  const n = getNick(); let m = normalizeSpaces(msg.value); if(!m) return; m = clampLen(m, MAX_MSG_LEN);
+  const n = getNick(); let m = normalizeSpaces(msg.value); if(!m) return;
+
+  const f = filterMessage(m);
+  if(!f.ok){ renderMsg({t:new Date().toLocaleTimeString(), u:"Sistema", m:`${escapeHTML(f.reason)} 🚫`, sys:true}); return; }
+  m = f.cleaned;
+
   let safe = escapeHTML(m);
   (window.CUSTOM_EMOJIS||[]).forEach(e=>{ const re=new RegExp(e.short.replace(/[-/\\^$*+?.()|[\]{}]/g,'\\$&'),"g"); safe = safe.replace(re, `<img class="emo" src="${e.src}" alt="">`); });
   safe = safe.replace(EMO_REGEX, chr => emojiImgTag(chr));
+
   const o = { t:new Date().toLocaleTimeString(), u:n, m:safe, sys:false };
   renderMsg(o); storeLocal(o); if(bc) bc.postMessage(o);
   LAST_MSG_TS = nowTs; msg.value="";
@@ -500,10 +548,16 @@ function bindFirebase(){
 
   async function sendFirebase(){
     const nowTs = Date.now(); if (nowTs - LAST_MSG_TS < FLOOD_MS) return;
-    const n = getNick(); let m = normalizeSpaces(msg.value); if(!m) return; m = clampLen(m, MAX_MSG_LEN);
+    const n = getNick(); let m = normalizeSpaces(msg.value); if(!m) return;
+
+    const f = filterMessage(m);
+    if(!f.ok){ renderMsg({t:new Date().toLocaleTimeString(), u:"Sistema", m:`${escapeHTML(f.reason)} 🚫`, sys:true}); return; }
+    m = f.cleaned;
+
     let safe = escapeHTML(m);
     (window.CUSTOM_EMOJIS||[]).forEach(e=>{ const re=new RegExp(e.short.replace(/[-/\\^$*+?.()|[\]{}]/g,'\\$&'),"g"); safe = safe.replace(re, `<img class="emo" src="${e.src}" alt="">`); });
     safe = safe.replace(EMO_REGEX, chr => emojiImgTag(chr));
+
     const o = { t:new Date().toLocaleTimeString(), u:n, m:safe, sys:false };
     await messagesRef.push(o);
     LAST_MSG_TS = nowTs; msg.value="";
