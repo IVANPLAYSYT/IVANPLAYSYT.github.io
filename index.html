@@ -10,13 +10,13 @@
 <meta http-equiv="Content-Security-Policy"
   content="
     default-src 'self';
-    script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://www.googleapis.com;
+    script-src 'self' 'unsafe-inline' https://www.gstatic.com https://www.google.com https://www.googleapis.com https://acscdn.com https://effectivegatecpm.com https://highperformanceformat.com;
     style-src 'self' 'unsafe-inline';
-    img-src 'self' data:;
+    img-src 'self' data: https://effectivegatecpm.com https://highperformanceformat.com;
     font-src 'self' data:;
     media-src 'self';
-    connect-src 'self' https://api.countapi.xyz https://*.firebaseio.com https://*.firebasedatabase.app wss://*.firebaseio.com wss://*.firebasedatabase.app https://www.googleapis.com;
-    frame-src 'none';
+    connect-src 'self' https://api.countapi.xyz https://*.firebaseio.com https://*.firebasedatabase.app wss://*.firebaseio.com wss://*.firebasedatabase.app https://www.googleapis.com https://acscdn.com https://effectivegatecpm.com https://highperformanceformat.com;
+    frame-src https://effectivegatecpm.com https://highperformanceformat.com;
     frame-ancestors 'none';
     base-uri 'none';
     form-action 'none';
