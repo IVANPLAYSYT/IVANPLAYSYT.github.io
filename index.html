@@ -8,15 +8,15 @@
 
 <!-- ===== Seguridad (CSP) ===== -->
 <meta http-equiv="Content-Security-Policy" content="
-  default-src 'self' https:;
-  script-src 'self' 'unsafe-inline' 'unsafe-eval' https:;
-  script-src-elem 'self' 'unsafe-inline' https:;
+  default-src 'self' https: data: blob:;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;
+  script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;
   style-src 'self' 'unsafe-inline' https:;
-  img-src 'self' data: https:;
+  img-src 'self' data: blob: https:;
   font-src 'self' data: https:;
-  media-src 'self' https:;
-  connect-src 'self' https: wss:;
-  frame-src https: data:;
+  media-src 'self' https: data:;
+  connect-src 'self' https: wss: data: blob:;
+  frame-src https: data: blob:;
   base-uri 'none';
   form-action 'none';
   upgrade-insecure-requests;
