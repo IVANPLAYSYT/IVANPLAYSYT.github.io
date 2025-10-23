@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tienda – RADIO IVANPLAY</title>
+<meta name="description" content="Compra canciones de IVANPLAY en formato digital. Pre-escucha y licencia básica.">
+<link rel="icon" href="/assets/favicon.png" type="image/png">
+
+<!-- (Opcional) misma fuente/estilos base que tu web -->
+<style>
+  :root{
+    --bg:#070a12; --card:#0f1222; --muted:#98a1c7; --text:#e9ecf5; --border:rgba(255,255,255,.07);
+    --primary:#7c8cff; --accent:#9f7bff;
+  }
+  html,body{margin:0;background:
+    linear-gradient(180deg, rgba(7,10,18,.70), rgba(7,10,18,.85)),
+    url('/assets/bg/ivanplay_gamer_bg.jpg') center/cover fixed no-repeat;
+    color:var(--text); font-family:system-ui,Segoe UI,Roboto,Inter,Arial}
+  a{color:var(--primary); text-decoration:none}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px}
+  header{display:flex;align-items:center;gap:12px;justify-content:space-between;margin:8px 0 16px}
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand .title{font-weight:800;letter-spacing:.3px}
+  .nav{display:flex;gap:10px}
+  .btn{background:linear-gradient(90deg,var(--primary),var(--accent)); color:#0a0d18;
+       border:0;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer}
+  .btn:disabled{opacity:.6;cursor:not-allowed}
+  .chip{background:#141a30;color:#cfd3ff;border:1px solid var(--border);padding:6px 10px;border-radius:999px}
+  .card{background:var(--card); border:1px solid var(--border); border-radius:16px; padding:16px}
+  .muted{color:var(--muted)}
+  .grid{display:grid; gap:12px}
+  /* TIENDA */
+  .store-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}
+  .input{background:#0b0f1f;border:1px solid var(--border);border-radius:12px;color:var(--text);
+         padding:10px 12px;min-height:38px}
+  .store-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(240px,1fr))}
+  .store-item{background:#0f1222;border:1px solid var(--border);border-radius:16px;overflow:hidden;display:grid;grid-template-rows:auto 1fr auto}
+  .store-cover{aspect-ratio:16/9;width:100%;object-fit:cover;background:#0b0e1a}
+  .store-body{padding:12px}
+  .store-title{font-weight:800;margin:0 0 6px}
+  .store-meta{color:var(--muted);font-size:12px;margin-bottom:8px}
+  .store-actions{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);align-items:center}
+  .store-price{margin-left:auto;font-weight:900}
+  .store-audio{width:100%; height:32px}
+  footer{margin:28px 0 12px; text-align:center; color:var(--muted); font-size:12px}
+</style>
+
+<!-- CSP permisiva (igual que index si la usas). Mantén solo UNA meta CSP activa. -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self' https: data: blob:;
+  script-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;
+  script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:;
+  style-src 'self' 'unsafe-inline' https:;
+  img-src 'self' data: blob: https:;
+  font-src 'self' data: https:;
+  media-src 'self' https: data:;
+  connect-src 'self' https: wss: data: blob:;
+  frame-src https: data: blob:;
+  base-uri 'none'; form-action 'none'; upgrade-insecure-requests;
+">
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <img src="/assets/logo-ivanplay.png" alt="IVANPLAY" width="40" height="40" style="border-radius:10px">
+        <div class="title">RADIO IVANPLAY — Tienda</div>
+      </div>
+      <nav class="nav">
+        <a class="chip" href="/">Inicio</a>
+        <a class="chip" href="/store.html" aria-current="page">Tienda</a>
+      </nav>
+    </header>
+
+    <section class="card">
+      <h1 style="margin:0 0 8px">Tienda</h1>
+      <p class="muted" style="margin:0 0 14px">Compra mis canciones en formato digital. Incluye pre-escucha y licencia básica.</p>
+
+      <div class="store-toolbar">
+        <input id="storeSearch" class="input" placeholder="Buscar canción…" style="flex:1;min-width:220px">
+        <select id="storeGenre" class="input" style="width:180px">
+          <option value="">Todos los géneros</option>
+          <option>Hardbass</option>
+          <option>Reggaeton</option>
+          <option>EDM</option>
+          <option>Deep House</option>
+          <option>Tech House</option>
+          <option>Hip Hop/Rap</option>
+        </select>
+      </div>
+
+      <div id="storeGrid" class="store-grid"></div>
+
+      <p class="muted" style="margin-top:14px;font-size:12px">
+        * Licencia básica: uso personal y streaming no comercial. Para uso comercial/PRO, contáctame.
+      </p>
+    </section>
+
+    <footer>© 2025 IVANPLAY — Gracias por apoyar la música independiente.</footer>
+  </div>
+
+  <!-- Carga de catálogo y render de la tienda -->
+  <script>
+  (async function(){
+    const grid   = document.getElementById('storeGrid');
+    const search = document.getElementById('storeSearch');
+    const genre  = document.getElementById('storeGenre');
+    if(!grid) return;
+
+    let products = [];
+    try{
+      const res = await fetch('/store/products.json', {cache:'no-store'});
+      products = await res.json();
+    }catch(e){
+      grid.innerHTML = '<div class="muted">No se pudo cargar la tienda.</div>';
+      return;
+    }
+
+    function cardHTML(p){
+      const price = (typeof p.price==='number') ? p.price.toFixed(2)+'€' : '';
+      const meta  = [p.genre || '', p.bpm? (p.bpm+' BPM'):'', p.key? p.key:''].filter(Boolean).join(' • ');
+      return `
+        <div class="store-item">
+          <img class="store-cover" src="${p.cover || '/assets/store/placeholder.jpg'}" alt="${p.title}">
+          <div class="store-body">
+            <h3 class="store-title">${p.title}</h3>
+            <div class="store-meta">${meta}</div>
+            <audio class="store-audio" controls preload="none" src="${p.audio}"></audio>
+            <div class="muted" style="font-size:11px;margin-top:8px">${p.license || ''}</div>
+          </div>
+          <div class="store-actions">
+            <a class="btn" href="${p.checkout}" target="_blank" rel="noopener">Comprar</a>
+            <a class="btn" href="${p.audio}" download>Preview</a>
+            <div class="store-price">${price}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    function render(list){
+      grid.innerHTML = list.length
+        ? list.map(cardHTML).join('')
+        : '<div class="muted">Sin resultados.</div>';
+    }
+
+    function applyFilters(){
+      const q = (search.value || '').toLowerCase().trim();
+      const g = (genre.value || '').toLowerCase().trim();
+      const list = products.filter(p=>{
+        const okQ = !q || (p.title||'').toLowerCase().includes(q);
+        const okG = !g || (p.genre||'').toLowerCase() === g;
+        return okQ && okG;
+      });
+      render(list);
+    }
+
+    search?.addEventListener('input', applyFilters);
+    genre?.addEventListener('change', applyFilters);
+    render(products);
+  })();
+  </script>
+</body>
+</html>
