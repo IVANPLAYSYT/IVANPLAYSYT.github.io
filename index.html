@@ -137,42 +137,109 @@
     </div>
   </section>
   
-  <!-- === [ADSTERRA] Banner superior (Native Banner seguro) === -->
-  <div class="ad-slot ad-top ad-card" id="adsterraTop">
-    <a class="ad-fallback" href="#" target="_blank" rel="nofollow noopener" style="display:none;">
-      Publicidad
-    </a>
+  <!-- ========== MOBILE AD-GATE (5s) con copy “Publicidad — se cerrará en 5 segundos” ========== -->
+  <style>
+    .ad-gate{position:fixed;inset:0;z-index:9999;display:none}
+    .ad-gate.show{display:block}
+    .ad-gate__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.75)}
+    .ad-gate__panel{
+      position:relative;max-width:420px;width:92vw;max-height:80vh;
+      margin:8vh auto;background:#0f1222;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden
+   }
+    .ad-gate__header{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:10px;padding:10px 14px;background:linear-gradient(180deg,#181c35,#141932);
+      color:#cfd3ff;font-size:14px;line-height:1.2
+    }
+    .ad-gate__title{font-weight:700;white-space:nowrap}
+    .ad-gate__counter{font-variant-numeric:tabular-nums;font-weight:800}
+    .ad-gate__close{
+      border:0;background:#23284b;color:#aab1ff;border-radius:10px;
+      width:36px;height:32px;cursor:not-allowed;opacity:.5;transition:.2s;flex:0 0 auto
+    }
+    .ad-gate__close.enabled{cursor:pointer;opacity:1}
+    .ad-gate__body{padding:10px;background:#0e1122}
+    .ad-gate__note{margin:0;padding:10px;color:#98a1c7;font-size:12px;text-align:center}
+    @media(min-width:601px){ .ad-gate{display:none !important} } /* Solo móvil */
+  </style>
+
+  <div id="adGate" class="ad-gate" aria-modal="true" role="dialog">
+    <div class="ad-gate__backdrop" aria-hidden="true"></div>
+    <div class="ad-gate__panel" role="document">
+      <div class="ad-gate__header">
+        <div class="ad-gate__title">Publicidad</div>
+        <div>se cerrará en <span id="adGateCountdown" class="ad-gate__counter">5</span>s</div>
+        <button id="adGateClose" class="ad-gate__close" aria-label="Cerrar anuncio" disabled>✕</button>
+      </div>
+      <div class="ad-gate__body">
+        <!-- Contenedor donde Adsterra pintará el Native Banner -->
+        <div id="container-715307b74d25ae971c432e0fec096290"></div>
+      </div>
+      <p class="ad-gate__note">Gracias por apoyar a RADIO IVANPLAY.</p>
+    </div>
   </div>
 
   <script>
   (function(){
+    const isMobile = window.innerWidth <= 600;
+    if (!isMobile) return;
+    if (sessionStorage.getItem('adGateShown') === '1') return;
+
     const INVOKE_JS_URL = "//pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js";
     const CONTAINER_ID  = "container-715307b74d25ae971c432e0fec096290";
-    const slot = document.getElementById('adsterraTop');
-    const isMobile = window.innerWidth <= 600; // define móvil
 
-    if (!isMobile) {
-      // Cargar el anuncio completo solo en escritorio o tablet
-      const cont = document.createElement('div');
-      cont.id = CONTAINER_ID;
-      slot.appendChild(cont);
+    const gate   = document.getElementById('adGate');
+    const closeB = document.getElementById('adGateClose');
+    const label  = document.getElementById('adGateCountdown');
+    const body   = document.body;
 
-      const s = document.createElement('script');
-      s.src = INVOKE_JS_URL;
-      s.async = true;
-      s.setAttribute('data-cfasync','false');
-      document.head.appendChild(s);
-    } else {
-      // En móvil, muestra solo un pequeño botón/link no intrusivo
-      const fb = slot.querySelector('.ad-fallback');
-      fb.textContent = "Ver anuncio (opcional)";
-      fb.href = "https://www.adsterra.com/"; // puedes poner otro enlace o quitarlo
-      fb.style.display = "inline-block";
-      fb.style.fontSize = "14px";
-      fb.style.color = "#aaa";
+    // Mostrar overlay
+    body.style.overflow = 'hidden';
+    gate.classList.add('show');
+
+    // Cargar anuncio
+    const cont = document.getElementById(CONTAINER_ID);
+    const s = document.createElement('script');
+    s.src = INVOKE_JS_URL;
+    s.async = true;
+    s.setAttribute('data-cfasync','false');
+    cont.appendChild(s);
+
+    // Cuenta atrás 5s
+    let secs = 5;
+    label.textContent = secs;
+    const iv = setInterval(()=>{
+      secs--;
+      if (secs < 0) secs = 0;
+      label.textContent = secs;
+      if (secs === 0){
+        clearInterval(iv);
+        enableClose();
+      }
+    }, 1000);
+
+    // Failsafe: habilitar cierre a los 8s aunque algo falle
+    const failsafe = setTimeout(enableClose, 8000);
+
+    function enableClose(){
+      if (closeB.disabled){
+        closeB.disabled = false;
+        closeB.classList.add('enabled');
+        closeB.style.cursor = 'pointer';
+        closeB.addEventListener('click', closeGate, { once:true });
+      }
+    }
+
+    function closeGate(){
+      clearTimeout(failsafe);
+      gate.remove();
+      body.style.overflow = '';
+      sessionStorage.setItem('adGateShown','1'); // 1 por sesión
     }
   })();
   </script>
+  <!-- ========== /MOBILE AD-GATE ========== -->
 
   <header class="card">
     <div class="brand">
