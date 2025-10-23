@@ -261,7 +261,14 @@
       <a class="chip" href="/store.html" aria-current="page">Tienda</a>
     </nav>
   </header>
-    
+
+  <!-- === PUBLICIDAD DESKTOP (arriba del reproductor) === -->
+  <div id="ad-desktop-top" class="ad-slot ad-slot--desktop" aria-label="Publicidad"></div>
+  <style>
+    .ad-slot{min-height:90px; display:block; text-align:center; margin:12px auto 20px;}
+    @media (max-width:600px){ .ad-slot--desktop{ display:none !important } } /* solo PC */
+  </style>
+  
   <!-- REPRODUCTOR + CHAT -->
   <section class="grid">
     <div class="card" id="playerCard">
