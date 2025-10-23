@@ -136,6 +136,43 @@
       <div class="neon-sub">24/7 MUSIC EXPERIENCE</div>
     </div>
   </section>
+  
+  <!-- === [ADSTERRA] Banner superior (Native Banner seguro) === -->
+  <div class="ad-slot ad-top ad-card" id="adsterraTop">
+    <a class="ad-fallback" href="#" target="_blank" rel="nofollow noopener" style="display:none;">
+      Publicidad
+    </a>
+  </div>
+
+  <script>
+  (function(){
+    const INVOKE_JS_URL = "//pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js";
+    const CONTAINER_ID  = "container-715307b74d25ae971c432e0fec096290";
+    const slot = document.getElementById('adsterraTop');
+    const isMobile = window.innerWidth <= 600; // define móvil
+
+    if (!isMobile) {
+      // Cargar el anuncio completo solo en escritorio o tablet
+      const cont = document.createElement('div');
+      cont.id = CONTAINER_ID;
+      slot.appendChild(cont);
+
+      const s = document.createElement('script');
+      s.src = INVOKE_JS_URL;
+      s.async = true;
+      s.setAttribute('data-cfasync','false');
+      document.head.appendChild(s);
+    } else {
+      // En móvil, muestra solo un pequeño botón/link no intrusivo
+      const fb = slot.querySelector('.ad-fallback');
+      fb.textContent = "Ver anuncio (opcional)";
+      fb.href = "https://www.adsterra.com/"; // puedes poner otro enlace o quitarlo
+      fb.style.display = "inline-block";
+      fb.style.fontSize = "14px";
+      fb.style.color = "#aaa";
+    }
+  })();
+  </script>
 
   <header class="card">
     <div class="brand">
