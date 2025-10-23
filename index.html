@@ -746,5 +746,46 @@ setInterval(()=>{ if(shouldFireHourly()){ enqueueJingleNext(); lastHourFired=new
 // Estadísticas: tema iniciado (no anuncios)
 audio.addEventListener("playing", ()=>{ try{ const item=(playlist&&playlist[i])?playlist[i]:null; if(item&&item.type==="music"){ statIncToday(); statIncTotal(); } }catch{} });
 </script>
+<script>
+/* Mostrar anuncio en ESCRITORIO sin romper el gate móvil.
+   - Re-usa el mismo contenedor oficial de Adsterra (ID) moviéndolo al bloque desktop.
+   - Carga el invoke.js solo en pantallas >600 px. */
+(function(){
+  if (!window.matchMedia('(min-width: 601px)').matches) return; // solo escritorio
+
+  var DESKTOP_WRAP_ID = 'ad-desktop-top';
+  var CONTAINER_ID = 'container-715307b74d25ae971c432e0fec096290';
+  var SCRIPT_SRC = 'https://pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js';
+
+  var desktopWrap = document.getElementById(DESKTOP_WRAP_ID);
+  var container = document.getElementById(CONTAINER_ID);
+  if (!desktopWrap) return;
+
+  // Si existe (está dentro del gate móvil), lo movemos arriba del player:
+  if (container) {
+    desktopWrap.appendChild(container);
+  } else {
+    // Si no existe aún, lo creamos con el mismo ID oficial:
+    container = document.createElement('div');
+    container.id = CONTAINER_ID;
+    desktopWrap.appendChild(container);
+  }
+
+  // Inyectar el script SOLO en escritorio
+  var s = document.createElement('script');
+  s.async = true;
+  s.src = SCRIPT_SRC;                // https explícito (evita mixed content)
+  s.setAttribute('data-cfasync','false');
+  container.appendChild(s);
+
+  // Fallback por si un bloqueador corta el script
+  setTimeout(function(){
+    if (!container.querySelector('iframe') && !container.querySelector('ins')) {
+      container.innerHTML = '<small style="opacity:.6;color:#ccc;">(Publicidad bloqueada o no disponible)</small>';
+    }
+  }, 3000);
+})();
+</script>
+  
 </body>
 </html>
