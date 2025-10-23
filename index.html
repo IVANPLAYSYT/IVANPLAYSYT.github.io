@@ -778,10 +778,28 @@ audio.addEventListener("playing", ()=>{ try{ const item=(playlist&&playlist[i])?
   s.setAttribute('data-cfasync','false');
   container.appendChild(s);
 
-  // Fallback por si un bloqueador corta el script
+  // Fallback si el script está bloqueado (Edge)
   setTimeout(function(){
     if (!container.querySelector('iframe') && !container.querySelector('ins')) {
-      container.innerHTML = '<small style="opacity:.6;color:#ccc;">(Publicidad bloqueada o no disponible)</small>';
+      container.innerHTML = `
+        <a href="/store.html" target="_blank" rel="noopener"
+           style="display:inline-block;border-radius:12px;overflow:hidden">
+          <img src="./assets/ads/desktop_970x90.jpg" alt="Apoya RADIO IVANPLAY"
+               style="max-width:100%;height:auto;display:block">
+        </a>
+        <div style="opacity:.6;font-size:12px;margin-top:6px">
+          (Publicidad bloqueada o no disponible)
+          <button id="tryLoadAds" class="btn" style="margin-left:8px">Reintentar</button>
+        </div>
+      `;
+      document.getElementById('tryLoadAds')?.addEventListener('click', function(){
+        container.innerHTML = '';
+        var s2 = document.createElement('script');
+        s2.async = true;
+        s2.src = SCRIPT_SRC;
+        s2.setAttribute('data-cfasync','false');
+        container.appendChild(s2);
+      });
     }
   }, 3000);
 })();
