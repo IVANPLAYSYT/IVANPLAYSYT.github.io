@@ -162,8 +162,7 @@
         <button id="adGateClose" class="ad-gate__close" aria-label="Cerrar anuncio" disabled>✕</button>
       </div>
       <div class="ad-gate__body">
-        <!-- Contenedor donde Adsterra pintará el Native Banner -->
-        <div id="container-715307b74d25ae971c432e0fec096290"></div>
+        <div id="adGateMount"></div>
       </div>
       <p class="ad-gate__note">Gracias por apoyar a RADIO IVANPLAY.</p>
     </div>
@@ -176,15 +175,23 @@
     if (!isMobile) return;
     if (sessionStorage.getItem('adGateShown') === '1') return;
 
-    const INVOKE_JS_URL = "https://pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js"; // HTTPS explícito
+    // IDs/refs
     const CONTAINER_ID = "container-715307b74d25ae971c432e0fec096290";
-
     const gate = document.getElementById('adGate');
     const closeB = document.getElementById('adGateClose');
     const label = document.getElementById('adGateCountdown');
     const body = document.body;
+    const gateMount = document.getElementById('adGateMount');
+    const desktopWrap = document.getElementById('ad-desktop-top');
 
     let closed = false;
+    let movedBack = false;
+
+    // Mover el contenedor ÚNICO desde el bloque desktop al overlay del gate
+    const container = document.getElementById(CONTAINER_ID);
+    if (container && gateMount) {
+      gateMount.appendChild(container);
+    }
 
     function enableClose(){
       if (closed || !closeB.disabled) return;
@@ -197,9 +204,16 @@
     function closeGate(){
       if (closed) return;
       closed = true;
+
+      // Devolver el contenedor al bloque de escritorio (para que se vea luego en PC/tablet)
+      if (container && desktopWrap && !movedBack) {
+        desktopWrap.appendChild(container);
+        movedBack = true;
+      }
+
       gate.remove();
       body.style.overflow = '';
-      sessionStorage.setItem('adGateShown','1'); // cambia a localStorage si quieres que persista entre sesiones
+      sessionStorage.setItem('adGateShown','1');
       clearInterval(iv);
       clearTimeout(failsafe);
       observer && observer.disconnect();
@@ -209,20 +223,13 @@
     body.style.overflow = 'hidden';
     gate.classList.add('show');
 
-    // Cargar anuncio (si está bloqueado, no pasará nada…)
-    const cont = document.getElementById(CONTAINER_ID);
-    const s = document.createElement('script');
-    s.src = INVOKE_JS_URL;
-    s.async = true;
-    s.setAttribute('data-cfasync','false');
-    cont.appendChild(s);
-
-    // Habilitar cierre cuando haya algo renderizado en el contenedor (si ocurre antes)
+    // Habilitar cierre cuando Adsterra inyecte algo en el contenedor (iframe/ins)
     const observer = new MutationObserver(() => {
-      // si el proveedor inyecta un iframe/ins/etc, permitimos cerrar sin esperar
-      if (cont.children.length > 0) enableClose();
+      if (container && (container.querySelector('iframe') || container.querySelector('ins'))) {
+        enableClose();
+      }
     });
-    observer.observe(cont, { childList: true, subtree: true });
+    if (container) observer.observe(container, { childList: true, subtree: true });
 
     // Cuenta atrás 5s
     let secs = 5;
@@ -233,15 +240,16 @@
       if (secs === 0) enableClose();
     }, 1000);
 
-    // Failsafe: a los 6s habilita cierre aunque el script esté bloqueado
+    // Failsafe: habilita cierre a los 6s aunque no se haya inyectado nada
     const failsafe = setTimeout(enableClose, 6000);
 
-    // Si se cambia a desktop por rotación, cerramos
+    // Si el usuario rota y deja de ser móvil, cierra y devuelve el contenedor
     window.addEventListener('resize', () => {
       if (!window.matchMedia('(max-width: 600px)').matches) closeGate();
     });
   })();
   </script>
+
   <!-- ========== /MOBILE AD-GATE ========== -->
 
   <header class="card">
