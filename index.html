@@ -745,65 +745,6 @@ function enqueueJingleNext(){
 setInterval(()=>{ if(shouldFireHourly()){ enqueueJingleNext(); lastHourFired=new Date().getHours(); } },20000);
 // Estadísticas: tema iniciado (no anuncios)
 audio.addEventListener("playing", ()=>{ try{ const item=(playlist&&playlist[i])?playlist[i]:null; if(item&&item.type==="music"){ statIncToday(); statIncTotal(); } }catch{} });
-</script>
-<script>
-/* Mostrar anuncio en ESCRITORIO sin romper el gate móvil.
-   - Re-usa el mismo contenedor oficial de Adsterra (ID) moviéndolo al bloque desktop.
-   - Carga el invoke.js solo en pantallas >600 px. */
-(function(){
-  if (!window.matchMedia('(min-width: 601px)').matches) return; // solo escritorio
-
-  var DESKTOP_WRAP_ID = 'ad-desktop-top';
-  var CONTAINER_ID = 'container-715307b74d25ae971c432e0fec096290';
-  var SCRIPT_SRC = 'https://pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js';
-
-  var desktopWrap = document.getElementById(DESKTOP_WRAP_ID);
-  var container = document.getElementById(CONTAINER_ID);
-  if (!desktopWrap) return;
-
-  // Si existe (está dentro del gate móvil), lo movemos arriba del player:
-  if (container) {
-    desktopWrap.appendChild(container);
-  } else {
-    // Si no existe aún, lo creamos con el mismo ID oficial:
-    container = document.createElement('div');
-    container.id = CONTAINER_ID;
-    desktopWrap.appendChild(container);
-  }
-
-  // Inyectar el script SOLO en escritorio
-  var s = document.createElement('script');
-  s.async = true;
-  s.src = SCRIPT_SRC;                // https explícito (evita mixed content)
-  s.setAttribute('data-cfasync','false');
-  container.appendChild(s);
-
-  // Fallback si el script está bloqueado (Edge)
-  setTimeout(function(){
-    if (!container.querySelector('iframe') && !container.querySelector('ins')) {
-      container.innerHTML = `
-        <a href="/store.html" target="_blank" rel="noopener"
-           style="display:inline-block;border-radius:12px;overflow:hidden">
-          <img src="./assets/ads/desktop_970x90.jpg" alt="Apoya RADIO IVANPLAY"
-               style="max-width:100%;height:auto;display:block">
-        </a>
-        <div style="opacity:.6;font-size:12px;margin-top:6px">
-          (Publicidad bloqueada o no disponible)
-          <button id="tryLoadAds" class="btn" style="margin-left:8px">Reintentar</button>
-        </div>
-      `;
-      document.getElementById('tryLoadAds')?.addEventListener('click', function(){
-        container.innerHTML = '';
-        var s2 = document.createElement('script');
-        s2.async = true;
-        s2.src = SCRIPT_SRC;
-        s2.setAttribute('data-cfasync','false');
-        container.appendChild(s2);
-      });
-    }
-  }, 3000);
-})();
-</script>
-  
+</script>  
 </body>
 </html>
