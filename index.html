@@ -306,6 +306,35 @@
       </div>
       <p class="muted" style="margin-top:10px">Este stream puede incluir mensajes promocionales (audio-ads).</p>
     </div>
+    
+    <!-- ===== BANNER MÓVIL 320×50 (Adsterra / HighPerformanceFormat) ===== -->
+    <div id="ad-mobile-bottom" class="ad-slot-mobile" style="margin:14px auto;text-align:center;">
+      <script type="text/javascript">
+        atOptions = {
+          'key': 'eb062868b77321037f2f1dac96cff625',
+          'format': 'iframe',
+          'height': 50,
+          'width': 320,
+          'params': {}
+        };
+      </script>
+      <script type="text/javascript" src="//www.highperformanceformat.com/eb062868b77321037f2f1dac96cff625/invoke.js"></script>
+      <div class="adtag">Publicidad</div>
+    </div>
+
+    <style>
+      /* Solo visible en móviles */
+      @media (min-width:601px){
+        #ad-mobile-bottom { display:none !important; }
+      }
+      .adtag {
+        font-size:12px;
+        color:#9ba3c9;
+        text-align:center;
+        margin-top:4px;
+      }
+    </style>
+    <!-- ===== /BANNER MÓVIL 320×50 ===== -->
 
     <div>
       <div class="card">
