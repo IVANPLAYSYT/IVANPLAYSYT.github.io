@@ -3,8 +3,8 @@
     "id": "noche-encendida",
     "title": "IVANPLAY – Noche Encendía",
     "price": 2.49,
-    "genre": "Hardbass",
-    "bpm": 150,
+    "genre": "reggaeton",
+    "bpm": 100,
     "key": "Am",
     "cover": "/assets/store/noche.jpg",
     "audio": "/music/IVANPLAY-Noche-Encendia.mp3",
@@ -24,3 +24,4 @@
     "license": "Uso personal y streaming no comercial. Licencia PRO bajo solicitud."
   }
 ]
+
