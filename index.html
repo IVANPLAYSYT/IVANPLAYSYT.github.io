@@ -821,10 +821,27 @@ audio.addEventListener("playing", ()=>{ try{ const item=(playlist&&playlist[i])?
   btnLogout?.addEventListener('click', ()=> auth.signOut().catch(console.warn));
 
   const googleProv = new firebase.auth.GoogleAuthProvider();
-  loginGoogle?.addEventListener('click', async ()=>{
-    try{ await auth.signInWithPopup(googleProv); closeModal(); }
-    catch(e){ if(msgBox) msgBox.textContent="Google error: "+(e?.message||e); }
-  });
+  const msgBox = document.getElementById('authMsg');
+
+  async function signInWithGoogleSmart(){
+    try {
+      await auth.signInWithPopup(googleProv);
+      document.getElementById('authModal').style.display='none';
+    } catch(e){
+      const code = e && e.code ? String(e.code) : "";
+      if (code.includes('popup-blocked') || code.includes('popup-closed')) {
+        try {
+          await auth.signInWithRedirect(googleProv);
+      } catch(err){
+          if (msgBox) msgBox.textContent = "Google (redirect): " + (err?.message||err);
+        }
+      } else {
+        if (msgBox) msgBox.textContent = "Google: " + (e?.message||e);
+      }
+    }
+  }
+  document.getElementById('loginGoogle')?.addEventListener('click', signInWithGoogleSmart);
+
   loginEmail?.addEventListener('click', async ()=>{
     try{ await auth.signInWithEmailAndPassword(inEmail.value.trim(), inPass.value); closeModal(); }
     catch(e){ if(msgBox) msgBox.textContent="Email/contraseña: "+(e?.message||e); }
