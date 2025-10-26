@@ -350,7 +350,7 @@ const CONFIG = {
   ],
   GENRES: ["Hardbass","Reggaeton","Electrónica (EDM)","Deep House","Tech House","Hip Hop/Rap"],
   COUNTAPI_NAMESPACE: "ivanplayradio",
-  COUNTAPI_KEY: "https://api.countapi.xyz/hit/ivanplayradio/visitas_totales"
+  COUNTAPI_KEY: "visitas_totales"   // solo una palabra/clave, NO una URL
 };
 
 /* Emojis exclusivos */
@@ -583,22 +583,40 @@ function bindFirebase(){
   const db  = firebase.database();
   const room = "global";
 
-  // presencia (usuarios) — usa UID si está autenticado
+  // presencia (usuarios) — SOLO si hay sesión
   const auth = firebase.auth();
-  const uid  = (auth.currentUser && auth.currentUser.uid) || ((Math.random().toString(36).slice(2,10)) + Date.now().toString(36));
-  const myRef = db.ref(`presence/${room}/${uid}`);
-  const info  = db.ref(".info/connected");
-  info.on("value", snap=>{
-    if (snap.val() === true){
-      myRef.onDisconnect().remove();
-      const nickname = (auth.currentUser && (auth.currentUser.displayName || (auth.currentUser.email||'').split('@')[0])) || getNick();
-      myRef.set({nick: nickname, online:true, ts: firebase.database.ServerValue.TIMESTAMP});
-    }
+  const db   = firebase.database();
+  const room = "global";
+
+  // Espera a que haya usuario antes de escribir presencia:
+  auth.onAuthStateChanged(user => {
+    if (!user) return; // si cierra sesión, no escribimos nada
+
+    const uid  = user.uid;
+    const myRef = db.ref(`presence/${room}/${uid}`);
+    const info  = db.ref(".info/connected");
+
+    info.on("value", snap=>{
+      if (snap.val() === true){
+        myRef.onDisconnect().remove();
+        const nickname = user.displayName || (user.email||"").split("@")[0] || "Usuario";
+        myRef.set({
+          nick: nickname,
+          online: true,
+          ts: firebase.database.ServerValue.TIMESTAMP
+        });
+      }
+    });
   });
+
+  // contador (solo lectura, funciona con o sin sesión)
   db.ref(`presence/${room}`).on("value", snap=>{
-    const val = snap.val()||{}; const count = Object.keys(val).length;
+    const val = snap.val()||{};
+    const count = Object.keys(val).length;
+    const onlineEl = document.querySelector("#onlineCount");
     if (onlineEl) onlineEl.textContent = `· ${count} conectado${count===1?"":"s"}`;
   });
+
 
   // mensajes
   const messagesRef = db.ref(`rooms/${room}/messages`);
