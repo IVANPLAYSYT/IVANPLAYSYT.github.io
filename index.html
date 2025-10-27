@@ -409,7 +409,6 @@ audio.addEventListener("ended", next);
 })();
 </script>
 
-
   var messagesRef = db.ref("rooms/"+room+"/messages");
   messagesRef.limitToLast(100).on("child_added", function(s){
     var o=s.val(); if(!o) return; var p=document.createElement("div");
