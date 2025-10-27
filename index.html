@@ -255,7 +255,7 @@ audio.addEventListener("ended", next);
 </script>
 
 <script>
-// ================== CHAT + PRESENCIA (robusto con heartbeat + cleanup) ==================
+// ================== CHAT + PRESENCIA (anti-fantasmas) ==================
 (function(){
   if(!window.FIREBASE_ENABLED) return;
 
@@ -264,7 +264,7 @@ audio.addEventListener("ended", next);
       saveNick=$("#saveNick"), onlineEl=$("#onlineCount"),
       userName=$("#userName"), btnLogin=$("#btnLogin"), btnLogout=$("#btnLogout");
 
-  // -------- UI acceso ----------
+  // --- UI acceso ---
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.warn);
   if(!auth.currentUser){ auth.signInAnonymously().catch(console.warn); }
 
@@ -274,20 +274,24 @@ audio.addEventListener("ended", next);
   });}
   if(btnLogout){ btnLogout.addEventListener('click', function(){ auth.signOut().catch(console.warn); }); }
 
-  // -------- Presencia robusta ----------
-  var presenceRef = null;            // ref actual del usuario conectado
+  // --- Presencia robusta ---
+  var presenceRef = null;                     // ref del nodo actual
   var presenceRoomRef = db.ref("presence/"+room);
   var infoRef = db.ref(".info/connected");
-  var HEARTBEAT_MS = 25000;
-  var ACTIVE_WINDOW_MS = 90000;      // consideramos activos los que latieron en < 90s
+  var HEARTBEAT_MS = 15000;                   // latido cada 15s
+  var ACTIVE_WINDOW_MS = 60000;               // activos = latido < 60s
   var hbTimer = null;
   var lastUid = null;
+
+  function heartbeat(){
+    try{ presenceRef.update({ ts: firebase.database.ServerValue.TIMESTAMP }); }catch(e){}
+  }
 
   function detachPresence(){
     try{
       if (hbTimer){ clearInterval(hbTimer); hbTimer=null; }
       if (presenceRef){
-        // Cancelar onDisconnect y limpiar este nodo
+        // cancela onDisconnect y borra best-effort
         presenceRef.onDisconnect().cancel().catch(function(){});
         presenceRef.remove().catch(function(){});
         presenceRef = null;
@@ -295,67 +299,65 @@ audio.addEventListener("ended", next);
     }catch(e){}
   }
 
+  function forceDisconnectCycle(cb){
+    // Fuerza que el servidor dispare onDisconnect del nodo anterior
+    try{ db.goOffline(); }catch(e){}
+    setTimeout(function(){ try{ db.goOnline(); }catch(e){} if(cb) cb(); }, 300);
+  }
+
   function attachPresence(user){
     if (!user) return;
     lastUid = user.uid;
     presenceRef = db.ref("presence/"+room+"/"+lastUid);
 
-    function heartbeat(){
-      // Actualizamos timestamp en el servidor
-      presenceRef.update({ ts: firebase.database.ServerValue.TIMESTAMP }).catch(function(){});
-    }
-
     infoRef.on("value", function(snap){
       if (snap.val() === true){
-        // Programar limpieza al desconectar a nivel servidor
         presenceRef.onDisconnect().remove().catch(function(){});
-        var provider = (user.isAnonymous ? "anon" : ((user.providerData[0] && user.providerData[0].providerId) || "email"));
         var nickname = user.isAnonymous ? "Visitante" : (user.displayName || (user.email||"").split('@')[0] || "Usuario");
+        var prov = user.isAnonymous ? "anon" : ((user.providerData[0] && user.providerData[0].providerId) || "email");
         presenceRef.set({
           nick: nickname,
+          prov: prov,
           online: true,
-          prov: provider,
           ts: firebase.database.ServerValue.TIMESTAMP
         }).catch(function(){});
       }
     });
 
-    // Heartbeat periódico para evitar zombies
+    // Heartbeat para mantener vivo y filtrar fantasmas
     hbTimer = setInterval(heartbeat, HEARTBEAT_MS);
-    // Primer latido por si acaso
-    setTimeout(heartbeat, 2000);
+    setTimeout(heartbeat, 1200); // primer latido rápido
 
-    // Limpieza al cerrar pestaña (best-effort)
+    // Intento extra de limpieza al cerrar pestaña
     window.addEventListener("beforeunload", function(){
       try{ presenceRef.remove(); }catch(e){}
     });
   }
 
   auth.onAuthStateChanged(function(user){
-    // Limpia presencia anterior (cambio de anónimo ↔ logueado, logout, etc.)
+    // 1) Limpia presencia anterior (y “corta” conexión para que onDisconnect se ejecute)
     detachPresence();
+    forceDisconnectCycle(function(){
+      // 2) UI
+      if(!user){
+        userName.style.display='none'; userName.textContent="";
+        btnLogin.style.display='inline-block'; btnLogout.style.display='none';
+        if(msg){ msg.disabled=true; msg.placeholder="Entra para chatear (Google / Email)"; }
+        return;
+      }
+      var name = user.displayName || (user.email?user.email.split('@')[0]:"Visitante");
+      if(user.isAnonymous){ userName.style.display='none'; }
+      else { userName.style.display='inline'; userName.textContent="Hola, "+name; }
+      btnLogin.style.display = user.isAnonymous ? 'inline-block' : 'none';
+      btnLogout.style.display= user.isAnonymous ? 'none'        : 'inline-block';
+      if(msg) msg.disabled = (!user || user.isAnonymous);
 
-    // UI
-    if(!user){
-      userName.style.display='none'; userName.textContent="";
-      btnLogin.style.display='inline-block'; btnLogout.style.display='none';
-      if(msg){ msg.disabled=true; msg.placeholder="Entra para chatear (Google / Email)"; }
-      return;
-    }
-
-    var name = user.displayName || (user.email?user.email.split('@')[0]:"Visitante");
-    if(user.isAnonymous){ userName.style.display='none'; }
-    else { userName.style.display='inline'; userName.textContent="Hola, "+name; }
-
-    btnLogin.style.display = user.isAnonymous ? 'inline-block' : 'none';
-    btnLogout.style.display= user.isAnonymous ? 'none'        : 'inline-block';
-    if(msg) msg.disabled = (!user || user.isAnonymous);
-
-    // Adjuntar presencia para el UID actual
-    attachPresence(user);
+      // 3) Adjunta presencia para el UID actual
+      attachPresence(user);
+    });
   });
 
-  // Contador online filtrando zombies por ts (último latido < ACTIVE_WINDOW_MS)
+  // Contador online: ignora entradas sin ts numérico o con ts viejo
   presenceRoomRef.on("value", function(snap){
     var v = snap.val() || {};
     var now = Date.now();
@@ -363,14 +365,18 @@ audio.addEventListener("ended", next);
 
     Object.keys(v).forEach(function(uid){
       var o = v[uid] || {};
-      var ts = typeof o.ts === "number" ? o.ts : 0;
-      if (now - ts < ACTIVE_WINDOW_MS) active++;
+      // Si aún no hay número (placeholder de ServerValue), cuenta de forma optimista solo si online==true
+      if (typeof o.ts !== "number"){
+        if (o.online === true) active++;
+        return;
+      }
+      if (now - o.ts < ACTIVE_WINDOW_MS) active++;
     });
 
     if(onlineEl) onlineEl.textContent = "· " + active + " conectado" + (active===1?"":"s");
   });
 
-  // -------- Chat (igual que antes) ----------
+  // --- Chat (igual) ---
   var messagesRef = db.ref("rooms/"+room+"/messages");
   messagesRef.limitToLast(100).on("child_added", function(s){
     var o=s.val(); if(!o) return; var p=document.createElement("div");
@@ -402,6 +408,7 @@ audio.addEventListener("ended", next);
   msg.onkeydown=function(e){ if((e.ctrlKey||e.metaKey) && e.key==="Enter") sendFirebase(); };
 })();
 </script>
+
 
   var messagesRef = db.ref("rooms/"+room+"/messages");
   messagesRef.limitToLast(100).on("child_added", function(s){
