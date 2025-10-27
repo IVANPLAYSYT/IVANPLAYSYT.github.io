@@ -408,7 +408,8 @@ audio.addEventListener("ended", next);
   msg.onkeydown=function(e){ if((e.ctrlKey||e.metaKey) && e.key==="Enter") sendFirebase(); };
 })();
 </script>
-
+  
+</script>
   var messagesRef = db.ref("rooms/"+room+"/messages");
   messagesRef.limitToLast(100).on("child_added", function(s){
     var o=s.val(); if(!o) return; var p=document.createElement("div");
