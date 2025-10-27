@@ -255,44 +255,153 @@ audio.addEventListener("ended", next);
 </script>
 
 <script>
+// ================== CHAT + PRESENCIA (robusto con heartbeat + cleanup) ==================
 (function(){
   if(!window.FIREBASE_ENABLED) return;
-  var db=firebase.database(), auth=firebase.auth(), room="global";
-  var log=$("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"), saveNick=$("#saveNick"), onlineEl=$("#onlineCount"), userName=$("#userName"), btnLogin=$("#btnLogin"), btnLogout=$("#btnLogout");
 
+  var db=firebase.database(), auth=firebase.auth(), room="global";
+  var log=$("#chatLog"), send=$("#send"), msg=$("#msg"), nick=$("#nick"),
+      saveNick=$("#saveNick"), onlineEl=$("#onlineCount"),
+      userName=$("#userName"), btnLogin=$("#btnLogin"), btnLogout=$("#btnLogout");
+
+  // -------- UI acceso ----------
   auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL).catch(console.warn);
   if(!auth.currentUser){ auth.signInAnonymously().catch(console.warn); }
 
-  if(btnLogin){ btnLogin.addEventListener('click', function(){ var m=document.getElementById('authModal'); if(m){ m.style.display='block'; var e=document.getElementById('authMsg'); if(e) e.textContent=''; } }); }
+  if(btnLogin){ btnLogin.addEventListener('click', function(){
+    var m=document.getElementById('authModal');
+    if(m){ m.style.display='block'; var e=document.getElementById('authMsg'); if(e) e.textContent=''; }
+  });}
   if(btnLogout){ btnLogout.addEventListener('click', function(){ auth.signOut().catch(console.warn); }); }
 
+  // -------- Presencia robusta ----------
+  var presenceRef = null;            // ref actual del usuario conectado
+  var presenceRoomRef = db.ref("presence/"+room);
+  var infoRef = db.ref(".info/connected");
+  var HEARTBEAT_MS = 25000;
+  var ACTIVE_WINDOW_MS = 90000;      // consideramos activos los que latieron en < 90s
+  var hbTimer = null;
+  var lastUid = null;
+
+  function detachPresence(){
+    try{
+      if (hbTimer){ clearInterval(hbTimer); hbTimer=null; }
+      if (presenceRef){
+        // Cancelar onDisconnect y limpiar este nodo
+        presenceRef.onDisconnect().cancel().catch(function(){});
+        presenceRef.remove().catch(function(){});
+        presenceRef = null;
+      }
+    }catch(e){}
+  }
+
+  function attachPresence(user){
+    if (!user) return;
+    lastUid = user.uid;
+    presenceRef = db.ref("presence/"+room+"/"+lastUid);
+
+    function heartbeat(){
+      // Actualizamos timestamp en el servidor
+      presenceRef.update({ ts: firebase.database.ServerValue.TIMESTAMP }).catch(function(){});
+    }
+
+    infoRef.on("value", function(snap){
+      if (snap.val() === true){
+        // Programar limpieza al desconectar a nivel servidor
+        presenceRef.onDisconnect().remove().catch(function(){});
+        var provider = (user.isAnonymous ? "anon" : ((user.providerData[0] && user.providerData[0].providerId) || "email"));
+        var nickname = user.isAnonymous ? "Visitante" : (user.displayName || (user.email||"").split('@')[0] || "Usuario");
+        presenceRef.set({
+          nick: nickname,
+          online: true,
+          prov: provider,
+          ts: firebase.database.ServerValue.TIMESTAMP
+        }).catch(function(){});
+      }
+    });
+
+    // Heartbeat periódico para evitar zombies
+    hbTimer = setInterval(heartbeat, HEARTBEAT_MS);
+    // Primer latido por si acaso
+    setTimeout(heartbeat, 2000);
+
+    // Limpieza al cerrar pestaña (best-effort)
+    window.addEventListener("beforeunload", function(){
+      try{ presenceRef.remove(); }catch(e){}
+    });
+  }
+
   auth.onAuthStateChanged(function(user){
+    // Limpia presencia anterior (cambio de anónimo ↔ logueado, logout, etc.)
+    detachPresence();
+
+    // UI
     if(!user){
       userName.style.display='none'; userName.textContent="";
       btnLogin.style.display='inline-block'; btnLogout.style.display='none';
       if(msg){ msg.disabled=true; msg.placeholder="Entra para chatear (Google / Email)"; }
       return;
     }
+
     var name = user.displayName || (user.email?user.email.split('@')[0]:"Visitante");
-    if(user.isAnonymous){ userName.style.display='none'; } else { userName.style.display='inline'; userName.textContent="Hola, "+name; }
-    btnLogin.style.display= user.isAnonymous ? 'inline-block' : 'none';
-    btnLogout.style.display= user.isAnonymous ? 'none' : 'inline-block';
+    if(user.isAnonymous){ userName.style.display='none'; }
+    else { userName.style.display='inline'; userName.textContent="Hola, "+name; }
+
+    btnLogin.style.display = user.isAnonymous ? 'inline-block' : 'none';
+    btnLogout.style.display= user.isAnonymous ? 'none'        : 'inline-block';
     if(msg) msg.disabled = (!user || user.isAnonymous);
 
-    var uid=user.uid, myRef=db.ref("presence/"+room+"/"+uid), info=db.ref(".info/connected");
-    info.on("value", function(s){
-      if(s.val()===true){
-        myRef.onDisconnect().remove().catch(console.warn);
-        var nickname = user.isAnonymous ? "Visitante" : (user.displayName || (user.email||"").split('@')[0] || "Usuario");
-        myRef.set({"nick":nickname, "online":true, "ts":firebase.database.ServerValue.TIMESTAMP}).catch(console.warn);
-      }
-    });
+    // Adjuntar presencia para el UID actual
+    attachPresence(user);
   });
 
-  db.ref("presence/"+room).on("value", function(snap){
-    var v = snap.val() || {}; var c = Object.keys(v).length;
-    if(onlineEl) onlineEl.textContent = "· " + c + " conectado" + (c===1?"":"s");
+  // Contador online filtrando zombies por ts (último latido < ACTIVE_WINDOW_MS)
+  presenceRoomRef.on("value", function(snap){
+    var v = snap.val() || {};
+    var now = Date.now();
+    var active = 0;
+
+    Object.keys(v).forEach(function(uid){
+      var o = v[uid] || {};
+      var ts = typeof o.ts === "number" ? o.ts : 0;
+      if (now - ts < ACTIVE_WINDOW_MS) active++;
+    });
+
+    if(onlineEl) onlineEl.textContent = "· " + active + " conectado" + (active===1?"":"s");
   });
+
+  // -------- Chat (igual que antes) ----------
+  var messagesRef = db.ref("rooms/"+room+"/messages");
+  messagesRef.limitToLast(100).on("child_added", function(s){
+    var o=s.val(); if(!o) return; var p=document.createElement("div");
+    p.textContent = "["+(o.t||"")+"] "+(o.u||"") + ": " + (o.m||"");
+    log.appendChild(p); log.scrollTop=log.scrollHeight;
+  });
+
+  function getNick(){
+    var n=(nick.value||localStorage.getItem("ivanplay_nick")||"").trim();
+    if(!n) n="User"+Math.floor(Math.random()*900+100);
+    nick.value=n; localStorage.setItem("ivanplay_nick",n); return n;
+  }
+  saveNick.onclick=function(){
+    localStorage.setItem("ivanplay_nick",getNick());
+    var p=document.createElement("div"); p.textContent="[Sistema] Nick guardado"; log.appendChild(p);
+  };
+
+  async function sendFirebase(){
+    var user=auth.currentUser;
+    if(!user || user.isAnonymous){
+      var m=document.getElementById('authModal'); if(m) m.style.display='block';
+      return;
+    }
+    var txt=(msg.value||"").trim(); if(!txt) return;
+    var o={ t:new Date().toLocaleTimeString(), u:getNick(), m:txt };
+    await messagesRef.push(o); msg.value="";
+  }
+  send.onclick=sendFirebase;
+  msg.onkeydown=function(e){ if((e.ctrlKey||e.metaKey) && e.key==="Enter") sendFirebase(); };
+})();
+</script>
 
   var messagesRef = db.ref("rooms/"+room+"/messages");
   messagesRef.limitToLast(100).on("child_added", function(s){
