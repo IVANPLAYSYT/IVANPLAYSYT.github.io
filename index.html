@@ -220,6 +220,7 @@ var CONFIG = {
   ADS_JSON_URL: "./music/anuncios.json",
   AUDIO_ADS_EVERY: 4,
   SHUFFLE: true,
+  TW_BASE: "./assets/twemoji/",
   SOCIALS: [
     {name:"YouTube",   icon:"▶️", url:"https://www.youtube.com/@ivanplays8012"},
     {name:"Twitch",    icon:"🎮", url:"https://www.twitch.tv/ivanplays_offi"},
@@ -234,7 +235,28 @@ document.getElementById("year").textContent = new Date().getFullYear();
 (function(){var el=$("#clock");function tick(){el.textContent=new Intl.DateTimeFormat('es-ES',{timeZone:'Europe/Madrid',hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date())+" (Madrid)";}tick();setInterval(tick,1000);} )();
 (function(){var s=$("#socials"),c=$("#chips");(CONFIG.SOCIALS||[]).forEach(function(o){var a=document.createElement("a");a.className="soc";a.href=o.url;a.target="_blank";a.rel="noopener";a.innerHTML='<span class="ico">'+o.icon+'</span><div class="txt"><div>'+o.name+'</div><small>'+new URL(o.url).hostname+'</small></div>';s.appendChild(a);});(CONFIG.GENRES||[]).forEach(function(g){var b=document.createElement("span");b.className="chip";b.textContent=g;c.appendChild(b);});})();
 </script>
+  
+/* Emojis exclusivos */
+window.CUSTOM_EMOJIS = [
+  { short: ":ivanheadset:", src: "./assets/custom/ivan_headset.svg",   title: "Headset IVANPLAY" },
+  { short: ":ivangame:",    src: "./assets/custom/ivan_controller.svg", title: "Gamepad IVANPLAY" }
+];
 
+/* ===== EMOJIS SVG LOCALES – UNA PASADA ===== */
+const EMO_EXT = ".svg";
+const TW_BASE = CONFIG.TW_BASE;
+const EMO_UNI = Array.from("😀😁😂🤣😊😉😍😘😎🙂🤔🙃😴😇😡😭🙌👏👍🔥🎧🎵🎶🎤🎼🎹🥁🎷🎺🎸");
+function toCodepoints(str){ const out=[]; for(const ch of str){ out.push(ch.codePointAt(0).toString(16).toLowerCase()); } return out.join("-"); }
+function toEntity(str){ let s=""; for(const ch of str){ s += "&#x"+ch.codePointAt(0).toString(16)+";"; } return s; }
+const EMO_MAP = Object.fromEntries(EMO_UNI.map(e => [e, `${TW_BASE}${toCodepoints(e)}${EMO_EXT}`]));
+function emojiImgTag(chr){
+  const src = `${TW_BASE}${toCodepoints(chr)}${EMO_EXT}`;
+  const ent = toEntity(chr);
+  return `<img class="emo" src="${src}" alt="" data-f="${ent}" onerror="this.outerHTML=this.dataset.f">`;
+}
+function escapeForRegex(s){ return s.replace(/([.*+?^${}()|[\]\\\\])/g,"\\$1"); }
+const EMO_REGEX = new RegExp("(?:"+EMO_UNI.map(escapeForRegex).join("|")+")","g");
+  
 <script>
 var audio=$("#audio"), now=$("#now"), playBtn=$("#playBtn"), stopBtn=$("#stopBtn"), prevBtn=$("#prevBtn"), nextBtn=$("#nextBtn"), vol=$("#vol"), gate=$("#gate"), startBtn=$("#startBtn");
 var playlist=[], ads=[], mixed=[], i=0;
