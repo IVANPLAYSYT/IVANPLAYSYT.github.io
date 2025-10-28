@@ -660,6 +660,74 @@ window.PREMIUM_EMOJIS = window.PREMIUM_EMOJIS || [
   };
 })();
 </script>
+<script>
+(function(){
+  if(!window.FIREBASE_ENABLED) return;
+  const db = firebase.database();
+  const auth = firebase.auth();
+
+  function isoWeekId(d){
+    const date=new Date(d.getTime()); date.setHours(0,0,0,0);
+    const dayNr=(date.getDay()+6)%7; date.setDate(date.getDate()-dayNr+3);
+    const firstThu=new Date(date.getFullYear(),0,4);
+    const week=1+Math.round(((date-firstThu)/86400000 - 3 + ((firstThu.getDay()+6)%7))/7);
+    return date.getFullYear()+"-W"+String(week).padStart(2,"0");
+  }
+
+  function showPoints(pts){
+    const el=document.getElementById('pointsBadge');
+    if(el) el.textContent = `· ${pts} ⭐ puntos`;
+  }
+
+  function ensureRankingHost(){
+    let host=document.getElementById('rankingWeekly');
+    if(host) return host;
+    // Crea una tarjeta al final si no existe
+    const wrap=document.querySelector('.wrap') || document.body;
+    const sec=document.createElement('section');
+    sec.className='card';
+    sec.style.marginTop='18px';
+    sec.innerHTML = `
+      <h2 style="margin:4px 0 12px">Ranking semanal</h2>
+      <ol id="rankingWeekly" style="margin:0;padding-left:18px"></ol>
+      <p class="muted" style="margin-top:8px">Se reinicia cada semana (ISO).</p>
+    `;
+    wrap.appendChild(sec);
+    return sec.querySelector('#rankingWeekly');
+  }
+
+  function renderRanking(){
+    const host = ensureRankingHost();
+    const wk = isoWeekId(new Date());
+    db.ref('users').orderByChild('pointsWeek').limitToLast(20).once('value').then(s=>{
+      const arr=[];
+      s.forEach(ch=>{ const v=ch.val()||{}; if(v.weekId===wk) arr.push({name: v.displayName||'Usuario', pts: v.pointsWeek||0}); });
+      arr.sort((a,b)=>b.pts-a.pts);
+      host.innerHTML='';
+      const medals=["🥇","🥈","🥉"];
+      arr.slice(0,10).forEach((it,i)=>{
+        const li=document.createElement('li');
+        li.textContent = `${medals[i]||'—'} ${it.name} — ${it.pts} pts`;
+        host.appendChild(li);
+      });
+    });
+  }
+
+  // Actualiza puntos y ranking cuando haya sesión
+  auth.onAuthStateChanged(user=>{
+    if(user && !user.isAnonymous){
+      db.ref('users/'+user.uid).on('value', snap=>{
+        const v=snap.val()||{};
+        showPoints(v.pointsTotal||0);
+      });
+      renderRanking();
+    }
+  });
+
+  // refresca ranking cada 90s
+  setInterval(renderRanking, 90000);
+})();
+</script>
 
 </body>
 </html>
