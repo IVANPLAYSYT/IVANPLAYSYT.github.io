@@ -65,6 +65,121 @@
       <div class="neon-sub">24/7 MUSIC EXPERIENCE</div>
     </div>
   </section>
+  <!-- ========== MOBILE AD-GATE v2 (sandbox, 5s) ========== -->
+  <style>
+    .ad-gate{position:fixed;inset:0;z-index:9999;display:none}
+    .ad-gate.show{display:block}
+    .ad-gate__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.8)}
+    .ad-gate__panel{
+      position:relative;max-width:420px;width:92vw;max-height:80vh;
+      margin:8vh auto;background:#0f1222;border-radius:16px;
+      box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden
+    }
+    .ad-gate__header{display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:10px 14px;background:linear-gradient(180deg,#181c35,#141932);color:#cfd3ff;font-size:14px}
+    .ad-gate__title{font-weight:800}
+    .ad-gate__counter{font-variant-numeric:tabular-nums;font-weight:800}
+    .ad-gate__close{border:0;background:#23284b;color:#aab1ff;border-radius:10px;width:36px;height:32px;cursor:not-allowed;opacity:.5;transition:.2s}
+    .ad-gate__close.enabled{cursor:pointer;opacity:1}
+    .ad-gate__body{padding:10px;background:#0e1122}
+    .ad-gate__note{margin:0;padding:10px;color:#98a1c7;font-size:12px;text-align:center}
+    .ad-gate__cta{margin:10px auto 0;display:block;border:0;border-radius:10px;padding:10px 14px;
+      background:#3b49df;color:#fff;font-weight:800}
+    @media(min-width:601px){ .ad-gate{display:none !important} } /* Solo móvil */
+  </style>
+ 
+  <div id="adGate" class="ad-gate" aria-modal="true" role="dialog">
+    <div class="ad-gate__backdrop" aria-hidden="true"></div>
+    <div class="ad-gate__panel" role="document">
+      <div class="ad-gate__header">
+        <div class="ad-gate__title">Publicidad</div>
+        <div>se cerrará en <span id="adGateCountdown" class="ad-gate__counter">5</span>s</div>
+        <button id="adGateClose" class="ad-gate__close" aria-label="Cerrar" disabled>✕</button>
+      </div>
+      <div class="ad-gate__body">
+        <!-- Aquí va el iframe sandbox que aisla el script del anuncio -->
+        <iframe id="adSandbox" title="ad" style="width:100%;height:250px;border:0;border-radius:12px;background:#0a0f1c"
+                sandbox="allow-scripts allow-same-origin"></iframe>
+        <button id="adLoadBtn" class="ad-gate__cta">Ver anuncio</button>
+      </div>
+      <p class="ad-gate__note">Gracias por apoyar a RADIO IVANPLAY.</p>
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    const isMobile = matchMedia('(max-width: 600px)').matches;
+    if (!isMobile) return;
+    if (sessionStorage.getItem('adGateShown') === '1') return;
+
+    const gate   = document.getElementById('adGate');
+    const closeB = document.getElementById('adGateClose');
+    const label  = document.getElementById('adGateCountdown');
+    const btn    = document.getElementById('adLoadBtn');
+    const frame  = document.getElementById('adSandbox');
+    const body   = document.body;
+
+    // Tu unidad/ad tag (Native Banner) — usa tu mismo ID:
+    const SCRIPT_SRC = "https://pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js";
+    const CONTAINER  = "container-715307b74d25ae971c432e0fec096290";
+
+    // Mostrar overlay
+    body.style.overflow = 'hidden';
+    gate.classList.add('show');
+
+    // Cargar el anuncio solo tras interacción (evita bloqueos y popups agresivos)
+    btn.addEventListener('click', ()=>{
+      btn.disabled = true; btn.textContent = "Cargando…";
+      // Contenido dentro del iframe con <base target="_blank"> para evitar navegar la top page
+      const html = `
+        <!doctype html><html><head>
+          <base target="_blank">
+          <meta name="referrer" content="no-referrer">
+          <style>body{margin:0;background:#0a0f1c;color:#cfd3ff;font-family:system-ui}</style>
+        </head><body>
+          <div id="${CONTAINER}"></div>
+          <script async data-cfasync="false" src="${SCRIPT_SRC}"><\\/script>
+        </body></html>`;
+      frame.srcdoc = html;
+
+      // Habilitar cierre en cuanto haya algo pintado o tras 5s
+      const obs = new MutationObserver(()=>enableClose());
+      obs.observe(frame, { childList:true, subtree:true });
+      setTimeout(enableClose, 5000);
+    }, {once:true});
+
+    // Cuenta atrás
+    let secs = 5;
+    label.textContent = secs;
+    const iv = setInterval(()=>{
+      secs = Math.max(0, secs-1);
+      label.textContent = secs;
+      if (secs === 0) enableClose();
+    }, 1000);
+
+    // Failsafe general a 6s
+    const failsafe = setTimeout(enableClose, 6000);
+
+    function enableClose(){
+      clearInterval(iv); clearTimeout(failsafe);
+      if (!closeB.disabled) return;
+      closeB.disabled = false;
+      closeB.classList.add('enabled');
+      closeB.style.cursor = 'pointer';
+      closeB.addEventListener('click', closeGate, {once:true});
+    }
+
+    function closeGate(){
+      gate.remove();
+      body.style.overflow = '';
+      sessionStorage.setItem('adGateShown', '1');
+    }
+
+    // Si rota a desktop, cierra
+    window.addEventListener('resize', ()=>{ if (!matchMedia('(max-width: 600px)').matches) closeGate(); });
+  })();
+  </script>
+  <!-- ========== /MOBILE AD-GATE v2 ========== -->
 
   <div id="ad-desktop-top" class="ad-slot ad-top ad-card" aria-label="Publicidad" style="text-align:center;margin:12px auto 20px">
     <script async="async" data-cfasync="false" src="//pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js"></script>
