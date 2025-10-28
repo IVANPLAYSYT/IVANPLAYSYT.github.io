@@ -288,9 +288,7 @@ function renderEmojiButtons(){
   });
 }
 </script>
- 
-
- 
+  
 <script>
 var audio=$("#audio"), now=$("#now"), playBtn=$("#playBtn"), stopBtn=$("#stopBtn"), prevBtn=$("#prevBtn"), nextBtn=$("#nextBtn"), vol=$("#vol"), gate=$("#gate"), startBtn=$("#startBtn");
 var playlist=[], ads=[], mixed=[], i=0;
@@ -639,6 +637,84 @@ window.PREMIUM_EMOJIS = window.PREMIUM_EMOJIS || [
 </script>
   
 <script src="./rewards.js"></script>
+  
+<script>
+(function(){
+  if (!window.firebase) return; // evita error si firebase no cargó
+
+  const db = firebase.database();
+  const auth = firebase.auth();
+
+  // ---- CONFIG ----
+  const MESSAGE_POINTS = 10;   // puntos por escribir un mensaje
+  const LISTEN_POINTS = 1;     // puntos por minuto escuchando
+  const LISTEN_INTERVAL = 60 * 1000; // cada minuto
+  const COOLDOWN = 20000;      // 20 segundos entre mensajes
+
+  let lastMsg = 0;
+  let listenTimer = null;
+
+  // === función para sumar puntos ===
+  function addPoints(uid, amount){
+    const ref = db.ref('users/' + uid);
+    ref.transaction(current => {
+      if (!current) current = { pointsTotal: 0, pointsWeek: 0, weekId: "" };
+      const wk = isoWeekId(new Date());
+      if (current.weekId !== wk){
+        current.weekId = wk;
+        current.pointsWeek = 0;
+      }
+      current.pointsTotal = (current.pointsTotal || 0) + amount;
+      current.pointsWeek = (current.pointsWeek || 0) + amount;
+      return current;
+    });
+  }
+
+  function isoWeekId(d){
+    const date = new Date(d.getTime());
+    date.setHours(0,0,0,0);
+    const dayNr = (date.getDay() + 6) % 7;
+    date.setDate(date.getDate() - dayNr + 3);
+    const firstThu = new Date(date.getFullYear(), 0, 4);
+    const week = 1 + Math.round(((date - firstThu) / 86400000 - 3 + ((firstThu.getDay() + 6) % 7)) / 7);
+    return date.getFullYear() + "-W" + String(week).padStart(2,"0");
+  }
+
+  // === EVENTO: escribir mensaje ===
+  window.addEventListener('messageSent', ()=>{
+    const user = auth.currentUser;
+    if (!user || user.isAnonymous) return;
+    const now = Date.now();
+    if (now - lastMsg < COOLDOWN) return;
+    lastMsg = now;
+    addPoints(user.uid, MESSAGE_POINTS);
+  });
+
+  // === EVENTO: escuchar música ===
+  function startListeningPoints(){
+    const user = auth.currentUser;
+    if (!user || user.isAnonymous) return;
+    if (listenTimer) clearInterval(listenTimer);
+    listenTimer = setInterval(()=>{
+      addPoints(user.uid, LISTEN_POINTS);
+    }, LISTEN_INTERVAL);
+  }
+
+  function stopListeningPoints(){
+    if (listenTimer) clearInterval(listenTimer);
+    listenTimer = null;
+  }
+
+  // Detecta reproducción del audio
+  const audio = document.querySelector('audio');
+  if (audio){
+    audio.addEventListener('playing', startListeningPoints);
+    audio.addEventListener('pause', stopListeningPoints);
+    audio.addEventListener('ended', stopListeningPoints);
+  }
+
+})();
+</script>
   
 <script>
 (function(){
