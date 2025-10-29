@@ -236,12 +236,32 @@
     </div>
   </header>
   
-  <!-- === [ADSTERRA] Banner superior (Native Banner) — DESKTOP y base para mover a móvil === -->
+  <!-- === [ADSTERRA] Banner superior (Native Banner) — SOLO DESKTOP === -->
   <div id="ad-desktop-top" class="ad-slot ad-top ad-card" aria-label="Publicidad" style="text-align:center;margin:12px auto 20px">
-    <!-- IMPORTANTE: usa el mismo snippet que te funcionaba -->
-    <script async="async" data-cfasync="false" src="//pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js"></script>
     <div id="container-715307b74d25ae971c432e0fec096290"></div>
   </div>
+
+  <script>
+  (function(){
+    const UA = navigator.userAgent || "";
+    const isMobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(UA);
+    const isCoarse = matchMedia('(hover: none) and (pointer: coarse)').matches;
+    const isSmall = innerWidth <= 600;
+    const IS_MOBILE = (isMobileUA || isCoarse) && isSmall;
+
+    // ✅ Solo se carga si NO es móvil
+    if (IS_MOBILE) return;
+
+    const cont = document.getElementById("container-715307b74d25ae971c432e0fec096290");
+    if (cont) {
+      const s = document.createElement("script");
+      s.async = true;
+      s.setAttribute("data-cfasync", "false");
+      s.src = "//pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js";
+      cont.appendChild(s);
+    }
+  })();
+  </script>
 
   <style>
     /* Oculta el bloque base en móvil; en móvil lo mostraremos dentro del gate */
