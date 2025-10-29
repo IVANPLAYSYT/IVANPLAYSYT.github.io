@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<!-- file generated: index.html (sticky top banner + bg fix + mobile gate sandbox + single desktop ad) -->
 <html lang="es">
 <head>
 <meta charset="utf-8">
@@ -18,12 +19,27 @@
   base-uri 'none'; form-action 'none'; upgrade-insecure-requests;">
 <link rel="icon" href="/favicon.ico">
 <style>
-  :root{--bg:#0b0d12;--card:#121725;--text:#e7ecf3;--muted:#94a0b8;--a:#8b5cf6;--a2:#5b3dff;--ok:#14f195;--chip:#1b2340;--neon:#1fb6ff}
+  :root{
+    --bg:#0b0d12;--card:#121725;--text:#e7ecf3;--muted:#94a0b8;--a:#8b5cf6;--a2:#5b3dff;--ok:#14f195;--chip:#1b2340;--neon:#1fb6ff;
+    --top-banner-h: 140px;
+  }
+  @media (max-width: 640px){ :root{ --top-banner-h: 100px; } }
   *{box-sizing:border-box} html,body{height:100%}
-  body{margin:0;background:#0b0d12;color:var(--text);font-family:system-ui,Segoe UI,Roboto,Inter,Arial}
+  body{
+    margin:0;
+    background:
+      linear-gradient(180deg, rgba(7,10,18,.70), rgba(7,10,18,.85)),
+      url('./assets/bg/ivanplay_gamer_bg.jpg') center/cover no-repeat fixed;
+    color:var(--text);font-family:system-ui,Segoe UI,Roboto,Inter,Arial;
+  }
+  #top-banner{position:fixed;top:0;left:0;right:0;z-index:9998;background:#000;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+  #top-banner img{display:block;width:100%;height:var(--top-banner-h);object-fit:cover}
+  body.has-top-banner .wrap{padding-top:calc(var(--top-banner-h) + 14px)}
   .wrap{max-width:1100px;margin:0 auto;padding:22px}
   .card{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:16px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
-  .hero{position:relative;border-radius:22px;overflow:hidden;height:260px;margin:18px 0;display:grid;place-items:center;background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.65)), url('./assets/bg/ivanplay_gamer_bg.jpg') center/cover no-repeat}
+  .hero{position:relative;border-radius:22px;overflow:hidden;height:260px;margin:18px 0;display:grid;place-items:center;background:
+      linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.65)),
+      url('./assets/bg/ivanplay_gamer_bg.jpg') center/cover no-repeat}
   .hero-inner{text-align:center;padding:0 16px}
   .neon{font-size:clamp(28px,5vw,54px);color:var(--neon);text-shadow:0 0 6px rgba(31,182,255,.9),0 0 36px rgba(31,182,255,.55);margin:0 0 6px}
   .neon-sub{color:#cfe9ff;font-weight:700;letter-spacing:2px;text-transform:uppercase}
@@ -56,7 +72,15 @@
   .emo{width:20px;height:20px;vertical-align:-3px}
 </style>    
 </head>
-<body>
+<body class="has-top-banner">
+<div id="top-banner"><img src="./assets/banner.jpg" alt="Banner RADIO IVANPLAY"></div>
+<div class="wrap"><section class="hero"><div class="hero-inner"><h1 class="neon">RADIO IVANPLAY ESPAÑA</h1><div class="neon-sub">24/7 MUSIC EXPERIENCE</div></div></section>
+<header class="card"><div class="brand"><div class="logo">🎧</div><div><h2 class="title" style="margin:0">Mi Radio Online</h2><div class="muted">AutoDJ 24/7 • <span id="clock"></span></div></div></div><div class="live"><span class="dot"></span> EN VIVO <span id="onlineCount" class="muted">· 0 conectados</span></div><nav class="nav"><a href="#" onclick="alert('🛠️ Esta página está en construcción.\nPronto añadiremos nuevas recompensas y funciones.'); return false;" class="chip">Tienda</a></nav></header>
+</div>
+<script>
+document.getElementById("clock").textContent = new Date().toLocaleTimeString('es-ES');
+</script>
+</body></html>
 <div class="wrap">
 
   <section class="hero">
