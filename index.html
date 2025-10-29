@@ -809,8 +809,14 @@ window.PREMIUM_EMOJIS = window.PREMIUM_EMOJIS || [
 
 <script>
 (function(){
-  const isMobile = matchMedia('(max-width: 600px)').matches;
-  if (!isMobile) return;
+  // ✅ Detección robusta de móvil
+  const UA = navigator.userAgent || "";
+  const isMobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(UA);
+  const isCoarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  const isSmall = window.innerWidth <= 600;
+  const isReallyMobile = (isMobileUA || isCoarse) && isSmall;
+
+  if (!isReallyMobile) return;                                // ← solo móvil real
   if (sessionStorage.getItem('adGateShown') === '1') return;
 
   const gate   = document.getElementById('adGate');
@@ -820,12 +826,15 @@ window.PREMIUM_EMOJIS = window.PREMIUM_EMOJIS || [
   const frame  = document.getElementById('adSandbox');
   const body   = document.body;
 
+  // Tu unidad Adsterra (Native Banner) – mismo ID que ya usabas
   const SCRIPT_SRC = "https://pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js";
   const CONTAINER  = "container-715307b74d25ae971c432e0fec096290";
 
+  // Mostrar overlay
   body.style.overflow = 'hidden';
   gate.classList.add('show');
 
+  // Cargar anuncio tras interacción (evita popups agresivos)
   btn.addEventListener('click', ()=>{
     btn.disabled = true; btn.textContent = "Cargando…";
     const html = `<!doctype html><html><head>
@@ -838,26 +847,47 @@ window.PREMIUM_EMOJIS = window.PREMIUM_EMOJIS || [
       </body></html>`;
     frame.srcdoc = html;
 
+    // Habilitar cierre al renderizar o a los 5s
     const obs = new MutationObserver(()=>enableClose());
     obs.observe(frame, { childList:true, subtree:true });
     setTimeout(enableClose, 5000);
-  }, {once:true});
+  }, { once:true });
 
-  let secs = 5; label.textContent = secs;
-  const iv = setInterval(()=>{ secs = Math.max(0, secs-1); label.textContent = secs; if (secs === 0) enableClose(); }, 1000);
+  // Cuenta atrás
+  let secs = 5;
+  label.textContent = secs;
+  const iv = setInterval(()=>{
+    secs = Math.max(0, secs-1);
+    label.textContent = secs;
+    if (secs === 0) enableClose();
+  }, 1000);
+
   const failsafe = setTimeout(enableClose, 6000);
 
   function enableClose(){
     clearInterval(iv); clearTimeout(failsafe);
-    if (!closeB.disabled){ return; }
-    closeB.disabled = false; closeB.classList.add('enabled'); closeB.style.cursor = 'pointer';
-    closeB.addEventListener('click', closeGate, {once:true});
+    if (!closeB.disabled){
+      return;
+    }
+    closeB.disabled = false;
+    closeB.classList.add('enabled');
+    closeB.style.cursor = 'pointer';
+    closeB.addEventListener('click', closeGate, { once:true });
   }
-  function closeGate(){ gate.remove(); body.style.overflow=''; sessionStorage.setItem('adGateShown','1'); }
-  window.addEventListener('resize', ()=>{ if (!matchMedia('(max-width: 600px)').matches) closeGate(); });
+
+  function closeGate(){
+    gate.remove();
+    body.style.overflow = '';
+    sessionStorage.setItem('adGateShown','1');
+  }
+
+  // Si pasa a desktop (rotación/tablet), cierra
+  window.addEventListener('resize', ()=>{
+    const stillMobile = ( (navigator.userAgent||"").match(/Mobi|Android|iPhone|iPad|iPod/i) || window.matchMedia('(hover: none) and (pointer: coarse)').matches ) && window.innerWidth <= 600;
+    if (!stillMobile) closeGate();
+  });
 })();
 </script>
-<!-- ========== /MOBILE AD-GATE v2 ========== -->
 
 </body>
 </html>
