@@ -768,45 +768,6 @@ window.PREMIUM_EMOJIS = window.PREMIUM_EMOJIS || [
 
 
 <!-- ========== MOBILE AD-GATE v2 (sandbox, 5s) ========== -->
-<style>
-  .ad-gate{position:fixed;inset:0;z-index:9999;display:none}
-  .ad-gate.show{display:block}
-  .ad-gate__backdrop{position:absolute;inset:0;background:rgba(0,0,0,.8)}
-  .ad-gate__panel{
-    position:relative;max-width:420px;width:92vw;max-height:80vh;
-    margin:8vh auto;background:#0f1222;border-radius:16px;
-    box-shadow:0 10px 30px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden
-  }
-  .ad-gate__header{display:flex;align-items:center;justify-content:space-between;gap:10px;
-    padding:10px 14px;background:linear-gradient(180deg,#181c35,#141932);color:#cfd3ff;font-size:14px}
-  .ad-gate__title{font-weight:800}
-  .ad-gate__counter{font-variant-numeric:tabular-nums;font-weight:800}
-  .ad-gate__close{border:0;background:#23284b;color:#aab1ff;border-radius:10px;width:36px;height:32px;cursor:not-allowed;opacity:.5;transition:.2s}
-  .ad-gate__close.enabled{cursor:pointer;opacity:1}
-  .ad-gate__body{padding:10px;background:#0e1122}
-  .ad-gate__note{margin:0;padding:10px;color:#98a1c7;font-size:12px;text-align:center}
-  .ad-gate__cta{margin:10px auto 0;display:block;border:0;border-radius:10px;padding:10px 14px;
-    background:#3b49df;color:#fff;font-weight:800}
-  @media(min-width:601px){ .ad-gate{display:none !important} }
-</style>
-
-<div id="adGate" class="ad-gate" aria-modal="true" role="dialog">
-  <div class="ad-gate__backdrop" aria-hidden="true"></div>
-  <div class="ad-gate__panel" role="document">
-    <div class="ad-gate__header">
-      <div class="ad-gate__title">Publicidad</div>
-      <div>se cerrará en <span id="adGateCountdown" class="ad-gate__counter">5</span>s</div>
-      <button id="adGateClose" class="ad-gate__close" aria-label="Cerrar" disabled>✕</button>
-    </div>
-    <div class="ad-gate__body">
-      <iframe id="adSandbox" title="ad" style="width:100%;height:250px;border:0;border-radius:12px;background:#0a0f1c"
-              sandbox="allow-scripts allow-same-origin"></iframe>
-      <button id="adLoadBtn" class="ad-gate__cta">Ver anuncio</button>
-    </div>
-    <p class="ad-gate__note">Gracias por apoyar a RADIO IVANPLAY.</p>
-  </div>
-</div>
-
 <script>
 (function(){
   // ✅ Detección robusta de móvil
