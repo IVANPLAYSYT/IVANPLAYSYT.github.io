@@ -109,14 +109,14 @@
 
   <script>
   (function(){
-    // ✅ Detección robusta de móvil
+    // ✅ Detección móvil robusta (no salta en PC estrecho)
     const UA = navigator.userAgent || "";
     const isMobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(UA);
     const isCoarse = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
     const isSmall = window.innerWidth <= 600;
-    const isReallyMobile = (isMobileUA || isCoarse) && isSmall;
+    const IS_MOBILE = (isMobileUA || isCoarse) && isSmall;
 
-    if (!isReallyMobile) return;                                // ← solo móvil real
+    if (!IS_MOBILE) return;
     if (sessionStorage.getItem('adGateShown') === '1') return;
 
     const gate   = document.getElementById('adGate');
@@ -126,15 +126,15 @@
     const frame  = document.getElementById('adSandbox');
     const body   = document.body;
 
-    // Tu unidad Adsterra (Native Banner) – mismo ID que ya usabas
+    // ⚠️ Usa AQUÍ un contenedor SOLO para el gate (no compartas ID con otros bloques)
     const SCRIPT_SRC = "https://pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js";
-    const CONTAINER  = "container-715307b74d25ae971c432e0fec096290";
+    const CONTAINER  = "container-GATE-715307b7"; // <- ID exclusivo del gate
 
-    // Mostrar overlay
+    // ----- Mostrar overlay
     body.style.overflow = 'hidden';
     gate.classList.add('show');
 
-    // Cargar anuncio tras interacción (evita popups agresivos)
+    // ----- Cargar anuncio tras interacción dentro de iframe sandbox
     btn.addEventListener('click', ()=>{
       btn.disabled = true; btn.textContent = "Cargando…";
       const html = `<!doctype html><html><head>
@@ -147,13 +147,12 @@
         </body></html>`;
       frame.srcdoc = html;
 
-      // Habilitar cierre al renderizar o a los 5s
       const obs = new MutationObserver(()=>enableClose());
       obs.observe(frame, { childList:true, subtree:true });
       setTimeout(enableClose, 5000);
     }, { once:true });
 
-    // Cuenta atrás
+    // ----- Cuenta atrás cierre
     let secs = 5;
     label.textContent = secs;
     const iv = setInterval(()=>{
@@ -161,9 +160,10 @@
       label.textContent = secs;
       if (secs === 0) enableClose();
     }, 1000);
-
     const failsafe = setTimeout(enableClose, 6000);
 
+    // 🔒 “Escudo” anti-popups tardíos durante 2s tras cerrar el gate
+    let realOpen = window.open;
     function enableClose(){
       clearInterval(iv); clearTimeout(failsafe);
       if (!closeB.disabled){
@@ -174,8 +174,12 @@
       closeB.style.cursor = 'pointer';
       closeB.addEventListener('click', closeGate, { once:true });
     }
-
     function closeGate(){
+      // Escudo 2s: bloquea window.open mientras termina cualquier script
+      realOpen = window.open;
+      window.open = function(){ return null; };
+      setTimeout(()=>{ window.open = realOpen; }, 2000);
+
       gate.remove();
       body.style.overflow = '';
       sessionStorage.setItem('adGateShown','1');
@@ -183,11 +187,12 @@
 
     // Si pasa a desktop (rotación/tablet), cierra
     window.addEventListener('resize', ()=>{
-      const stillMobile = ( (navigator.userAgent||"").match(/Mobi|Android|iPhone|iPad|iPod/i) || window.matchMedia('(hover: none) and (pointer: coarse)').matches ) && window.innerWidth <= 600;
+      const stillMobile = (((navigator.userAgent||"").match(/Mobi|Android|iPhone|iPad|iPod/i)) || window.matchMedia('(hover: none) and (pointer: coarse)').matches) && window.innerWidth <= 600;
       if (!stillMobile) closeGate();
     });
   })();
   </script>
+
   <!-- ========== /MOBILE AD-GATE v2 ========== -->
 
   <div id="ad-desktop-top" class="ad-slot ad-top ad-card" aria-label="Publicidad" style="text-align:center;margin:12px auto 20px">
