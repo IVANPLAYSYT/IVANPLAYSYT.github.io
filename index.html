@@ -967,6 +967,42 @@ window.PREMIUM_EMOJIS = window.PREMIUM_EMOJIS || [
     wrap.appendChild(sec);
     return sec.querySelector('#rankingWeekly');
   }
+  
+  // ===== VISITAS EN FIREBASE =====
+  (function contarVisita(){
+    try {
+      // aseguramos que firebase está cargado
+      if (!window.FIREBASE_CONFIG) return;
+
+      const app = firebase.apps.length
+        ? firebase.app()
+        : firebase.initializeApp(window.FIREBASE_CONFIG);
+
+      const db = firebase.database();
+      const ref = db.ref('stats/visitas');
+
+      // runTransaction: lee valor y lo incrementa de forma segura
+      ref.transaction(function (current) {
+        if (typeof current !== 'number') current = 0;
+        return current + 1;
+      }, function (err, committed, snap) {
+        // mostrar en la página
+        const el = document.getElementById('statVisits');
+        if (el) {
+          if (snap && snap.val) {
+            el.textContent = snap.val();
+          } else {
+            el.textContent = '—';
+          }
+        }
+        if (err) {
+          console.warn('visitas firebase:', err);
+        }
+      });
+    } catch (e) {
+     console.warn('contador visitas: fallo inicial', e);
+   }
+  })();
 
   function renderRanking(){
     const host = ensureRankingHost();
