@@ -2,153 +2,158 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>IVANPLAY – Juegos</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Mini juegos desbloqueables con puntos de la radio IVANPLAY.">
-  <link rel="icon" href="./favicon.ico">
+  <title>RADIO IVANPLAY · Juegos</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="icon" href="./assets/favicon.ico">
   <style>
     :root{
-      --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
-      --a:#8b5cf6; --a2:#5b3dff; --danger:#ff6b6b; --ok:#14f195;
+      --bg:#0b0d12;
+      --card:#111421;
+      --text:#e7ecf3;
+      --muted:#94a0b8;
+      --a:#8b5cf6;
+      --btn:#1f2435;
     }
-    *{box-sizing:border-box}
     body{
       margin:0;
       background:
-        linear-gradient(180deg, rgba(7,10,18,.80), rgba(7,10,18,.95)),
+        linear-gradient(180deg, rgba(7,10,18,.85), rgba(7,10,18,.95)),
         url('./assets/bg/ivanplay_gamer_bg.jpg') center/cover fixed no-repeat;
       color:var(--text);
       font-family:system-ui,Segoe UI,Roboto,Inter,Arial;
       min-height:100vh;
     }
     .topbar{
-      background:rgba(5,7,12,.85);
-      backdrop-filter:blur(8px);
-      border-bottom:1px solid rgba(255,255,255,.06);
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:12px 18px;
-      gap:10px;
-      flex-wrap:wrap;
+      gap:12px;
+      padding:14px 20px;
+      background:#090b10d9;
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid rgba(255,255,255,.05);
     }
-    .brand{display:flex;gap:10px;align-items:center}
-    .brand .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#6a5cf6,#24d3ee);display:grid;place-items:center}
-    .wrap{max-width:1100px;margin:0 auto;padding:20px 18px 40px}
-    h1{margin:12px 0 16px;font-size:30px}
-    .muted{color:var(--muted)}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:20px}
-    .card{
-      background:linear-gradient(185deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
-      border:1px solid rgba(255,255,255,.06);
-      border-radius:16px;
-      padding:14px 14px 16px;
+    .brand{
       display:flex;
-      flex-direction:column;
       gap:10px;
-      min-height:160px;
+      align-items:center;
     }
-    .title-sm{font-weight:700}
-    .badge{display:inline-flex;gap:4px;align-items:center;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);padding:3px 8px;border-radius:999px;font-size:12px}
-    .btn{
-      border:0;
-      border-radius:10px;
-      padding:8px 10px;
-      font-weight:600;
-      cursor:pointer;
-      background:rgba(255,255,255,.05);
+    .brand h1{
+      font-size:18px;
+      margin:0;
+    }
+    .top-links a{
       color:var(--text);
-      border:1px solid rgba(255,255,255,.1);
-    }
-    .btn.primary{background:linear-gradient(180deg,var(--a),var(--a2));border:none}
-    .btn.small{padding:5px 9px;font-size:13px}
-    .btn[disabled]{opacity:.4;cursor:not-allowed}
-    #userInfo{font-size:14px}
-    #userInfo strong{color:var(--ok)}
-    .game-status{font-size:12px;color:var(--muted)}
-    #gameArea{
-      margin-top:22px;
-      background:#030508;
-      border:1px solid rgba(255,255,255,.03);
-      border-radius:14px;
-      padding:16px;
-      min-height:220px;
-    }
-    #gameFrame{width:100%;min-height:420px;border:0;border-radius:12px;background:#000}
-    .alert{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.4);padding:10px 14px;border-radius:10px;color:#ffe4e4;font-size:14px;margin-bottom:14px}
-    a.back{color:#fff;text-decoration:none}
-    /* cartas visuales */
-    .card-spanish{
-      width:68px;
-      height:110px;
-      background:#fff;
-      border:2px solid #ddd;
+      background:rgba(255,255,255,.05);
+      padding:7px 12px;
       border-radius:10px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      padding:4px;
-      font-weight:700;
-      color:#222;
+      text-decoration:none;
+      font-size:14px;
     }
-    .card-spanish .suit{font-size:26px;text-align:center}
-    .card-spanish.oros .suit{color:#d4a200}
-    .card-spanish.copas .suit{color:#d4004b}
-    .card-spanish.espadas .suit{color:#0052ff}
-    .card-spanish.bastos .suit{color:#198754}
-    .cards-flex{display:flex;gap:8px;flex-wrap:wrap}
-    @media (max-width:600px){
-      h1{font-size:26px}
+    .wrap{
+      max-width:1100px;
+      margin:0 auto;
+      padding:16px;
+    }
+    h2{margin-top:0}
+    .grid-games{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(250px,1fr));
+      gap:16px;
+      margin-top:16px;
+    }
+    .card{
+      background:rgba(16,19,30,.75);
+      border:1px solid rgba(255,255,255,.05);
+      border-radius:16px;
+      padding:14px;
+      backdrop-filter:blur(4px);
+    }
+    .game-title{font-weight:700;margin-bottom:4px;}
+    .muted{color:var(--muted);font-size:13px;}
+    button.btn{
+      border:0;
+      background:linear-gradient(180deg,#8b5cf6,#5b3dff);
+      color:#fff;
+      padding:6px 10px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600;
+      margin-top:6px;
+    }
+    #gameArea canvas{max-width:100%;height:auto;}
+    /* cartas */
+    .card-spanish{box-shadow:0 4px 10px rgba(0,0,0,.4);}
+    .cards-flex{display:flex;gap:6px;flex-wrap:wrap;}
+    footer{margin:20px 0;text-align:center;color:var(--muted);font-size:12px;}
+    @media(max-width:600px){
+      .top-links{display:flex;gap:8px;}
     }
   </style>
 </head>
 <body>
-  <div class="topbar">
+  <header class="topbar">
     <div class="brand">
-      <div class="logo">🎮</div>
-      <div>
-        <div style="font-weight:700">IVANPLAY · Juegos</div>
-        <div class="muted" style="font-size:12px">Desbloquea con tus puntos de la radio</div>
+      <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#6a5cf6,#24d3ee);display:grid;place-items:center">🎮</div>
+      <h1>Juegos · RADIO IVANPLAY</h1>
+    </div>
+    <div class="top-links">
+      <a href="./index.html">← Volver a la radio</a>
+      <a href="#" onclick="alert('🛠️ Esta página está en construcción.\nPronto añadiremos nuevas recompensas y funciones.');return false;">Tienda</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <h2>Juegos básicos</h2>
+    <p class="muted">Juega aquí. Si hay otro usuario conectado entráis en la misma sala. Si no hay nadie, entra un bot. Los ganadores reciben puntos de la radio.</p>
+
+    <div class="grid-games" id="gamesList">
+      <div class="card">
+        <div class="game-title">🎱 Billar 8-ball</div>
+        <p class="muted">1 vs 1 online o contra bot. Lisas vs rayadas. Gana metiendo la 8 al final.</p>
+        <button class="btn" onclick="loadGame('billar')">Jugar</button>
+      </div>
+      <div class="card">
+        <div class="game-title">🃏 Cartas (baraja española)</div>
+        <p class="muted">Hasta 4 jugadores. Si no hay gente se rellenan con bots.</p>
+        <button class="btn" onclick="loadGame('cartas')">Jugar</button>
+      </div>
+      <div class="card">
+        <div class="game-title">✊ Piedra · Papel · Tijera</div>
+        <p class="muted">Clásico contra bot.</p>
+        <button class="btn" onclick="loadGame('ppt')">Jugar</button>
+      </div>
+      <div class="card">
+        <div class="game-title">🔢 Adivina el número</div>
+        <p class="muted">Tienes 6 intentos.</p>
+        <button class="btn" onclick="loadGame('guess')">Jugar</button>
+      </div>
+      <div class="card">
+        <div class="game-title">⚡ Reflejos</div>
+        <p class="muted">Haz clic cuando se ponga en verde.</p>
+        <button class="btn" onclick="loadGame('reflex')">Jugar</button>
+      </div>
+      <div class="card">
+        <div class="game-title">🐍 Snake mini</div>
+        <p class="muted">Recoge comida, no choques.</p>
+        <button class="btn" onclick="loadGame('snake')">Jugar</button>
       </div>
     </div>
-    <div id="userInfo" class="muted">No has iniciado sesión.</div>
-    <div>
-      <a href="./index.html" class="back">← Volver a la radio</a> |
-      <a href="#" onclick="alert('🛠️ La tienda está en construcción.'); return false;" class="back">🛒 Tienda</a>
-    </div>
-  </div>
 
-  <div class="wrap">
-    <h1>Juegos desbloqueables</h1>
-    <p class="muted">
-      Estos juegos usan los <strong>mismos puntos</strong> que ganas escuchando y chateando en la radio.
-      Si no has iniciado sesión, puedes mirar los juegos pero no desbloquearlos.
-    </p>
+    <section id="gameArea" class="card" style="margin-top:20px;min-height:260px;">
+      <p class="muted">Elige un juego de arriba.</p>
+    </section>
+  </main>
 
-    <div id="noAuth" class="alert" style="display:none">
-      Para jugar y guardar tus desbloqueos, inicia sesión en la radio (Google / Email).
-    </div>
+  <footer>© 2025 RADIO IVANPLAY · Juegos</footer>
 
-    <div class="grid" id="gamesGrid"></div>
-
-    <div id="gameArea" style="display:none">
-      <h2 id="gameTitle" style="margin:0 0 10px">Juego</h2>
-      <p id="gameDesc" class="muted" style="margin-top:0"></p>
-      <div id="gameInline" style="display:none"></div>
-      <iframe id="gameFrame" style="display:none"></iframe>
-    </div>
-
-    <div style="text-align:center;margin-top:30px;">
-      <button class="btn primary" onclick="loginGoogle()" id="loginBtn" style="display:none">🔐 Iniciar sesión con Google</button>
-    </div>
-  </div>
-
-  <!-- Firebase -->
+  <!-- Firebase CDN (igual que en index) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script>
-  const firebaseConfig = {
+  // ====== MISMA CONFIG QUE LA RADIO (ajusta si cambiaste algo) ======
+  const FIREBASE_CONFIG = {
     apiKey:        "AIzaSyAIlX6svUMeb1_Q0Mn4WvxojDDTqtIYXv0",
     authDomain:    "ivanplayradio.firebaseapp.com",
     databaseURL:   "https://ivanplayradio-default-rtdb.europe-west1.firebasedatabase.app/",
@@ -157,719 +162,356 @@
     messagingSenderId: "114410018389",
     appId:         "1:114410018389:web:1d8c40b5baf8c51673e6dc"
   };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
+  firebase.initializeApp(FIREBASE_CONFIG);
   const auth = firebase.auth();
-  </script>
+  const db   = firebase.database();
 
-  <script>
-  // ====== 10 juegos ======
-  const GAMES = [
-    { id:"tic-tac-toe", name:"Tic Tac Toe", desc:"Gana 3 en raya contra el móvil.", cost:150, type:"inline", inline:"tic" },
-    { id:"snake-mini", name:"Snake mini", desc:"Clásico snake en mini lienzo.", cost:200, type:"inline", inline:"snake" },
-    { id:"ppt", name:"Piedra, Papel o Tijera", desc:"Juega rápido contra la máquina.", cost:120, type:"inline", inline:"ppt" },
-    { id:"memory-4x4", name:"Memory 4×4", desc:"Encuentra las parejas.", cost:220, type:"inline", inline:"memory" },
-    { id:"guess", name:"Adivina el número", desc:"¿Puedes acertarlo antes de 7 intentos?", cost:80, type:"inline", inline:"guess" },
-    { id:"pong-mini", name:"Pong mini", desc:"Versión sencilla de Pong.", cost:230, type:"inline", inline:"pong" },
-    { id:"reflejos", name:"Reflejos", desc:"Pulsa cuando se ponga en verde.", cost:90, type:"inline", inline:"reflex" },
-    { id:"2048-mini", name:"2048", desc:"Suma hasta 2048.", cost:260, type:"iframe", src:"./games/2048.html" },
-    { id:"billar-1v1", name:"Billar americano 1 vs 1", desc:"Mesa 8-ball demo: rebotes y turnos.", cost:350, type:"inline", inline:"billar" },
-    { id:"cartas-mesa", name:"Cartas (baraja española)", desc:"1 vs máquina o hasta 4 jugadores.", cost:300, type:"inline", inline:"cartas" }
-  ];
-
+  // usuario actual (igual que en index)
   let currentUser = null;
-  let currentUserPoints = 0;
-  let userUnlocked = {};
+  auth.onAuthStateChanged(u=>{
+    currentUser = u;
+  });
 
-  const grid = document.getElementById('gamesGrid');
-  const userInfo = document.getElementById('userInfo');
-  const noAuth = document.getElementById('noAuth');
-  const gameArea = document.getElementById('gameArea');
-  const gameTitle = document.getElementById('gameTitle');
-  const gameDesc = document.getElementById('gameDesc');
-  const gameInline = document.getElementById('gameInline');
-  const gameFrame = document.getElementById('gameFrame');
-  const loginBtn = document.getElementById('loginBtn');
-
-  function loginGoogle(){
-    const prov = new firebase.auth.GoogleAuthProvider();
-    auth.signInWithPopup(prov).catch(()=>auth.signInWithRedirect(prov));
-  }
-
-  function renderGames(){
-    grid.innerHTML = "";
-    GAMES.forEach(g=>{
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="title-sm">${g.name}</div>
-        <div class="muted" style="font-size:13px">${g.desc}</div>
-        <div class="badge">🔒 ${g.cost} pts</div>
-        <div class="game-status" id="status-${g.id}"></div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap">
-          <button class="btn small" data-game="${g.id}" data-action="play">Jugar</button>
-          <button class="btn small" data-game="${g.id}" data-action="unlock">Desbloquear</button>
-        </div>
-      `;
-      grid.appendChild(card);
-    });
-
-    grid.querySelectorAll('button[data-game]').forEach(btn=>{
-      btn.addEventListener('click', onGameButton);
-    });
-
-    updateButtons();
-  }
-
-  function updateButtons(){
-    GAMES.forEach(g=>{
-      const stat = document.getElementById('status-'+g.id);
-      const canPlay = true;
-      const playBtn = grid.querySelector(`button[data-game="${g.id}"][data-action="play"]`);
-      const unlockBtn = grid.querySelector(`button[data-game="${g.id}"][data-action="unlock"]`);
-
-      if (!currentUser){
-        if (stat) stat.textContent = `🔒 ${g.cost} pts · Inicia sesión para desbloquear`;
-        if (playBtn){ playBtn.disabled = true; playBtn.textContent = "Bloqueado"; }
-        if (unlockBtn){ unlockBtn.disabled = true; unlockBtn.textContent = "Desbloquear"; }
-        return;
-      }
-
-      if (canPlay){
-        if (stat) stat.textContent = "✅ Desbloqueado";
-        if (playBtn){ playBtn.disabled = false; playBtn.textContent = "Jugar"; }
-        if (unlockBtn){ unlockBtn.disabled = true; }
-      } else {
-        if (stat) stat.textContent = `Necesitas ${g.cost} pts · Tienes ${currentUserPoints}`;
-        if (playBtn){ playBtn.disabled = true; playBtn.textContent = "Bloqueado"; }
-        if (unlockBtn){ 
-          unlockBtn.disabled = currentUserPoints < g.cost; 
-          unlockBtn.textContent = "Desbloquear";
-        }
-      }
-    });
-  }
-
-  async function onGameButton(e){
-    const gameId = e.target.dataset.game;
-    const action = e.target.dataset.action;
-    const g = GAMES.find(x=>x.id===gameId);
-    if (!g) return;
-    if (!currentUser){
-      alert("Inicia sesión primero en la radio.");
-      return;
-    }
-
-    if (action === 'unlock'){
-      if (currentUserPoints < g.cost){
-        alert("No tienes puntos suficientes.");
-        return;
-      }
-      const uid = currentUser.uid;
-      const userRef = db.ref('users/'+uid);
-      await userRef.transaction(data=>{
-        data = data || {};
-        const pts = data.pointsTotal || 0;
-        if (pts < g.cost) return data;
-        data.pointsTotal = pts - g.cost;
-        data.unlockedGames = data.unlockedGames || {};
-        data.unlockedGames[g.id] = true;
-        return data;
+  // ========== MATCHMAKING SENCILLO ==========
+  const ROOMS_REF = db.ref('gameRooms');
+  async function joinOrCreateRoom(gameId, me){
+    const snap = await ROOMS_REF.child(gameId).orderByChild('status').equalTo('waiting').limitToFirst(1).get();
+    let roomKey = null;
+    if (snap.exists()){
+      const itemKey = Object.keys(snap.val())[0];
+      roomKey = itemKey;
+      await ROOMS_REF.child(gameId).child(roomKey).child('players').child(me.uid).set({
+        nick: me.displayName || (me.email||'')[0] || 'Jugador',
+        ts: firebase.database.ServerValue.TIMESTAMP
       });
-      alert("Juego desbloqueado ✅");
-    }
-
-    if (action === 'play'){
-      openGame(g);
-    }
-  }
-
-  function openGame(g){
-    gameArea.style.display = 'block';
-    gameTitle.textContent = g.name;
-    gameDesc.textContent = g.desc;
-    gameInline.style.display = 'none';
-    gameFrame.style.display = 'none';
-
-    if (g.type === 'iframe'){
-      gameFrame.style.display = 'block';
-      gameFrame.src = g.src;
+      await ROOMS_REF.child(gameId).child(roomKey).update({
+        status:'playing',
+        startedAt: firebase.database.ServerValue.TIMESTAMP
+      });
     } else {
-      gameInline.style.display = 'block';
-      gameInline.innerHTML = "";
-      createInlineGame(g.inline, gameInline);
+      const newRef = ROOMS_REF.child(gameId).push();
+      roomKey = newRef.key;
+      await newRef.set({
+        status:'waiting',
+        owner: me.uid,
+        players: {
+          [me.uid]: {
+            nick: me.displayName || (me.email||'')[0] || 'Jugador',
+            ts: firebase.database.ServerValue.TIMESTAMP
+          }
+        },
+        createdAt: firebase.database.ServerValue.TIMESTAMP
+      });
     }
+    return roomKey;
   }
 
-  // ================== JUEGOS ==================
-  function createInlineGame(kind, container){
-    // 1) TIC TAC TOE
-    if (kind === 'tic') {
-      const board = document.createElement('div');
-      board.style.display = 'grid';
-      board.style.gridTemplateColumns = 'repeat(3,80px)';
-      board.style.gap = '6px';
-      board.style.justifyContent = 'center';
-      const msg = document.createElement('p');
-      msg.className = 'muted';
-      container.appendChild(board);
-      container.appendChild(msg);
+  // ========== CARGAR JUEGO ========== 
+  function loadGame(kind){
+    const area = document.getElementById('gameArea');
+    area.innerHTML = '';
+    const container = document.createElement('div');
+    area.appendChild(container);
 
-      let turn = 'X';
-      const cells = Array(9).fill('');
-      const winCombos = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-
-      function checkWinner(){
-        for (const [a,b,c] of winCombos){
-          if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) return cells[a];
-        }
-        if (cells.every(Boolean)) return 'empate';
-        return null;
-      }
-
-      function render(){
-        board.innerHTML = '';
-        cells.forEach((val, idx)=>{
-          const btn = document.createElement('button');
-          btn.textContent = val;
-          btn.style.width = '80px';
-          btn.style.height = '80px';
-          btn.style.fontSize = '32px';
-          btn.style.fontWeight = '700';
-          btn.style.background = '#111';
-          btn.style.border = '1px solid #555';
-          btn.style.borderRadius = '12px';
-          btn.style.color = '#fff';
-          btn.onclick = () => {
-            const winner = checkWinner();
-            if (winner || cells[idx]) return;
-            cells[idx] = turn;
-            const w = checkWinner();
-            if (w){
-              msg.textContent = (w === 'empate') ? 'Empate' : ('Ganó ' + w);
-            } else {
-              turn = (turn === 'X') ? 'O' : 'X';
-              msg.textContent = 'Turno: ' + turn;
-            }
-            render();
-          };
-          board.appendChild(btn);
-        });
-      }
-
-      msg.textContent = 'Turno: ' + turn;
-      render();
-      return;
-    }
-
-    // 2) SNAKE MEJORADO
-    if (kind === 'snake') {
-      const c = document.createElement('canvas');
-      c.width = 320; c.height = 240;
-      c.style.background = '#000';
-      c.style.borderRadius = '12px';
-      c.style.display = 'block';
-      c.style.margin = 'auto';
-      container.appendChild(c);
-      const ctx = c.getContext('2d');
-
-      const gs = 16;
-      const cellsX = 20;
-      const cellsY = 15;
-      let snake = [{x:10,y:7}];
-      let dir = {x:1, y:0};
-      let nextDir = {x:1, y:0};
-      let food = {x:15, y:7};
-      let steps = 0;
-      let speed = 85; // ms
-
-      function placeFood(){
-        food = {
-          x: Math.floor(Math.random()*cellsX),
-          y: Math.floor(Math.random()*cellsY)
-        };
-      }
-
-      function tick(){
-        // aplicar la dirección nueva (para que no se muera al girar rápido)
-        dir = nextDir;
-        const head = snake[0];
-        const newHead = { x: head.x + dir.x, y: head.y + dir.y };
-        // wrap
-        if (newHead.x < 0) newHead.x = cellsX - 1;
-        if (newHead.x >= cellsX) newHead.x = 0;
-        if (newHead.y < 0) newHead.y = cellsY - 1;
-        if (newHead.y >= cellsY) newHead.y = 0;
-
-        // colisión con cuerpo
-        if (snake.some(p => p.x === newHead.x && p.y === newHead.y)){
-          // reset
-          snake = [{x:10,y:7}];
-          dir = {x:1,y:0};
-          nextDir = {x:1,y:0};
-          placeFood();
-        } else {
-          snake.unshift(newHead);
-          if (newHead.x === food.x && newHead.y === food.y){
-            placeFood();
-          } else {
-            snake.pop();
-          }
-        }
-
-        draw();
-      }
-
-      function draw(){
-        ctx.fillStyle = '#000';
-        ctx.fillRect(0,0,c.width,c.height);
-
-        // food
-        ctx.fillStyle = '#f00';
-        ctx.fillRect(food.x*gs, food.y*gs, gs-2, gs-2);
-
-        // snake
-        ctx.fillStyle = '#0f0';
-        snake.forEach((p,i)=>{
-          ctx.fillRect(p.x*gs, p.y*gs, gs-2, gs-2);
-        });
-      }
-
-      draw();
-      const loop = setInterval(tick, speed);
-
-      document.addEventListener('keydown', e=>{
-        if (e.key === 'ArrowLeft'  && dir.x !== 1){ nextDir = {x:-1,y:0}; }
-        if (e.key === 'ArrowRight' && dir.x !== -1){ nextDir = {x:1,y:0}; }
-        if (e.key === 'ArrowUp'    && dir.y !== 1){ nextDir = {x:0,y:-1}; }
-        if (e.key === 'ArrowDown'  && dir.y !== -1){ nextDir = {x:0,y:1}; }
-      });
-      return;
-    }
-
-    // 3) PIEDRA PAPEL TIJERA
-    if (kind === 'ppt') {
-      const p = document.createElement('p');
-      p.textContent = 'Elige:';
-      const row = document.createElement('div');
-      row.style.display = 'flex';
-      row.style.gap = '6px';
-      const out = document.createElement('p');
-      out.className = 'muted';
-
-      function playPick(user){
-        const ops = ['piedra','papel','tijera'];
-        const bot = ops[Math.floor(Math.random()*3)];
-        let r='';
-        if (user === bot) r = 'Empate, yo también ' + bot;
-        else if (
-          (user==='piedra' && bot==='tijera') ||
-          (user==='papel' && bot==='piedra') ||
-          (user==='tijera' && bot==='papel')
-        ) r = 'Ganaste 🎉 yo saqué ' + bot;
-        else r = 'Perdiste 😜 yo saqué ' + bot;
-        out.textContent = r;
-      }
-
-      ['🪨 Piedra','📄 Papel','✂️ Tijera'].forEach((txt,idx)=>{
-        const btn = document.createElement('button');
-        btn.className = 'btn small';
-        btn.textContent = txt;
-        btn.onclick = () => playPick(['piedra','papel','tijera'][idx]);
-        row.appendChild(btn);
-      });
-
-      container.appendChild(p);
-      container.appendChild(row);
-      container.appendChild(out);
-      return;
-    }
-
-    // 4) ADIVINA NÚMERO
-    if (kind === 'guess') {
-      const p = document.createElement('p');
-      p.textContent = 'Estoy pensando un número del 1 al 50. ¿Cuál es?';
-      const inp = document.createElement('input');
-      inp.type = 'number';
-      inp.min = '1'; inp.max = '50';
-      inp.style.width = '120px';
-      inp.className = 'btn';
-      inp.style.background = '#000';
-      const btn = document.createElement('button');
-      btn.textContent = 'Probar';
-      btn.className = 'btn small';
-      const out = document.createElement('p');
-      out.className = 'muted';
-
-      let secret = Math.floor(Math.random()*50)+1;
-      let tries = 0;
-
-      btn.onclick = () => {
-        const v = parseInt(inp.value,10);
-        if (!v){ out.textContent = 'Pon un número.'; return; }
-        tries++;
-        if (v === secret){
-          out.textContent = '✅ Correcto en ' + tries + ' intentos';
-        } else if (v < secret){
-          out.textContent = 'Más arriba ↑ (intento ' + tries + '/7)';
-        } else {
-          out.textContent = 'Más abajo ↓ (intento ' + tries + '/7)';
-        }
-        if (tries > 7 && v !== secret){
-          out.textContent = '❌ Fallaste, era ' + secret;
-        }
-      };
-
-      container.appendChild(p);
-      container.appendChild(inp);
-      container.appendChild(btn);
-      container.appendChild(out);
-      return;
-    }
-
-    // 5) REFLEJOS
-    if (kind === 'reflex') {
-      const p = document.createElement('p');
-      p.innerHTML = 'Cuando el recuadro se ponga <strong>VERDE</strong>, haz clic lo más rápido posible.';
-      const box = document.createElement('div');
-      box.style.width = '160px';
-      box.style.height = '160px';
-      box.style.background = '#550';
-      box.style.borderRadius = '18px';
-      box.style.display = 'grid';
-      box.style.placeItems = 'center';
-      box.style.cursor = 'pointer';
-      box.textContent = 'Espera...';
-      const out = document.createElement('p');
-      out.className = 'muted';
-
-      let ready = false;
-      let start = 0;
-
-      setTimeout(()=>{
-        box.style.background = '#0a0';
-        box.textContent = '¡YA!';
-        ready = true;
-        start = performance.now();
-      }, 1000 + Math.random()*3000);
-
-      box.onclick = () => {
-        if (!ready){ out.textContent = 'Muy pronto 😅'; return; }
-        const t = performance.now() - start;
-        out.textContent = '⏱️ ' + t.toFixed(0) + ' ms';
-        ready = false;
-      };
-
-      container.appendChild(p);
-      container.appendChild(box);
-      container.appendChild(out);
-      return;
-    }
-
-    // 6) PONG
-    if (kind === 'pong') {
-      const c = document.createElement('canvas');
-      c.width = 380; c.height = 200;
-      c.style.background = '#000';
-      c.style.borderRadius = '10px';
-      c.style.display = 'block';
-      c.style.margin = 'auto';
-      container.appendChild(c);
-      const x = c.getContext('2d');
-
-      let py=80, oy=80, by=100, bx=190, vx=3, vy=2;
-
-      function loop(){
-        x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);
-
-        bx += vx; by += vy;
-        if (by<0 || by>c.height) vy *= -1;
-
-        x.fillStyle='#0f0'; x.fillRect(5,py,10,50);
-        x.fillStyle='#f00'; x.fillRect(c.width-15,oy,10,50);
-        oy += (by - (oy+25)) * 0.12;
-
-        if (bx<20 && by>py && by<py+50) vx *= -1;
-        if (bx>c.width-25 && by>oy && by<oy+50) vx *= -1;
-
-        if (bx<0 || bx>c.width){
-          bx = c.width/2;
-          by = c.height/2;
-        }
-
-        x.fillStyle='#fff';
-        x.beginPath(); x.arc(bx,by,6,0,Math.PI*2); x.fill();
-
-        requestAnimationFrame(loop);
-      }
-      loop();
-
-      document.addEventListener('keydown', e=>{
-        if (e.key === 'ArrowUp') py -= 10;
-        if (e.key === 'ArrowDown') py += 10;
-        py = Math.max(0, Math.min(c.height-50, py));
-      });
-      return;
-    }
-
-    // 7) MEMORY
-    if (kind === 'memory') {
-      const text = document.createElement('p');
-      text.className = 'muted';
-      text.textContent = 'Encuentra las parejas. Pulsa cartas.';
-      const grid = document.createElement('div');
-      grid.style.display = 'grid';
-      grid.style.gridTemplateColumns = 'repeat(4,70px)';
-      grid.style.gap = '6px';
-      grid.style.maxWidth = '300px';
-      const out = document.createElement('p');
-      out.className = 'muted';
-
-      const icons = ['🎧','🎮','🎵','🔥','⭐','🎤','🧊','⚡'];
-      let arr = [...icons, ...icons].sort(()=>Math.random()-.5);
-      let first = null;
-      let lock = false;
-      let done = 0;
-
-      arr.forEach((v,i)=>{
-        const b = document.createElement('button');
-        b.textContent = '?';
-        b.style.height = '70px';
-        b.style.fontSize = '28px';
-        b.style.borderRadius = '10px';
-        b.style.background = '#111';
-        b.style.color = '#fff';
-        b.onclick = () => {
-          if (lock || b.dataset.ok) return;
-          b.textContent = v;
-          if (!first){ first = {v, el:b}; return; }
-          if (first.v === v){
-            b.dataset.ok = 1; first.el.dataset.ok = 1; first = null; done += 2;
-            if (done === arr.length) out.textContent = '✅ Completado';
-          } else {
-            lock = true;
-            setTimeout(()=>{
-              b.textContent = '?';
-              first.el.textContent = '?';
-              first = null;
-              lock = false;
-            }, 600);
-          }
-        };
-        grid.appendChild(b);
-      });
-
-      container.appendChild(text);
-      container.appendChild(grid);
-      container.appendChild(out);
-      return;
-    }
-
-    // 8) BILLAR MEJORADO (demo)
+    /* ================== BILLAR 8-BALL ONLINE + BOT ================== */
     if (kind === 'billar') {
-      const p = document.createElement('p');
-      p.className = 'muted';
-      p.textContent = '🎱 Billar americano 1 vs 1 (demo). Haz clic para tirar. Rebotes y turnos. Última negra gana.';
-      const c = document.createElement('canvas');
-      c.width = 540; c.height = 300;
-      c.style.background = '#044322';
-      c.style.borderRadius = '14px';
-      c.style.display = 'block';
-      c.style.margin = 'auto';
-      const out = document.createElement('p');
-      out.className = 'muted';
-      out.textContent = 'Turno del jugador 1';
-      container.appendChild(p);
-      container.appendChild(c);
-      container.appendChild(out);
+      const info = document.createElement('p');
+      info.className = 'muted';
+      info.textContent = '🎱 Billar 8-ball — conectando...';
+      const canvas = document.createElement('canvas');
+      canvas.width = 560;
+      canvas.height = 310;
+      canvas.style.background = '#044322';
+      canvas.style.borderRadius = '14px';
+      canvas.style.display = 'block';
+      canvas.style.margin = 'auto';
+      container.appendChild(info);
+      container.appendChild(canvas);
+      const ctx = canvas.getContext('2d');
 
-      const ctx = c.getContext('2d');
-
-      // bolsillos
-      const pockets = [
-        {x:20,y:20,r:14},
-        {x:c.width/2,y:10,r:14},
-        {x:c.width-20,y:20,r:14},
-        {x:20,y:c.height-20,r:14},
-        {x:c.width/2,y:c.height-10,r:14},
-        {x:c.width-20,y:c.height-20,r:14},
+      const POCKETS = [
+        {x:20,y:20,r:15},
+        {x:canvas.width/2,y:10,r:15},
+        {x:canvas.width-20,y:20,r:15},
+        {x:20,y:canvas.height-20,r:15},
+        {x:canvas.width/2,y:canvas.height-10,r:15},
+        {x:canvas.width-20,y:canvas.height-20,r:15},
       ];
+      const BALL_COLORS = {
+        1:"#ffdf00", 2:"#0047ff", 3:"#ff5900", 4:"#5d2aff", 5:"#ff008c", 6:"#00a86b", 7:"#8b4513",
+        9:"#ffdf00", 10:"#0047ff", 11:"#ff5900", 12:"#5d2aff", 13:"#ff008c", 14:"#00a86b", 15:"#8b4513",
+        8:"#000000"
+      };
 
-      // bolas: blanca + 6 lisas + 6 rayadas + negra
-      const balls = [];
-      const R = 9;
-      // blanca
-      balls.push({x:110,y:c.height/2, vx:0,vy:0, r:R, color:'#fff', id:'cue'});
-      // triángulo
-      let startX = 360;
-      let startY = c.height/2;
-      const colors = ['#ff4b4b','#ffd54f','#4fc3f7','#ce93d8','#ffb74d','#81c784','#ef5350','#ff8a65','#29b6f6','#ba68c8','#fff176','#e57373'];
-      let cc=0;
-      for (let row=0; row<5; row++){
-        for (let col=0; col<=row; col++){
-          balls.push({
-            x: startX + row* (R*2+1),
-            y: startY - row*R + col*(R*2),
-            vx:0,vy:0,
-            r:R,
-            color: colors[cc%colors.length],
-            id: 'ball'+cc
-          });
-          cc++;
+      function makeInitialState(){
+        const R = 9;
+        const balls = [];
+        balls.push({id:'cue', num:0, x:120, y:canvas.height/2, vx:0, vy:0, r:R, color:'#fff', alive:true});
+        const baseX = 380;
+        const baseY = canvas.height/2;
+        const order = [1,9,2,10,8,3,11,7,14,4,12,5,13,15,6];
+        let idx = 0;
+        for (let row=0; row<5; row++){
+          for (let col=0; col<=row; col++){
+            const num = order[idx++];
+            const offX = row * (R*2 + 1);
+            const offY = -row*R + col*(R*2);
+            balls.push({
+              id:'b'+num, num,
+              x: baseX + offX,
+              y: baseY + offY,
+              vx:0, vy:0, r:R,
+              color: BALL_COLORS[num] || '#ccc',
+              alive:true
+            });
+          }
         }
+        return { balls, assigned:null, turn:null, winner:null };
       }
-      // negra
-      balls.push({x:startX + 5*(R*2+1), y:startY, vx:0,vy:0, r:R, color:'#000', id:'black'});
 
-      let turn = 1;
-
-      function draw(){
-        ctx.clearRect(0,0,c.width,c.height);
-        // mesa
+      function drawTable(state, myUid){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
         ctx.fillStyle = '#044322';
-        ctx.fillRect(0,0,c.width,c.height);
-        // bolsillos
+        ctx.fillRect(0,0,canvas.width,canvas.height);
         ctx.fillStyle = '#000';
-        pockets.forEach(poc=>{
-          ctx.beginPath();
-          ctx.arc(poc.x,poc.y,poc.r,0,Math.PI*2);
-          ctx.fill();
+        POCKETS.forEach(p=>{
+          ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
         });
-
-        // física
-        balls.forEach(b=>{
-          b.x += b.vx;
-          b.y += b.vy;
-          // fricción
-          b.vx *= 0.99;
-          b.vy *= 0.99;
-          if (Math.abs(b.vx) < 0.02) b.vx = 0;
-          if (Math.abs(b.vy) < 0.02) b.vy = 0;
-
-          // paredes
-          if (b.x < b.r+5){ b.x = b.r+5; b.vx *= -1; }
-          if (b.x > c.width - b.r-5){ b.x = c.width - b.r-5; b.vx *= -1; }
-          if (b.y < b.r+5){ b.y = b.r+5; b.vy *= -1; }
-          if (b.y > c.height - b.r-5){ b.y = c.height - b.r-5; b.vy *= -1; }
-        });
-
-        // colisiones bola-bola sencillas
-        for (let i=0;i<balls.length;i++){
-          for (let j=i+1;j<balls.length;j++){
-            const a = balls[i], b = balls[j];
-            const dx = b.x - a.x;
-            const dy = b.y - a.y;
-            const dist = Math.sqrt(dx*dx+dy*dy);
-            const minDist = a.r + b.r;
-            if (dist > 0 && dist < minDist){
-              // separar
-              const overlap = (minDist - dist) / 2;
-              const nx = dx / dist;
-              const ny = dy / dist;
-              a.x -= nx*overlap;
-              a.y -= ny*overlap;
-              b.x += nx*overlap;
-              b.y += ny*overlap;
-              // intercambio simple de velocidad
-              const tx = a.vx; const ty = a.vy;
-              a.vx = b.vx; a.vy = b.vy;
-              b.vx = tx; b.vy = ty;
-            }
-          }
-        }
-
-        // comprobar bolas en bolsillos
-        for (let i=balls.length-1;i>=0;i--){
-          const ball = balls[i];
-          for (const poc of pockets){
-            const dx = ball.x - poc.x;
-            const dy = ball.y - poc.y;
-            if (Math.sqrt(dx*dx+dy*dy) < poc.r-2){
-              // si es la negra, gana el jugador actual
-              if (ball.id === 'black'){
-                out.textContent = '🎉 Jugador ' + turn + ' metió la negra. ¡Gana!';
-              }
-              // quitar bola (menos la blanca -> la reponemos)
-              if (ball.id === 'cue'){
-                // reponer blanca
-                ball.x = 110; ball.y = c.height/2;
-                ball.vx = 0; ball.vy = 0;
-              } else {
-                balls.splice(i,1);
-              }
-              break;
-            }
-          }
-        }
-
-        // dibujar bolas
-        balls.forEach(b=>{
+        if (!state || !state.balls) return;
+        state.balls.forEach(b=>{
+          if (!b.alive) return;
           ctx.beginPath();
           ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
           ctx.fillStyle = b.color;
           ctx.fill();
-          if (b.id === 'cue'){
-            ctx.strokeStyle = '#ddd';
-            ctx.lineWidth = 1.5;
+          if (b.num>=9 && b.num<=15){
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            ctx.moveTo(b.x-b.r+3, b.y);
+            ctx.lineTo(b.x+b.r-3, b.y);
+            ctx.stroke();
+          }
+          if (b.num){
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px system-ui';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(String(b.num), b.x, b.y);
+          }
+          if (b.id==='cue' && state.turn === myUid){
+            ctx.strokeStyle = '#00ff7f';
+            ctx.lineWidth = 2;
             ctx.stroke();
           }
         });
-
-        requestAnimationFrame(draw);
       }
-      draw();
 
-      // disparo
-      c.addEventListener('click', e=>{
-        const rect = c.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
-        // bola blanca
-        const cue = balls.find(b=>b.id==='cue');
-        if (!cue) return;
-        const dx = mx - cue.x;
-        const dy = my - cue.y;
-        const len = Math.sqrt(dx*dx+dy*dy) || 1;
-        const power = 5.2;
-        cue.vx = dx/len * power;
-        cue.vy = dy/len * power;
-        // cambiar turno
-        turn = (turn === 1) ? 2 : 1;
-        out.textContent = 'Turno del jugador ' + turn;
-      });
+      function stepPhysics(state){
+        const fric = 0.99;
+        const balls = state.balls;
+        balls.forEach(b=>{
+          if (!b.alive) return;
+          b.x += b.vx;
+          b.y += b.vy;
+          b.vx *= fric;
+          b.vy *= fric;
+          if (Math.abs(b.vx)<0.02) b.vx=0;
+          if (Math.abs(b.vy)<0.02) b.vy=0;
+          if (b.x < b.r+5){ b.x = b.r+5; b.vx*=-1; }
+          if (b.x > canvas.width-b.r-5){ b.x = canvas.width-b.r-5; b.vx*=-1; }
+          if (b.y < b.r+5){ b.y = b.r+5; b.vy*=-1; }
+          if (b.y > canvas.height-b.r-5){ b.y = canvas.height-b.r-5; b.vy*=-1; }
+        });
+        // colisiones
+        for (let i=0;i<balls.length;i++){
+          for (let j=i+1;j<balls.length;j++){
+            const a=balls[i], b=balls[j];
+            if (!a.alive || !b.alive) continue;
+            const dx=b.x-a.x, dy=b.y-a.y;
+            const dist=Math.hypot(dx,dy);
+            const minD=a.r+b.r;
+            if (dist>0 && dist<minD){
+              const overlap=(minD-dist)/2;
+              const nx=dx/dist, ny=dy/dist;
+              a.x-=nx*overlap; a.y-=ny*overlap;
+              b.x+=nx*overlap; b.y+=ny*overlap;
+              const tvx=a.vx, tvy=a.vy;
+              a.vx=b.vx; a.vy=b.vy;
+              b.vx=tvx; b.vy=tvy;
+            }
+          }
+        }
+        // embocadas
+        const sunk=[];
+        balls.forEach(b=>{
+          if (!b.alive) return;
+          for (const p of POCKETS){
+            if (Math.hypot(b.x-p.x, b.y-p.y) < p.r-2){
+              sunk.push(b);
+            }
+          }
+        });
+        sunk.forEach(b=>{
+          if (b.id==='cue'){
+            b.x = 120; b.y = canvas.height/2; b.vx=0; b.vy=0;
+          } else {
+            b.alive=false;
+          }
+        });
+        return sunk;
+      }
 
-      return;
+      function isMineBall(state, uid, ball){
+        if (!state.assigned) return false;
+        if (ball.num>=1 && ball.num<=7) return state.assigned.uidSolids === uid;
+        if (ball.num>=9 && ball.num<=15) return state.assigned.uidStripes === uid;
+        return false;
+      }
+      function playerHasCleared(state, uid){
+        if (!state.assigned) return false;
+        const needSolids = state.assigned.uidSolids === uid;
+        const needStripes = state.assigned.uidStripes === uid;
+        if (needSolids) return !state.balls.some(b=>b.alive && b.num>=1 && b.num<=7);
+        if (needStripes) return !state.balls.some(b=>b.alive && b.num>=9 && b.num<=15);
+        return false;
+      }
+      function processShotResult(state, shooterUid, sunkBalls, playersInRoom){
+        if (!sunkBalls || sunkBalls.length===0){
+          state.turn = playersInRoom.find(u=>u!==shooterUid) || shooterUid;
+          return;
+        }
+        if (!state.assigned){
+          const solids = sunkBalls.find(b=>b.num>=1 && b.num<=7);
+          const stripes = sunkBalls.find(b=>b.num>=9 && b.num<=15);
+          if (solids){
+            state.assigned = {uidSolids: shooterUid, uidStripes: playersInRoom.find(u=>u!==shooterUid) || shooterUid};
+          } else if (stripes){
+            state.assigned = {uidStripes: shooterUid, uidSolids: playersInRoom.find(u=>u!==shooterUid) || shooterUid};
+          }
+        }
+        const black = sunkBalls.find(b=>b.num===8);
+        if (black){
+          const mineCleared = playerHasCleared(state, shooterUid);
+          if (mineCleared){
+            state.winner = shooterUid;
+          } else {
+            const other = playersInRoom.find(u=>u!==shooterUid) || shooterUid;
+            state.winner = other;
+          }
+          return;
+        }
+        const mineOnly = sunkBalls.every(b=>isMineBall(state, shooterUid, b));
+        if (mineOnly){
+          state.turn = shooterUid;
+        } else {
+          state.turn = playersInRoom.find(u=>u!==shooterUid) || shooterUid;
+        }
+      }
+
+      (async ()=>{
+        const me = currentUser;
+        if (!me){ info.textContent = "Inicia sesión en la radio primero."; return; }
+        const roomId = await joinOrCreateRoom('billar-1v1', me);
+        const roomRef = db.ref('gameRooms/billar-1v1/'+roomId);
+        info.textContent = 'Sala '+roomId+' — esperando rival...';
+
+        setTimeout(async ()=>{
+          const snap = await roomRef.get();
+          const data = snap.val() || {};
+          const players = data.players ? Object.keys(data.players) : [];
+          if (players.length === 1){
+            await roomRef.child('players').child('BOT').set({
+              nick:'🤖 Bot',
+              ts: firebase.database.ServerValue.TIMESTAMP
+            });
+            if (!data.turn){
+              await roomRef.update({turn: me.uid});
+            }
+          }
+        }, 3000);
+
+        roomRef.child('state').get().then(s=>{
+          if (!s.exists()){
+            roomRef.update({
+              state: makeInitialState(),
+              turn: me.uid,
+              owner: me.uid
+            });
+          }
+        });
+
+        roomRef.on('value', snap=>{
+          const data = snap.val(); if (!data) return;
+          const state = data.state;
+          const players = data.players ? Object.keys(data.players) : [];
+          drawTable(state, me.uid);
+
+          if (data.winner){
+            info.textContent = (data.winner === me.uid) ? '🏆 Ganaste (+5 pts)' : 'Perdiste';
+            if (data.winner === me.uid){
+              db.ref('users/'+me.uid).transaction(d=>{
+                d = d || {};
+                d.pointsTotal = (d.pointsTotal||0) + 5;
+                return d;
+              });
+            }
+          } else {
+            info.textContent = (state.turn === me.uid) ? 'Tu turno: haz clic en la mesa' : 'Turno del rival...';
+          }
+
+          // un empujoncito de física si soy el owner
+          if (data.owner === me.uid && !data.winner){
+            const sunk = stepPhysics(state);
+            roomRef.child('state').set(state);
+          }
+
+          canvas.onclick = async (e)=>{
+            const cur = (await roomRef.get()).val(); if (!cur) return;
+            if (cur.winner) return;
+            if (cur.turn !== me.uid) return;
+            const st2 = cur.state;
+            const cue = st2.balls.find(b=>b.id==='cue');
+            if (!cue) return;
+            const rect = canvas.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+            const dx = mx - cue.x;
+            const dy = my - cue.y;
+            const len = Math.hypot(dx,dy) || 1;
+            cue.vx = dx/len * 6;
+            cue.vy = dy/len * 6;
+            const sunk = stepPhysics(st2);
+            processShotResult(st2, me.uid, sunk, players);
+            await roomRef.update({ state: st2, turn: st2.turn, owner: cur.owner || me.uid, winner: st2.winner || null });
+          };
+        });
+      })();
     }
 
-    // 9) CARTAS ESPAÑOLAS
-    if (kind === 'cartas') {
-      const p = document.createElement('p');
-      p.className = 'muted';
-      p.textContent = '🃏 Juego de cartas (baraja española 40). Elige modo:';
-      const btns = document.createElement('div');
-      btns.style.display = 'flex';
-      btns.style.gap = '6px';
-      btns.style.flexWrap = 'wrap';
+    /* ================== CARTAS ONLINE + BOT (HASTA 4) ================== */
+    else if (kind === 'cartas') {
+      const info = document.createElement('p');
+      info.className = 'muted';
+      info.textContent = '🃏 Cartas — conectando...';
       const table = document.createElement('div');
-      table.style.minHeight = '140px';
+      table.style.minHeight = '150px';
       table.style.background = '#111';
-      table.style.padding = '10px';
       table.style.borderRadius = '10px';
+      table.style.padding = '10px';
       table.style.marginTop = '10px';
-      container.appendChild(p);
-      container.appendChild(btns);
+      container.appendChild(info);
       container.appendChild(table);
 
-      const PALOS = [
-        {id:'oros', icon:'🟡', cls:'oros'},
-        {id:'copas', icon:'🍷', cls:'copas'},
-        {id:'espadas', icon:'🗡️', cls:'espadas'},
-        {id:'bastos', icon:'🪵', cls:'bastos'},
-      ];
-      const VALORES = ['1','2','3','4','5','6','7','10','11','12'];
-
-      function buildDeck(){
-        const deck = [];
+      function makeDeck(){
+        const PALOS = [
+          {id:'oros', icon:'🟡', cls:'oros'},
+          {id:'copas', icon:'🍷', cls:'copas'},
+          {id:'espadas', icon:'🗡️', cls:'espadas'},
+          {id:'bastos', icon:'🪵', cls:'bastos'},
+        ];
+        const VALORES = ['1','2','3','4','5','6','7','10','11','12'];
+        const deck=[];
         PALOS.forEach(p=>{
           VALORES.forEach(v=>{
             deck.push({v, palo:p.id, icon:p.icon, cls:p.cls});
@@ -877,107 +519,232 @@
         });
         return deck;
       }
-
       function renderHand(title, cards){
         const wrap = document.createElement('div');
         const h = document.createElement('p');
         h.innerHTML = `<strong>${title}</strong>`;
         const row = document.createElement('div');
-        row.className = 'cards-flex';
+        row.style.display='flex'; row.style.gap='6px'; row.style.flexWrap='wrap';
         cards.forEach(c=>{
           const card = document.createElement('div');
-          card.className = 'card-spanish '+c.cls;
-          const top = document.createElement('div');
-          top.textContent = c.v;
-          const mid = document.createElement('div');
-          mid.className = 'suit';
-          mid.textContent = c.icon;
-          const bot = document.createElement('div');
-          bot.textContent = c.v;
-          card.appendChild(top);
-          card.appendChild(mid);
-          card.appendChild(bot);
+          card.style.width='68px'; card.style.height='110px';
+          card.style.background='#fff'; card.style.border='2px solid #ddd';
+          card.style.borderRadius='10px';
+          card.style.display='flex';
+          card.style.flexDirection='column';
+          card.style.justifyContent='space-between';
+          card.style.padding='4px';
+          card.innerHTML = `<div>${c.v}</div><div style="font-size:26px;text-align:center">${c.icon}</div><div>${c.v}</div>`;
           row.appendChild(card);
         });
-        wrap.appendChild(h);
-        wrap.appendChild(row);
+        wrap.appendChild(h); wrap.appendChild(row);
         return wrap;
       }
 
-      function deal(mode){
-        let players = 1;
-        let vsMachine = false;
-        if (mode === 'solo'){ vsMachine = true; players = 1; }
-        if (mode === '2'){ players = 2; }
-        if (mode === '4'){ players = 4; }
+      (async ()=>{
+        const me = currentUser;
+        if (!me){ info.textContent = "Inicia sesión en la radio primero."; return; }
+        const roomId = await joinOrCreateRoom('cartas-mesa', me);
+        const roomRef = db.ref('gameRooms/cartas-mesa/'+roomId);
+        info.textContent = '🃏 Cartas — sala '+roomId+' (esperando jugadores...)';
 
-        let deck = buildDeck();
-        deck.sort(()=>Math.random()-.5);
+        setTimeout(async ()=>{
+          const snap = await roomRef.get();
+          const data = snap.val() || {};
+          const players = data.players ? Object.keys(data.players) : [];
+          let need = 4 - players.length;
+          for (let i=0;i<need;i++){
+            await roomRef.child('players').child('BOT'+i).set({
+              nick:'🤖 Bot '+(i+1),
+              ts: firebase.database.ServerValue.TIMESTAMP
+            });
+          }
+          const st = await roomRef.child('state').get();
+          if (!st.exists()){
+            const deck = makeDeck().sort(()=>Math.random()-.5);
+            const fresh = { hands:{}, turn:null, winner:null };
+            const playersNow = (await roomRef.get()).val().players;
+            const ids = Object.keys(playersNow);
+            ids.forEach(id=>{
+              fresh.hands[id] = deck.splice(0,3);
+            });
+            fresh.turn = ids[0];
+            await roomRef.child('state').set(fresh);
+          }
+        }, 3000);
 
-        table.innerHTML = '';
-        for (let i=0;i<players;i++){
-          const hand = deck.splice(0,3);
-          table.appendChild(renderHand('Jugador '+(i+1), hand));
+        roomRef.on('value', snap=>{
+          const data = snap.val() || {};
+          const players = data.players || {};
+          const state = data.state || {};
+          table.innerHTML = '';
+          const ids = Object.keys(players);
+          ids.forEach(pid=>{
+            const hand = (state.hands && state.hands[pid]) ? state.hands[pid] : [];
+            table.appendChild(renderHand(players[pid].nick || pid, hand));
+          });
+          if (state.winner){
+            info.textContent = (state.winner === me.uid) ? '🏆 Ganaste (+5 pts)' : 'Ganó '+(players[state.winner]?.nick || state.winner);
+            if (state.winner === me.uid){
+              db.ref('users/'+me.uid).transaction(d=>{
+                d = d || {};
+                d.pointsTotal = (d.pointsTotal||0) + 5;
+                return d;
+              });
+            }
+          } else {
+            info.textContent = '🃏 Sala '+roomId+' · turno de: '+(players[state.turn]?.nick || state.turn || '...');
+          }
+        });
+
+        table.onclick = async ()=>{
+          const snap = await roomRef.get(); const data = snap.val() || {};
+          const state = data.state || {};
+          if (state.winner) return;
+          if (state.turn !== currentUser.uid) return;
+          const myHand = (state.hands && state.hands[currentUser.uid]) ? state.hands[currentUser.uid] : [];
+          if (!myHand.length) return;
+          const best = myHand.slice().sort((a,b)=>Number(b.v)-Number(a.v))[0];
+          const newHand = myHand.filter(c=> !(c.v===best.v && c.palo===best.palo));
+          state.hands[currentUser.uid] = newHand;
+          const players = Object.keys(data.players||{});
+          const idx = players.indexOf(currentUser.uid);
+          const next = players[(idx+1)%players.length];
+          state.turn = next;
+          const allEmpty = players.every(pid=> (state.hands[pid]||[]).length===0);
+          if (allEmpty){
+            state.winner = currentUser.uid;
+          }
+          await roomRef.child('state').set(state);
+        };
+      })();
+    }
+
+    /* ================== OTROS MINI JUEGOS LOCALES ================== */
+    else if (kind === 'ppt') {
+      const title = document.createElement('p');
+      title.className = 'muted';
+      title.textContent = 'Elige:';
+      const row = document.createElement('div');
+      ['Piedra','Papel','Tijera'].forEach(opt=>{
+        const b=document.createElement('button'); b.className='btn'; b.textContent=opt;
+        b.onclick=()=>{
+          const bot = ['Piedra','Papel','Tijera'][Math.floor(Math.random()*3)];
+          let res='Empate';
+          if ((opt==='Piedra' && bot==='Tijera')||(opt==='Papel' && bot==='Piedra')||(opt==='Tijera' && bot==='Papel')){
+            res='Ganaste';
+            if (currentUser){
+              db.ref('users/'+currentUser.uid).transaction(d=>{
+                d=d||{}; d.pointsTotal=(d.pointsTotal||0)+2; return d;
+              });
+            }
+          } else if (opt!==bot){
+            res='Perdiste';
+          }
+          alert(opt+' vs '+bot+' → '+res);
+        };
+        row.appendChild(b);
+      });
+      container.appendChild(title);
+      container.appendChild(row);
+    }
+    else if (kind === 'guess'){
+      const p=document.createElement('p'); p.className='muted'; p.textContent='Adivina número 1-30. Tienes 6 intentos.';
+      const input=document.createElement('input'); input.type='number'; input.min='1'; input.max='30';
+      const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Probar';
+      const msg=document.createElement('p'); msg.className='muted';
+      const secret = Math.floor(Math.random()*30)+1;
+      let tries=6;
+      btn.onclick=()=>{
+        const v=Number(input.value);
+        if (!v) return;
+        tries--;
+        if (v===secret){
+          msg.textContent='✔ Acierto';
+          if (currentUser){
+            db.ref('users/'+currentUser.uid).transaction(d=>{
+              d=d||{}; d.pointsTotal=(d.pointsTotal||0)+3; return d;
+            });
+          }
+        } else if (tries<=0){
+          msg.textContent='❌ Sin intentos. Era '+secret;
+        } else {
+          msg.textContent = v<secret ? 'Más alto. Intentos: '+tries : 'Más bajo. Intentos: '+tries;
         }
-        if (vsMachine){
-          const hand = deck.splice(0,3);
-          table.appendChild(renderHand('Máquina', hand));
+      };
+      container.appendChild(p); container.appendChild(input); container.appendChild(btn); container.appendChild(msg);
+    }
+    else if (kind === 'reflex'){
+      const box=document.createElement('div');
+      box.style.height='140px'; box.style.borderRadius='16px'; box.style.display='grid'; box.style.placeItems='center';
+      box.style.background='#333';
+      box.textContent='Espera al verde...';
+      let ready=false;
+      let start=0;
+      setTimeout(()=>{
+        box.style.background='#1abc9c';
+        box.textContent='¡CLICA!';
+        ready=true;
+        start=performance.now();
+      }, 1000+Math.random()*3000);
+      box.onclick=()=>{
+        if (!ready) return;
+        const t = performance.now()-start;
+        box.textContent='Tiempo: '+t.toFixed(0)+' ms';
+        if (currentUser){
+          db.ref('users/'+currentUser.uid).transaction(d=>{
+            d=d||{}; d.pointsTotal=(d.pointsTotal||0)+1; return d;
+          });
         }
+      };
+      container.appendChild(box);
+    }
+    else if (kind === 'snake'){
+      const c=document.createElement('canvas'); c.width=320; c.height=240; c.style.background='#000';
+      container.appendChild(c);
+      const x=c.getContext('2d');
+      const size=10;
+      let snake=[{x:10,y:10}];
+      let dir={x:1,y:0};
+      let food={x:15,y:10};
+      let alive=true;
+
+      document.onkeydown=(e)=>{
+        if (e.key==='ArrowUp' && dir.y===0) dir={x:0,y:-1};
+        else if (e.key==='ArrowDown' && dir.y===0) dir={x:0,y:1};
+        else if (e.key==='ArrowLeft' && dir.x===0) dir={x:-1,y:0};
+        else if (e.key==='ArrowRight' && dir.x===0) dir={x:1,y:0};
+      };
+      function loop(){
+        if (!alive) return;
+        const head={x:snake[0].x+dir.x, y:snake[0].y+dir.y};
+        if (head.x<0||head.y<0||head.x>=c.width/size||head.y>=c.height/size){
+          alive=false; return;
+        }
+        if (snake.some(s=>s.x===head.x && s.y===head.y)){
+          alive=false; return;
+        }
+        snake.unshift(head);
+        if (head.x===food.x && head.y===food.y){
+          food={x:Math.floor(Math.random()* (c.width/size)), y:Math.floor(Math.random()*(c.height/size))};
+          if (currentUser){
+            db.ref('users/'+currentUser.uid).transaction(d=>{
+              d=d||{}; d.pointsTotal=(d.pointsTotal||0)+1; return d;
+            });
+          }
+        } else {
+          snake.pop();
+        }
+        x.clearRect(0,0,c.width,c.height);
+        x.fillStyle='#0f0';
+        snake.forEach(s=> x.fillRect(s.x*size, s.y*size, size-1, size-1));
+        x.fillStyle='#f00';
+        x.fillRect(food.x*size, food.y*size, size-1, size-1);
+        requestAnimationFrame(loop);
       }
-
-      const b1 = document.createElement('button');
-      b1.className = 'btn small';
-      b1.textContent = '1 vs máquina';
-      b1.onclick = ()=>deal('solo');
-
-      const b2 = document.createElement('button');
-      b2.className = 'btn small';
-      b2.textContent = '2 jugadores';
-      b2.onclick = ()=>deal('2');
-
-      const b4 = document.createElement('button');
-      b4.className = 'btn small';
-      b4.textContent = '4 jugadores';
-      b4.onclick = ()=>deal('4');
-
-      btns.appendChild(b1);
-      btns.appendChild(b2);
-      btns.appendChild(b4);
-
-      // primera mano
-      deal('solo');
-
-      return;
+      loop();
     }
-
-    // fallback
-    container.textContent = 'Juego no montado todavía.';
   }
-
-  // ====== Auth ======
-  auth.onAuthStateChanged(async user=>{
-    currentUser = user;
-    if (!user){
-      userInfo.textContent = "No has iniciado sesión.";
-      noAuth.style.display = "block";
-      loginBtn.style.display = "inline-block";
-      currentUserPoints = 0;
-      userUnlocked = {};
-      updateButtons();
-      return;
-    }
-    loginBtn.style.display = "none";
-    noAuth.style.display = "none";
-    userInfo.innerHTML = `Hola, <strong>${user.displayName || user.email || 'user'}</strong>`;
-    const snap = await db.ref('users/'+user.uid).get();
-    const data = snap.val() || {};
-    currentUserPoints = data.pointsTotal || 0;
-    userUnlocked = data.unlockedGames || {};
-    updateButtons();
-  });
-
-  // start
-  renderGames();
   </script>
 </body>
 </html>
