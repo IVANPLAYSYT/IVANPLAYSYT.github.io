@@ -29,6 +29,8 @@
       align-items:center;
       justify-content:space-between;
       padding:12px 18px;
+      gap:10px;
+      flex-wrap:wrap;
     }
     .brand{display:flex;gap:10px;align-items:center}
     .brand .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#6a5cf6,#24d3ee);display:grid;place-items:center}
@@ -44,6 +46,7 @@
       display:flex;
       flex-direction:column;
       gap:10px;
+      min-height:160px;
     }
     .title-sm{font-weight:700}
     .badge{display:inline-flex;gap:4px;align-items:center;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);padding:3px 8px;border-radius:999px;font-size:12px}
@@ -76,7 +79,6 @@
     a.back{color:#fff;text-decoration:none}
     @media (max-width:600px){
       h1{font-size:26px}
-      .topbar{flex-wrap:wrap;gap:8px}
     }
   </style>
 </head>
@@ -91,13 +93,17 @@
     </div>
     <div id="userInfo" class="muted">No has iniciado sesión.</div>
     <div>
-      <a href="./index.html" class="back">← Volver a la radio</a>
+      <a href="./index.html" class="back">← Volver a la radio</a> |
+      <a href="#" onclick="alert('🛠️ La tienda está en construcción.'); return false;" class="back">🛒 Tienda</a>
     </div>
   </div>
 
   <div class="wrap">
     <h1>Juegos desbloqueables</h1>
-    <p class="muted">Escucha la radio, gana puntos y desbloquea juegos. Son los <strong>mismos puntos</strong> que ya estás ganando en <code>index.html</code>.</p>
+    <p class="muted">
+      Estos juegos usan los <strong>mismos puntos</strong> que ganas escuchando y chateando en la radio.
+      Si no has iniciado sesión, puedes mirar los juegos pero no desbloquearlos.
+    </p>
 
     <div id="noAuth" class="alert" style="display:none">
       Para jugar y guardar tus desbloqueos, inicia sesión en la radio (Google / Email).
@@ -110,9 +116,12 @@
     <div id="gameArea" style="display:none">
       <h2 id="gameTitle" style="margin:0 0 10px">Juego</h2>
       <p id="gameDesc" class="muted" style="margin-top:0"></p>
-      <!-- aquí podemos meter juego inline o iframe -->
       <div id="gameInline" style="display:none"></div>
       <iframe id="gameFrame" style="display:none"></iframe>
+    </div>
+
+    <div style="text-align:center;margin-top:30px;">
+      <button class="btn primary" onclick="loginGoogle()" id="loginBtn" style="display:none">🔐 Iniciar sesión con Google</button>
     </div>
   </div>
 
@@ -137,72 +146,21 @@
   </script>
 
   <script>
-  // ====== Definimos los 8 juegos ======
+  // ====== Definimos los 10 juegos ======
+  // cost: son los mismos puntos que index.html (tú puedes ajustar)
   const GAMES = [
-    {
-      id: "tic-tac-toe",
-      name: "Tic Tac Toe",
-      desc: "Gana 3 en raya contra el móvil.",
-      cost: 150,
-      type: "inline",
-      inline: "tic"
-    },
-    {
-      id: "snake-mini",
-      name: "Snake Mini",
-      desc: "Clásico snake en mini lienzo.",
-      cost: 200,
-      type: "inline",
-      inline: "snake"
-    },
-    {
-      id: "ppt",
-      name: "Piedra, Papel o Tijera",
-      desc: "Juega rápido contra la máquina.",
-      cost: 120,
-      type: "inline",
-      inline: "ppt"
-    },
-    {
-      id: "memory-4x4",
-      name: "Memory 4×4",
-      desc: "Encuentra las parejas.",
-      cost: 220,
-      type: "inline",
-      inline: "memory"
-    },
-    {
-      id: "guess",
-      name: "Adivina el número",
-      desc: "¿Puedes acertarlo antes de 7 intentos?",
-      cost: 80,
-      type: "inline",
-      inline: "guess"
-    },
-    {
-      id: "pong-mini",
-      name: "Pong mini",
-      desc: "Versión sencilla de Pong.",
-      cost: 230,
-      type: "inline",
-      inline: "pong"
-    },
-    {
-      id: "reflejos",
-      name: "Reflejos",
-      desc: "Pulsa cuando se ponga en verde.",
-      cost: 90,
-      type: "inline",
-      inline: "reflex"
-    },
-    {
-      id: "2048-mini",
-      name: "2048",
-      desc: "Suma hasta 2048.",
-      cost: 260,
-      type: "iframe",
-      src: "./games/2048.html"
-    }
+    { id:"tic-tac-toe", name:"Tic Tac Toe", desc:"Gana 3 en raya contra el móvil.", cost:150, type:"inline", inline:"tic" },
+    { id:"snake-mini", name:"Snake mini", desc:"Clásico snake en mini lienzo.", cost:200, type:"inline", inline:"snake" },
+    { id:"ppt", name:"Piedra, Papel o Tijera", desc:"Juega rápido contra la máquina.", cost:120, type:"inline", inline:"ppt" },
+    { id:"memory-4x4", name:"Memory 4×4", desc:"Encuentra las parejas.", cost:220, type:"inline", inline:"memory" },
+    { id:"guess", name:"Adivina el número", desc:"¿Puedes acertarlo antes de 7 intentos?", cost:80, type:"inline", inline:"guess" },
+    { id:"pong-mini", name:"Pong mini", desc:"Versión sencilla de Pong.", cost:230, type:"inline", inline:"pong" },
+    { id:"reflejos", name:"Reflejos", desc:"Pulsa cuando se ponga en verde.", cost:90, type:"inline", inline:"reflex" },
+    { id:"2048-mini", name:"2048", desc:"Suma hasta 2048.", cost:260, type:"iframe", src:"./games/2048.html" },
+
+    // NUEVOS
+    { id:"billar-1v1", name:"Billar americano 1 vs 1", desc:"Mesa 8-ball. Modo 1 vs 1 (beta).", cost:350, type:"inline", inline:"billar" },
+    { id:"cartas-mesa", name:"Cartas (1-4 jugadores)", desc:"Partidas rápidas: 1 vs máquina o hasta 4. Plantilla lista.", cost:300, type:"inline", inline:"cartas" }
   ];
 
   let currentUser = null;
@@ -217,6 +175,12 @@
   const gameDesc = document.getElementById('gameDesc');
   const gameInline = document.getElementById('gameInline');
   const gameFrame = document.getElementById('gameFrame');
+  const loginBtn = document.getElementById('loginBtn');
+
+  function loginGoogle(){
+    const prov = new firebase.auth.GoogleAuthProvider();
+    auth.signInWithPopup(prov).catch(()=>auth.signInWithRedirect(prov));
+  }
 
   // pintar tarjetas
   function renderGames(){
@@ -244,6 +208,7 @@
     updateButtons();
   }
 
+  // acceso abierto: los no logueados ven todo, pero no pueden desbloquear
   function updateButtons(){
     GAMES.forEach(g=>{
       const stat = document.getElementById('status-'+g.id);
@@ -252,20 +217,24 @@
       const unlockBtn = grid.querySelector(`button[data-game="${g.id}"][data-action="unlock"]`);
 
       if (!currentUser){
-        if (stat) stat.textContent = "Inicia sesión para usar puntos.";
-        if (playBtn) playBtn.disabled = true;
-        if (unlockBtn) unlockBtn.disabled = true;
+        if (stat) stat.textContent = `🔒 ${g.cost} pts · Inicia sesión para desbloquear`;
+        if (playBtn){ playBtn.disabled = true; playBtn.textContent = "Bloqueado"; }
+        if (unlockBtn){ unlockBtn.disabled = true; unlockBtn.textContent = "Desbloquear"; }
         return;
       }
 
+      // usuario logueado
       if (canPlay){
         if (stat) stat.textContent = "✅ Desbloqueado";
-        if (playBtn) { playBtn.disabled = false; playBtn.textContent = "Jugar"; }
-        if (unlockBtn) { unlockBtn.disabled = true; }
+        if (playBtn){ playBtn.disabled = false; playBtn.textContent = "Jugar"; }
+        if (unlockBtn){ unlockBtn.disabled = true; }
       } else {
         if (stat) stat.textContent = `Necesitas ${g.cost} pts · Tienes ${currentUserPoints}`;
-        if (playBtn) playBtn.disabled = true;
-        if (unlockBtn) unlockBtn.disabled = currentUserPoints < g.cost;
+        if (playBtn){ playBtn.disabled = true; playBtn.textContent = "Bloqueado"; }
+        if (unlockBtn){ 
+          unlockBtn.disabled = currentUserPoints < g.cost; 
+          unlockBtn.textContent = "Desbloquear";
+        }
       }
     });
   }
@@ -275,14 +244,16 @@
     const action = e.target.dataset.action;
     const g = GAMES.find(x=>x.id===gameId);
     if (!g) return;
-    if (!currentUser){ alert("Inicia sesión primero en la radio."); return; }
+    if (!currentUser){
+      alert("Inicia sesión primero en la radio.");
+      return;
+    }
 
     if (action === 'unlock'){
       if (currentUserPoints < g.cost){
         alert("No tienes puntos suficientes.");
         return;
       }
-      // restar puntos y guardar desbloqueo
       const uid = currentUser.uid;
       const userRef = db.ref('users/'+uid);
       await userRef.transaction(data=>{
@@ -426,20 +397,225 @@
         <\/script>
       `;
     }
-    // puedes seguir ampliando, dejo los otros simples
+    if (kind === 'guess'){
+      return `
+        <p>Estoy pensando un número del 1 al 50. ¿Cuál es?</p>
+        <input id="gIn" type="number" min="1" max="50" class="btn" style="width:120px;background:#000">
+        <button class="btn small" onclick="guessTry()">Probar</button>
+        <p id="gOut" class="muted"></p>
+        <script>
+          let secret = Math.floor(Math.random()*50)+1;
+          let tries = 0;
+          function guessTry(){
+            const v = parseInt(document.getElementById('gIn').value,10);
+            const out = document.getElementById('gOut');
+            if(!v){ out.textContent='Pon un número.'; return; }
+            tries++;
+            if(v===secret){ out.textContent='✅ Correcto en '+tries+' intentos'; }
+            else if(v<secret){ out.textContent='Más arriba ↑'; }
+            else{ out.textContent='Más abajo ↓'; }
+            if(tries>7 && v!==secret){ out.textContent='❌ Fallaste, era '+secret; }
+          }
+        <\/script>
+      `;
+    }
+    if (kind === 'reflex'){
+      return `
+        <p>Cuando el recuadro se ponga <strong>VERDE</strong>, haz clic lo más rápido posible.</p>
+        <div id="refBox" style="width:160px;height:160px;background:#550;border-radius:18px;display:grid;place-items:center;font-size:12px;cursor:pointer;">Espera...</div>
+        <p id="refOut" class="muted"></p>
+        <script>
+          (function(){
+            const box = document.getElementById('refBox');
+            const out = document.getElementById('refOut');
+            let ready=false, start=0;
+            setTimeout(()=>{
+              box.style.background='#0a0';
+              box.textContent='¡YA!';
+              ready=true;
+              start=performance.now();
+            }, 1000 + Math.random()*3000);
+            box.onclick=()=>{
+              if(!ready){ out.textContent='Muy pronto 😅'; return; }
+              const t=performance.now()-start;
+              out.textContent='⏱️ '+t.toFixed(0)+' ms';
+              ready=false;
+            };
+          })();
+        <\/script>
+      `;
+    }
+    if (kind === 'pong'){
+      return `
+        <canvas id="pg" width="380" height="200" style="background:#000;border-radius:10px;display:block;margin:auto"></canvas>
+        <p class="muted">Mueve con ↑ ↓</p>
+        <script>
+          (function(){
+            const c=document.getElementById('pg'),x=c.getContext('2d');
+            let py=80, oy=80, by=100, bx=190, vx=3, vy=2;
+            function loop(){
+              x.fillStyle='#000';x.fillRect(0,0,c.width,c.height);
+              // bola
+              bx+=vx; by+=vy;
+              if(by<0||by>c.height) vy*=-1;
+              // palas
+              x.fillStyle='#0f0'; x.fillRect(5,py,10,50);
+              x.fillStyle='#f00'; x.fillRect(c.width-15,oy,10,50);
+              // IA
+              oy += (by - (oy+25)) * 0.1;
+              // colisiones
+              if(bx<20 && by>py && by<py+50) vx*=-1;
+              if(bx>c.width-25 && by>oy && by<oy+50) vx*=-1;
+              // reset
+              if(bx<0||bx>c.width){ bx=c.width/2; by=c.height/2; }
+              // bola
+              x.fillStyle='#fff'; x.beginPath(); x.arc(bx,by,6,0,Math.PI*2); x.fill();
+              requestAnimationFrame(loop);
+            }
+            loop();
+            document.onkeydown=e=>{
+              if(e.key==="ArrowUp") py-=10;
+              if(e.key==="ArrowDown") py+=10;
+              py=Math.max(0,Math.min(c.height-50,py));
+            };
+          })();
+        <\/script>
+      `;
+    }
+    if (kind === 'memory'){
+      return `
+        <p class="muted">Encuentra las parejas. Pulsa cartas.</p>
+        <div id="mm" style="display:grid;grid-template-columns:repeat(4,70px);gap:6px;max-width:300px;"></div>
+        <p id="mmOut" class="muted"></p>
+        <script>
+          (function(){
+            const icons=['🎧','🎮','🎵','🔥','⭐','🎤','🧊','⚡'];
+            let arr=[...icons,...icons].sort(()=>Math.random()-.5);
+            const cont=document.getElementById('mm');
+            let first=null,lock=false,done=0;
+            arr.forEach((v,i)=>{
+              const b=document.createElement('button');
+              b.textContent='?';
+              b.style.height='70px';b.style.fontSize='28px';b.style.borderRadius='10px';b.style.background='#111';b.style.color='#fff';
+              b.onclick=()=>{
+                if(lock||b.dataset.ok) return;
+                b.textContent=v;
+                if(!first){ first={i,v,el:b}; return;}
+                if(first.v===v){
+                  b.dataset.ok=1; first.el.dataset.ok=1; first=null; done+=2;
+                  if(done===arr.length) document.getElementById('mmOut').textContent='✅ Completado';
+                }else{
+                  lock=true;
+                  setTimeout(()=>{
+                    b.textContent='?'; first.el.textContent='?'; first=null; lock=false;
+                  },600);
+                }
+              };
+              cont.appendChild(b);
+            });
+          })();
+        <\/script>
+      `;
+    }
+    if (kind === 'billar'){
+      // placeholder jugable mínimo
+      return `
+        <p class="muted">🎱 Billar americano 1 vs 1 (versión base). Turnos: jugador 1 y jugador 2. Haz clic en la bola blanca para disparar.</p>
+        <canvas id="bill" width="520" height="280" style="background:#044322;border-radius:14px;display:block;margin:auto"></canvas>
+        <p id="billOut" class="muted"></p>
+        <script>
+          (function(){
+            const c=document.getElementById('bill'),ctx=c.getContext('2d');
+            let balls=[{x:80,y:140, vx:0,vy:0, color:'#fff', cue:true}];
+            // triángulo simple
+            for(let r=0;r<5;r++){
+              for(let k=0;k<=r;k++){
+                balls.push({x:350+r*16, y:140 - r*8 + k*16, vx:0,vy:0, color:'#ffdd00'});
+              }
+            }
+            let turn=1;
+            function draw(){
+              ctx.clearRect(0,0,c.width,c.height);
+              // bandas
+              ctx.fillStyle='#0a0';ctx.fillRect(0,0,520,10);ctx.fillRect(0,270,520,10);ctx.fillRect(0,0,10,280);ctx.fillRect(510,0,10,280);
+              balls.forEach(b=>{
+                b.x += b.vx; b.y += b.vy;
+                b.vx *= 0.99; b.vy *= 0.99;
+                if(Math.abs(b.vx)<0.02) b.vx=0;
+                if(Math.abs(b.vy)<0.02) b.vy=0;
+                if(b.x<20||b.x>500) b.vx*=-1;
+                if(b.y<20||b.y>260) b.vy*=-1;
+              });
+              balls.forEach(b=>{
+                ctx.beginPath();ctx.arc(b.x,b.y,8,0,Math.PI*2);ctx.fillStyle=b.color;ctx.fill();
+              });
+              requestAnimationFrame(draw);
+            }
+            draw();
+            c.onclick=e=>{
+              const rect=c.getBoundingClientRect();
+              const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+              const cue=balls[0];
+              // disparo hacia el punto clicado
+              const dx=mx-cue.x, dy=my-cue.y;
+              const len=Math.sqrt(dx*dx+dy*dy)||1;
+              cue.vx = dx/len*4.5;
+              cue.vy = dy/len*4.5;
+              document.getElementById('billOut').textContent='Turno del jugador '+(turn===1?2:1);
+              turn = turn===1?2:1;
+            };
+          })();
+        <\/script>
+      `;
+    }
+    if (kind === 'cartas'){
+      // plantilla de juego de cartas español/40
+      return `
+        <p class="muted">🃏 Juego de cartas (hasta 4 jugadores). Elige modo:</p>
+        <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap">
+          <button class="btn small" onclick="cartasModo('solo')">1 vs Máquina</button>
+          <button class="btn small" onclick="cartasModo('2')">2 jugadores</button>
+          <button class="btn small" onclick="cartasModo('4')">4 jugadores</button>
+        </div>
+        <div id="cartasTable" style="min-height:140px;background:#111;padding:10px;border-radius:10px"></div>
+        <script>
+          const PALOS=['oros','copas','espadas','bastos'];
+          const VALORES=['1','2','3','4','5','6','7','10','11','12'];
+          function cartasModo(m){
+            const t=document.getElementById('cartasTable');
+            // baraja
+            const baraja=[];
+            PALOS.forEach(p=>VALORES.forEach(v=>baraja.push(v+' de '+p)));
+            baraja.sort(()=>Math.random()-.5);
+            let jugadores=1;
+            if(m==='2') jugadores=2;
+            if(m==='4') jugadores=4;
+            const manos=[];
+            for(let j=0;j<jugadores;j++){
+              manos.push(baraja.splice(0,3));
+            }
+            t.innerHTML = manos.map((mano,i)=>'<p><strong>Jugador '+(i+1)+'</strong>: '+mano.join(', ')+'</p>').join('') +
+              (m==='solo'?'<p><em>Máquina: '+baraja.slice(0,3).join(', ')+'</em></p>':'');
+          }
+        <\/script>
+      `;
+    }
     return `<p>Juego no montado aún.</p>`;
   }
+
   // ====== Auth listener ======
   auth.onAuthStateChanged(async user=>{
     currentUser = user;
     if (!user){
       userInfo.textContent = "No has iniciado sesión.";
       noAuth.style.display = "block";
+      loginBtn.style.display = "inline-block";
       currentUserPoints = 0;
       userUnlocked = {};
       updateButtons();
       return;
     }
+    loginBtn.style.display = "none";
     noAuth.style.display = "none";
     userInfo.innerHTML = `Hola, <strong>${user.displayName || user.email || 'user'}</strong>`;
     const snap = await db.ref('users/'+user.uid).get();
