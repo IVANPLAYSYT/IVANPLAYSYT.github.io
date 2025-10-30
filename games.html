@@ -77,6 +77,26 @@
     #gameFrame{width:100%;min-height:420px;border:0;border-radius:12px;background:#000}
     .alert{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.4);padding:10px 14px;border-radius:10px;color:#ffe4e4;font-size:14px;margin-bottom:14px}
     a.back{color:#fff;text-decoration:none}
+    /* cartas visuales */
+    .card-spanish{
+      width:68px;
+      height:110px;
+      background:#fff;
+      border:2px solid #ddd;
+      border-radius:10px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      padding:4px;
+      font-weight:700;
+      color:#222;
+    }
+    .card-spanish .suit{font-size:26px;text-align:center}
+    .card-spanish.oros .suit{color:#d4a200}
+    .card-spanish.copas .suit{color:#d4004b}
+    .card-spanish.espadas .suit{color:#0052ff}
+    .card-spanish.bastos .suit{color:#198754}
+    .cards-flex{display:flex;gap:8px;flex-wrap:wrap}
     @media (max-width:600px){
       h1{font-size:26px}
     }
@@ -153,8 +173,8 @@
     { id:"pong-mini", name:"Pong mini", desc:"Versión sencilla de Pong.", cost:230, type:"inline", inline:"pong" },
     { id:"reflejos", name:"Reflejos", desc:"Pulsa cuando se ponga en verde.", cost:90, type:"inline", inline:"reflex" },
     { id:"2048-mini", name:"2048", desc:"Suma hasta 2048.", cost:260, type:"iframe", src:"./games/2048.html" },
-    { id:"billar-1v1", name:"Billar americano 1 vs 1", desc:"Mesa 8-ball. Modo 1 vs 1 (demo).", cost:350, type:"inline", inline:"billar" },
-    { id:"cartas-mesa", name:"Cartas (1-4 jugadores)", desc:"Partidas rápidas o vs máquina.", cost:300, type:"inline", inline:"cartas" }
+    { id:"billar-1v1", name:"Billar americano 1 vs 1", desc:"Mesa 8-ball demo: rebotes y turnos.", cost:350, type:"inline", inline:"billar" },
+    { id:"cartas-mesa", name:"Cartas (baraja española)", desc:"1 vs máquina o hasta 4 jugadores.", cost:300, type:"inline", inline:"cartas" }
   ];
 
   let currentUser = null;
@@ -204,7 +224,7 @@
   function updateButtons(){
     GAMES.forEach(g=>{
       const stat = document.getElementById('status-'+g.id);
-      const canPlay = true;
+      const canPlay = !!userUnlocked[g.id];
       const playBtn = grid.querySelector(`button[data-game="${g.id}"][data-action="play"]`);
       const unlockBtn = grid.querySelector(`button[data-game="${g.id}"][data-action="unlock"]`);
 
@@ -276,13 +296,14 @@
       gameFrame.src = g.src;
     } else {
       gameInline.style.display = 'block';
-      gameInline.innerHTML = "";           // limpiar
+      gameInline.innerHTML = "";
       createInlineGame(g.inline, gameInline);
     }
   }
 
-  // ================== JUEGOS REALES EN JS ==================
+  // ================== JUEGOS ==================
   function createInlineGame(kind, container){
+    // 1) TIC TAC TOE
     if (kind === 'tic') {
       const board = document.createElement('div');
       board.style.display = 'grid';
@@ -341,6 +362,7 @@
       return;
     }
 
+    // 2) SNAKE MEJORADO
     if (kind === 'snake') {
       const c = document.createElement('canvas');
       c.width = 320; c.height = 240;
@@ -351,55 +373,81 @@
       container.appendChild(c);
       const ctx = c.getContext('2d');
 
-      let px=10, py=10, vx=1, vy=0;
-      const gs = 16, tcX=20, tcY=15;
-      let trail = [];
-      let tail = 5;
-      let ax = 15, ay = 10;
+      const gs = 16;
+      const cellsX = 20;
+      const cellsY = 15;
+      let snake = [{x:10,y:7}];
+      let dir = {x:1, y:0};
+      let nextDir = {x:1, y:0};
+      let food = {x:15, y:7};
+      let steps = 0;
+      let speed = 85; // ms
 
-      function loop(){
-        px += vx; py += vy;
-        if (px < 0) px = tcX - 1;
-        if (px > tcX - 1) px = 0;
-        if (py < 0) py = tcY - 1;
-        if (py > tcY - 1) py = 0;
+      function placeFood(){
+        food = {
+          x: Math.floor(Math.random()*cellsX),
+          y: Math.floor(Math.random()*cellsY)
+        };
+      }
 
+      function tick(){
+        // aplicar la dirección nueva (para que no se muera al girar rápido)
+        dir = nextDir;
+        const head = snake[0];
+        const newHead = { x: head.x + dir.x, y: head.y + dir.y };
+        // wrap
+        if (newHead.x < 0) newHead.x = cellsX - 1;
+        if (newHead.x >= cellsX) newHead.x = 0;
+        if (newHead.y < 0) newHead.y = cellsY - 1;
+        if (newHead.y >= cellsY) newHead.y = 0;
+
+        // colisión con cuerpo
+        if (snake.some(p => p.x === newHead.x && p.y === newHead.y)){
+          // reset
+          snake = [{x:10,y:7}];
+          dir = {x:1,y:0};
+          nextDir = {x:1,y:0};
+          placeFood();
+        } else {
+          snake.unshift(newHead);
+          if (newHead.x === food.x && newHead.y === food.y){
+            placeFood();
+          } else {
+            snake.pop();
+          }
+        }
+
+        draw();
+      }
+
+      function draw(){
         ctx.fillStyle = '#000';
         ctx.fillRect(0,0,c.width,c.height);
 
-        ctx.fillStyle = '#0f0';
-        for (let i=0;i<trail.length;i++){
-          ctx.fillRect(trail[i].x*gs, trail[i].y*gs, gs-2, gs-2);
-          if (trail[i].x === px && trail[i].y === py){
-            tail = 5;
-          }
-        }
-        trail.push({x:px, y:py});
-        while (trail.length > tail) trail.shift();
-
-        if (ax === px && ay === py){
-          tail++;
-          ax = Math.floor(Math.random()*tcX);
-          ay = Math.floor(Math.random()*tcY);
-        }
-
+        // food
         ctx.fillStyle = '#f00';
-        ctx.fillRect(ax*gs, ay*gs, gs-2, gs-2);
+        ctx.fillRect(food.x*gs, food.y*gs, gs-2, gs-2);
 
-        requestAnimationFrame(loop);
+        // snake
+        ctx.fillStyle = '#0f0';
+        snake.forEach((p,i)=>{
+          ctx.fillRect(p.x*gs, p.y*gs, gs-2, gs-2);
+        });
       }
-      loop();
+
+      draw();
+      const loop = setInterval(tick, speed);
 
       document.addEventListener('keydown', e=>{
-        if (e.key === 'ArrowLeft' && vx !== 1){ vx = -1; vy=0; }
-        if (e.key === 'ArrowRight' && vx !== -1){ vx = 1; vy=0; }
-        if (e.key === 'ArrowUp' && vy !== 1){ vy = -1; vx=0; }
-        if (e.key === 'ArrowDown' && vy !== -1){ vy = 1; vx=0; }
-      }, { once:false });
-
+        if (e.key === 'ArrowLeft'  && dir.x !== 1){ nextDir = {x:-1,y:0}; }
+        if (e.key === 'ArrowRight' && dir.x !== -1){ nextDir = {x:1,y:0}; }
+        if (e.key === 'ArrowUp'    && dir.y !== 1){ nextDir = {x:0,y:-1}; }
+        if (e.key === 'ArrowDown'  && dir.y !== -1){ nextDir = {x:0,y:1}; }
+      });
       return;
     }
 
+    // 3) PIEDRA PAPEL TIJERA
     if (kind === 'ppt') {
       const p = document.createElement('p');
       p.textContent = 'Elige:';
@@ -437,6 +485,7 @@
       return;
     }
 
+    // 4) ADIVINA NÚMERO
     if (kind === 'guess') {
       const p = document.createElement('p');
       p.textContent = 'Estoy pensando un número del 1 al 50. ¿Cuál es?';
@@ -478,6 +527,7 @@
       return;
     }
 
+    // 5) REFLEJOS
     if (kind === 'reflex') {
       const p = document.createElement('p');
       p.innerHTML = 'Cuando el recuadro se ponga <strong>VERDE</strong>, haz clic lo más rápido posible.';
@@ -516,6 +566,7 @@
       return;
     }
 
+    // 6) PONG
     if (kind === 'pong') {
       const c = document.createElement('canvas');
       c.width = 380; c.height = 200;
@@ -534,23 +585,18 @@
         bx += vx; by += vy;
         if (by<0 || by>c.height) vy *= -1;
 
-        // palas
         x.fillStyle='#0f0'; x.fillRect(5,py,10,50);
         x.fillStyle='#f00'; x.fillRect(c.width-15,oy,10,50);
-        // IA
         oy += (by - (oy+25)) * 0.12;
 
-        // colisiones
         if (bx<20 && by>py && by<py+50) vx *= -1;
         if (bx>c.width-25 && by>oy && by<oy+50) vx *= -1;
 
-        // fuera
         if (bx<0 || bx>c.width){
           bx = c.width/2;
           by = c.height/2;
         }
 
-        // bola
         x.fillStyle='#fff';
         x.beginPath(); x.arc(bx,by,6,0,Math.PI*2); x.fill();
 
@@ -566,6 +612,7 @@
       return;
     }
 
+    // 7) MEMORY
     if (kind === 'memory') {
       const text = document.createElement('p');
       text.className = 'muted';
@@ -618,12 +665,13 @@
       return;
     }
 
+    // 8) BILLAR MEJORADO (demo)
     if (kind === 'billar') {
       const p = document.createElement('p');
       p.className = 'muted';
-      p.textContent = '🎱 Billar americano 1 vs 1 (demo). Haz clic en la mesa para tirar. Cambia de turno cada tiro.';
+      p.textContent = '🎱 Billar americano 1 vs 1 (demo). Haz clic para tirar. Rebotes y turnos. Última negra gana.';
       const c = document.createElement('canvas');
-      c.width = 520; c.height = 280;
+      c.width = 540; c.height = 300;
       c.style.background = '#044322';
       c.style.borderRadius = '14px';
       c.style.display = 'block';
@@ -631,66 +679,173 @@
       const out = document.createElement('p');
       out.className = 'muted';
       out.textContent = 'Turno del jugador 1';
-
       container.appendChild(p);
       container.appendChild(c);
       container.appendChild(out);
 
       const ctx = c.getContext('2d');
-      let balls = [{x:80,y:140, vx:0,vy:0, color:'#fff', cue:true}];
-      for (let r=0;r<5;r++){
-        for (let k=0;k<=r;k++){
-          balls.push({x:350+r*16, y:140 - r*8 + k*16, vx:0,vy:0, color:'#ffdd00'});
+
+      // bolsillos
+      const pockets = [
+        {x:20,y:20,r:14},
+        {x:c.width/2,y:10,r:14},
+        {x:c.width-20,y:20,r:14},
+        {x:20,y:c.height-20,r:14},
+        {x:c.width/2,y:c.height-10,r:14},
+        {x:c.width-20,y:c.height-20,r:14},
+      ];
+
+      // bolas: blanca + 6 lisas + 6 rayadas + negra
+      const balls = [];
+      const R = 9;
+      // blanca
+      balls.push({x:110,y:c.height/2, vx:0,vy:0, r:R, color:'#fff', id:'cue'});
+      // triángulo
+      let startX = 360;
+      let startY = c.height/2;
+      const colors = ['#ff4b4b','#ffd54f','#4fc3f7','#ce93d8','#ffb74d','#81c784','#ef5350','#ff8a65','#29b6f6','#ba68c8','#fff176','#e57373'];
+      let cc=0;
+      for (let row=0; row<5; row++){
+        for (let col=0; col<=row; col++){
+          balls.push({
+            x: startX + row* (R*2+1),
+            y: startY - row*R + col*(R*2),
+            vx:0,vy:0,
+            r:R,
+            color: colors[cc%colors.length],
+            id: 'ball'+cc
+          });
+          cc++;
         }
       }
+      // negra
+      balls.push({x:startX + 5*(R*2+1), y:startY, vx:0,vy:0, r:R, color:'#000', id:'black'});
+
       let turn = 1;
 
       function draw(){
         ctx.clearRect(0,0,c.width,c.height);
-        ctx.fillStyle = '#0a0';
-        ctx.fillRect(0,0,520,10); ctx.fillRect(0,270,520,10);
-        ctx.fillRect(0,0,10,280); ctx.fillRect(510,0,10,280);
-
-        balls.forEach(b=>{
-          b.x += b.vx; b.y += b.vy;
-          b.vx *= 0.99; b.vy *= 0.99;
-          if (Math.abs(b.vx) < 0.02) b.vx=0;
-          if (Math.abs(b.vy) < 0.02) b.vy=0;
-          if (b.x < 20 || b.x > 500) b.vx *= -1;
-          if (b.y < 20 || b.y > 260) b.vy *= -1;
+        // mesa
+        ctx.fillStyle = '#044322';
+        ctx.fillRect(0,0,c.width,c.height);
+        // bolsillos
+        ctx.fillStyle = '#000';
+        pockets.forEach(poc=>{
+          ctx.beginPath();
+          ctx.arc(poc.x,poc.y,poc.r,0,Math.PI*2);
+          ctx.fill();
         });
 
+        // física
+        balls.forEach(b=>{
+          b.x += b.vx;
+          b.y += b.vy;
+          // fricción
+          b.vx *= 0.99;
+          b.vy *= 0.99;
+          if (Math.abs(b.vx) < 0.02) b.vx = 0;
+          if (Math.abs(b.vy) < 0.02) b.vy = 0;
+
+          // paredes
+          if (b.x < b.r+5){ b.x = b.r+5; b.vx *= -1; }
+          if (b.x > c.width - b.r-5){ b.x = c.width - b.r-5; b.vx *= -1; }
+          if (b.y < b.r+5){ b.y = b.r+5; b.vy *= -1; }
+          if (b.y > c.height - b.r-5){ b.y = c.height - b.r-5; b.vy *= -1; }
+        });
+
+        // colisiones bola-bola sencillas
+        for (let i=0;i<balls.length;i++){
+          for (let j=i+1;j<balls.length;j++){
+            const a = balls[i], b = balls[j];
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const dist = Math.sqrt(dx*dx+dy*dy);
+            const minDist = a.r + b.r;
+            if (dist > 0 && dist < minDist){
+              // separar
+              const overlap = (minDist - dist) / 2;
+              const nx = dx / dist;
+              const ny = dy / dist;
+              a.x -= nx*overlap;
+              a.y -= ny*overlap;
+              b.x += nx*overlap;
+              b.y += ny*overlap;
+              // intercambio simple de velocidad
+              const tx = a.vx; const ty = a.vy;
+              a.vx = b.vx; a.vy = b.vy;
+              b.vx = tx; b.vy = ty;
+            }
+          }
+        }
+
+        // comprobar bolas en bolsillos
+        for (let i=balls.length-1;i>=0;i--){
+          const ball = balls[i];
+          for (const poc of pockets){
+            const dx = ball.x - poc.x;
+            const dy = ball.y - poc.y;
+            if (Math.sqrt(dx*dx+dy*dy) < poc.r-2){
+              // si es la negra, gana el jugador actual
+              if (ball.id === 'black'){
+                out.textContent = '🎉 Jugador ' + turn + ' metió la negra. ¡Gana!';
+              }
+              // quitar bola (menos la blanca -> la reponemos)
+              if (ball.id === 'cue'){
+                // reponer blanca
+                ball.x = 110; ball.y = c.height/2;
+                ball.vx = 0; ball.vy = 0;
+              } else {
+                balls.splice(i,1);
+              }
+              break;
+            }
+          }
+        }
+
+        // dibujar bolas
         balls.forEach(b=>{
           ctx.beginPath();
-          ctx.arc(b.x,b.y,8,0,Math.PI*2);
+          ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
           ctx.fillStyle = b.color;
           ctx.fill();
+          if (b.id === 'cue'){
+            ctx.strokeStyle = '#ddd';
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
         });
 
         requestAnimationFrame(draw);
       }
       draw();
 
+      // disparo
       c.addEventListener('click', e=>{
         const rect = c.getBoundingClientRect();
         const mx = e.clientX - rect.left;
         const my = e.clientY - rect.top;
-        const cue = balls[0];
+        // bola blanca
+        const cue = balls.find(b=>b.id==='cue');
+        if (!cue) return;
         const dx = mx - cue.x;
         const dy = my - cue.y;
         const len = Math.sqrt(dx*dx+dy*dy) || 1;
-        cue.vx = dx/len * 4.5;
-        cue.vy = dy/len * 4.5;
+        const power = 5.2;
+        cue.vx = dx/len * power;
+        cue.vy = dy/len * power;
+        // cambiar turno
         turn = (turn === 1) ? 2 : 1;
         out.textContent = 'Turno del jugador ' + turn;
       });
+
       return;
     }
 
+    // 9) CARTAS ESPAÑOLAS
     if (kind === 'cartas') {
       const p = document.createElement('p');
       p.className = 'muted';
-      p.textContent = '🃏 Juego de cartas (baraja española/40). Elige modo:';
+      p.textContent = '🃏 Juego de cartas (baraja española 40). Elige modo:';
       const btns = document.createElement('div');
       btns.style.display = 'flex';
       btns.style.gap = '6px';
@@ -705,17 +860,48 @@
       container.appendChild(btns);
       container.appendChild(table);
 
-      const PALOS = ['oros','copas','espadas','bastos'];
+      const PALOS = [
+        {id:'oros', icon:'🟡', cls:'oros'},
+        {id:'copas', icon:'🍷', cls:'copas'},
+        {id:'espadas', icon:'🗡️', cls:'espadas'},
+        {id:'bastos', icon:'🪵', cls:'bastos'},
+      ];
       const VALORES = ['1','2','3','4','5','6','7','10','11','12'];
 
       function buildDeck(){
         const deck = [];
         PALOS.forEach(p=>{
           VALORES.forEach(v=>{
-            deck.push(v + ' de ' + p);
+            deck.push({v, palo:p.id, icon:p.icon, cls:p.cls});
           });
         });
         return deck;
+      }
+
+      function renderHand(title, cards){
+        const wrap = document.createElement('div');
+        const h = document.createElement('p');
+        h.innerHTML = `<strong>${title}</strong>`;
+        const row = document.createElement('div');
+        row.className = 'cards-flex';
+        cards.forEach(c=>{
+          const card = document.createElement('div');
+          card.className = 'card-spanish '+c.cls;
+          const top = document.createElement('div');
+          top.textContent = c.v;
+          const mid = document.createElement('div');
+          mid.className = 'suit';
+          mid.textContent = c.icon;
+          const bot = document.createElement('div');
+          bot.textContent = c.v;
+          card.appendChild(top);
+          card.appendChild(mid);
+          card.appendChild(bot);
+          row.appendChild(card);
+        });
+        wrap.appendChild(h);
+        wrap.appendChild(row);
+        return wrap;
       }
 
       function deal(mode){
@@ -727,20 +913,16 @@
 
         let deck = buildDeck();
         deck.sort(()=>Math.random()-.5);
-        const hands = [];
-        for (let i=0;i<players;i++){
-          hands.push(deck.splice(0,3));
-        }
 
-        let html = '';
-        hands.forEach((hand, idx)=>{
-          html += `<p><strong>Jugador ${idx+1}</strong>: ${hand.join(', ')}</p>`;
-        });
-        if (vsMachine){
-          const machine = deck.splice(0,3);
-          html += `<p><em>Máquina:</em> ${machine.join(', ')}</p>`;
+        table.innerHTML = '';
+        for (let i=0;i<players;i++){
+          const hand = deck.splice(0,3);
+          table.appendChild(renderHand('Jugador '+(i+1), hand));
         }
-        table.innerHTML = html;
+        if (vsMachine){
+          const hand = deck.splice(0,3);
+          table.appendChild(renderHand('Máquina', hand));
+        }
       }
 
       const b1 = document.createElement('button');
@@ -762,8 +944,9 @@
       btns.appendChild(b2);
       btns.appendChild(b4);
 
-      // reparto inicial demo
+      // primera mano
       deal('solo');
+
       return;
     }
 
