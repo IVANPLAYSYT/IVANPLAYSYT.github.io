@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>IVANPLAY – Juegos</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Mini juegos desbloqueables con puntos de la radio IVANPLAY.">
+  <link rel="icon" href="./favicon.ico">
+  <style>
+    :root{
+      --bg:#0b0d12; --card:#121725; --text:#e7ecf3; --muted:#94a0b8;
+      --a:#8b5cf6; --a2:#5b3dff; --danger:#ff6b6b; --ok:#14f195;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:
+        linear-gradient(180deg, rgba(7,10,18,.80), rgba(7,10,18,.95)),
+        url('./assets/bg/ivanplay_gamer_bg.jpg') center/cover fixed no-repeat;
+      color:var(--text);
+      font-family:system-ui,Segoe UI,Roboto,Inter,Arial;
+      min-height:100vh;
+    }
+    .topbar{
+      background:rgba(5,7,12,.85);
+      backdrop-filter:blur(8px);
+      border-bottom:1px solid rgba(255,255,255,.06);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 18px;
+    }
+    .brand{display:flex;gap:10px;align-items:center}
+    .brand .logo{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#6a5cf6,#24d3ee);display:grid;place-items:center}
+    .wrap{max-width:1100px;margin:0 auto;padding:20px 18px 40px}
+    h1{margin:12px 0 16px;font-size:30px}
+    .muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:20px}
+    .card{
+      background:linear-gradient(185deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:16px;
+      padding:14px 14px 16px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .title-sm{font-weight:700}
+    .badge{display:inline-flex;gap:4px;align-items:center;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);padding:3px 8px;border-radius:999px;font-size:12px}
+    .btn{
+      border:0;
+      border-radius:10px;
+      padding:8px 10px;
+      font-weight:600;
+      cursor:pointer;
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.1);
+    }
+    .btn.primary{background:linear-gradient(180deg,var(--a),var(--a2));border:none}
+    .btn.small{padding:5px 9px;font-size:13px}
+    .btn[disabled]{opacity:.4;cursor:not-allowed}
+    #userInfo{font-size:14px}
+    #userInfo strong{color:var(--ok)}
+    .game-status{font-size:12px;color:var(--muted)}
+    #gameArea{
+      margin-top:22px;
+      background:#030508;
+      border:1px solid rgba(255,255,255,.03);
+      border-radius:14px;
+      padding:16px;
+      min-height:220px;
+    }
+    #gameFrame{width:100%;min-height:420px;border:0;border-radius:12px;background:#000}
+    .alert{background:rgba(255,107,107,.12);border:1px solid rgba(255,107,107,.4);padding:10px 14px;border-radius:10px;color:#ffe4e4;font-size:14px;margin-bottom:14px}
+    a.back{color:#fff;text-decoration:none}
+    @media (max-width:600px){
+      h1{font-size:26px}
+      .topbar{flex-wrap:wrap;gap:8px}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">🎮</div>
+      <div>
+        <div style="font-weight:700">IVANPLAY · Juegos</div>
+        <div class="muted" style="font-size:12px">Desbloquea con tus puntos de la radio</div>
+      </div>
+    </div>
+    <div id="userInfo" class="muted">No has iniciado sesión.</div>
+    <div>
+      <a href="./index.html" class="back">← Volver a la radio</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <h1>Juegos desbloqueables</h1>
+    <p class="muted">Escucha la radio, gana puntos y desbloquea juegos. Son los <strong>mismos puntos</strong> que ya estás ganando en <code>index.html</code>.</p>
+
+    <div id="noAuth" class="alert" style="display:none">
+      Para jugar y guardar tus desbloqueos, inicia sesión en la radio (Google / Email).
+    </div>
+
+    <div class="grid" id="gamesGrid">
+      <!-- se llena por JS -->
+    </div>
+
+    <div id="gameArea" style="display:none">
+      <h2 id="gameTitle" style="margin:0 0 10px">Juego</h2>
+      <p id="gameDesc" class="muted" style="margin-top:0"></p>
+      <!-- aquí podemos meter juego inline o iframe -->
+      <div id="gameInline" style="display:none"></div>
+      <iframe id="gameFrame" style="display:none"></iframe>
+    </div>
+  </div>
+
+  <!-- Firebase -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script>
+  // ====== MISMA CONFIG QUE TU INDEX ======
+  const firebaseConfig = {
+    apiKey:        "AIzaSyAIlX6svUMeb1_Q0Mn4WvxojDDTqtIYXv0",
+    authDomain:    "ivanplayradio.firebaseapp.com",
+    databaseURL:   "https://ivanplayradio-default-rtdb.europe-west1.firebasedatabase.app/",
+    projectId:     "ivanplayradio",
+    storageBucket: "ivanplayradio.firebasestorage.app",
+    messagingSenderId: "114410018389",
+    appId:         "1:114410018389:web:1d8c40b5baf8c51673e6dc"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+  const auth = firebase.auth();
+  </script>
+
+  <script>
+  // ====== Definimos los 8 juegos ======
+  const GAMES = [
+    {
+      id: "tic-tac-toe",
+      name: "Tic Tac Toe",
+      desc: "Gana 3 en raya contra el móvil.",
+      cost: 150,
+      type: "inline",
+      inline: "tic"
+    },
+    {
+      id: "snake-mini",
+      name: "Snake Mini",
+      desc: "Clásico snake en mini lienzo.",
+      cost: 200,
+      type: "inline",
+      inline: "snake"
+    },
+    {
+      id: "ppt",
+      name: "Piedra, Papel o Tijera",
+      desc: "Juega rápido contra la máquina.",
+      cost: 120,
+      type: "inline",
+      inline: "ppt"
+    },
+    {
+      id: "memory-4x4",
+      name: "Memory 4×4",
+      desc: "Encuentra las parejas.",
+      cost: 220,
+      type: "inline",
+      inline: "memory"
+    },
+    {
+      id: "guess",
+      name: "Adivina el número",
+      desc: "¿Puedes acertarlo antes de 7 intentos?",
+      cost: 80,
+      type: "inline",
+      inline: "guess"
+    },
+    {
+      id: "pong-mini",
+      name: "Pong mini",
+      desc: "Versión sencilla de Pong.",
+      cost: 230,
+      type: "inline",
+      inline: "pong"
+    },
+    {
+      id: "reflejos",
+      name: "Reflejos",
+      desc: "Pulsa cuando se ponga en verde.",
+      cost: 90,
+      type: "inline",
+      inline: "reflex"
+    },
+    {
+      id: "2048-mini",
+      name: "2048",
+      desc: "Suma hasta 2048.",
+      cost: 260,
+      type: "iframe",
+      src: "./games/2048.html"
+    }
+  ];
+
+  let currentUser = null;
+  let currentUserPoints = 0;
+  let userUnlocked = {};
+
+  const grid = document.getElementById('gamesGrid');
+  const userInfo = document.getElementById('userInfo');
+  const noAuth = document.getElementById('noAuth');
+  const gameArea = document.getElementById('gameArea');
+  const gameTitle = document.getElementById('gameTitle');
+  const gameDesc = document.getElementById('gameDesc');
+  const gameInline = document.getElementById('gameInline');
+  const gameFrame = document.getElementById('gameFrame');
+
+  // pintar tarjetas
+  function renderGames(){
+    grid.innerHTML = "";
+    GAMES.forEach(g=>{
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="title-sm">${g.name}</div>
+        <div class="muted" style="font-size:13px">${g.desc}</div>
+        <div class="badge">🔒 ${g.cost} pts</div>
+        <div class="game-status" id="status-${g.id}"></div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn small" data-game="${g.id}" data-action="play">Jugar</button>
+          <button class="btn small" data-game="${g.id}" data-action="unlock">Desbloquear</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+
+    grid.querySelectorAll('button[data-game]').forEach(btn=>{
+      btn.addEventListener('click', onGameButton);
+    });
+
+    updateButtons();
+  }
+
+  function updateButtons(){
+    GAMES.forEach(g=>{
+      const stat = document.getElementById('status-'+g.id);
+      const canPlay = !!userUnlocked[g.id];
+      const playBtn = grid.querySelector(`button[data-game="${g.id}"][data-action="play"]`);
+      const unlockBtn = grid.querySelector(`button[data-game="${g.id}"][data-action="unlock"]`);
+
+      if (!currentUser){
+        if (stat) stat.textContent = "Inicia sesión para usar puntos.";
+        if (playBtn) playBtn.disabled = true;
+        if (unlockBtn) unlockBtn.disabled = true;
+        return;
+      }
+
+      if (canPlay){
+        if (stat) stat.textContent = "✅ Desbloqueado";
+        if (playBtn) { playBtn.disabled = false; playBtn.textContent = "Jugar"; }
+        if (unlockBtn) { unlockBtn.disabled = true; }
+      } else {
+        if (stat) stat.textContent = `Necesitas ${g.cost} pts · Tienes ${currentUserPoints}`;
+        if (playBtn) playBtn.disabled = true;
+        if (unlockBtn) unlockBtn.disabled = currentUserPoints < g.cost;
+      }
+    });
+  }
+
+  async function onGameButton(e){
+    const gameId = e.target.dataset.game;
+    const action = e.target.dataset.action;
+    const g = GAMES.find(x=>x.id===gameId);
+    if (!g) return;
+    if (!currentUser){ alert("Inicia sesión primero en la radio."); return; }
+
+    if (action === 'unlock'){
+      if (currentUserPoints < g.cost){
+        alert("No tienes puntos suficientes.");
+        return;
+      }
+      // restar puntos y guardar desbloqueo
+      const uid = currentUser.uid;
+      const userRef = db.ref('users/'+uid);
+      await userRef.transaction(data=>{
+        data = data || {};
+        const pts = data.pointsTotal || 0;
+        if (pts < g.cost) return data; // no actualizar
+        data.pointsTotal = pts - g.cost;
+        data.unlockedGames = data.unlockedGames || {};
+        data.unlockedGames[g.id] = true;
+        return data;
+      });
+      alert("Juego desbloqueado ✅");
+    }
+
+    if (action === 'play'){
+      openGame(g);
+    }
+  }
+
+  function openGame(g){
+    gameArea.style.display = 'block';
+    gameTitle.textContent = g.name;
+    gameDesc.textContent = g.desc;
+    gameInline.style.display = 'none';
+    gameFrame.style.display = 'none';
+
+    if (g.type === 'iframe'){
+      gameFrame.style.display = 'block';
+      gameFrame.src = g.src;
+    } else {
+      gameInline.style.display = 'block';
+      gameInline.innerHTML = buildInlineGame(g.inline);
+    }
+  }
+
+  // ===== mini motores de juegos inline =====
+  function buildInlineGame(kind){
+    if (kind === 'tic'){
+      return `
+        <style>
+          .tt{display:grid;grid-template-columns:repeat(3,80px);gap:6px;justify-content:center}
+          .tt button{width:80px;height:80px;font-size:32px;font-weight:700;background:#111;border:1px solid #555;border-radius:12px;color:#fff}
+        </style>
+        <div class="tt" id="tt"></div>
+        <p id="tt-msg"></p>
+        <script>
+          (function(){
+            const el = document.getElementById('tt');
+            const msg = document.getElementById('tt-msg');
+            let turn = 'X';
+            const board = Array(9).fill('');
+            function check(){
+              const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+              for(const w of wins){const [a,b,c]=w;if(board[a]&&board[a]===board[b]&&board[a]===board[c]) return board[a];}
+              return board.every(x=>x)?'empate':null;
+            }
+            function render(){
+              el.innerHTML='';
+              board.forEach((v,i)=>{
+                const b=document.createElement('button');
+                b.textContent=v;
+                b.onclick=()=>{
+                  if(board[i]||check())return;
+                  board[i]=turn;
+                  const r=check();
+                  if(r){
+                    msg.textContent = r==='empate'?'Empate':'Ganó '+r;
+                  }else{
+                    turn = turn==='X'?'O':'X';
+                    msg.textContent = 'Turno: '+turn;
+                  }
+                  render();
+                };
+                el.appendChild(b);
+              });
+            }
+            render();
+            msg.textContent='Turno: '+turn;
+          })();
+        <\/script>
+      `;
+    }
+    if (kind === 'snake'){
+      return `
+        <canvas id="sn" width="320" height="240" style="background:#000;border-radius:12px;display:block;margin:auto"></canvas>
+        <p class="muted">Usa ↑ ↓ ← →</p>
+        <script>
+          (function(){
+            const c=document.getElementById('sn'),ctx=c.getContext('2d');
+            let px=10,py=10, vx=1,vy=0, trail=[], tail=5;
+            let ax=15,ay=15;
+            function loop(){
+              px+=vx;py+=vy;
+              if(px<0)px=19; if(px>19)px=0;
+              if(py<0)py=14; if(py>14)py=0;
+              ctx.fillStyle='#000';ctx.fillRect(0,0,c.width,c.height);
+              ctx.fillStyle='#0f0';
+              for(let i=0;i<trail.length;i++){
+                ctx.fillRect(trail[i].x*16,trail[i].y*16,14,14);
+                if(trail[i].x===px && trail[i].y===py) tail=5;
+              }
+              trail.push({x:px,y:py});
+              while(trail.length>tail) trail.shift();
+              if(ax===px && ay===py){ tail++; ax=Math.floor(Math.random()*20); ay=Math.floor(Math.random()*15); }
+              ctx.fillStyle='#f00';ctx.fillRect(ax*16,ay*16,14,14);
+            }
+            setInterval(loop,90);
+            document.onkeydown=e=>{
+              if(e.key==="ArrowLeft" && vx!==1){vx=-1;vy=0}
+              if(e.key==="ArrowRight"&& vx!==-1){vx=1;vy=0}
+              if(e.key==="ArrowUp"   && vy!==1){vy=-1;vx=0}
+              if(e.key==="ArrowDown" && vy!==-1){vy=1;vx=0}
+            }
+          })();
+        <\/script>
+      `;
+    }
+    if (kind === 'ppt'){
+      return `
+        <p>Elige:</p>
+        <div style="display:flex;gap:6px">
+          <button onclick="pptPlay('piedra')" class="btn small">🪨 Piedra</button>
+          <button onclick="pptPlay('papel')" class="btn small">📄 Papel</button>
+          <button onclick="pptPlay('tijera')" class="btn small">✂️ Tijera</button>
+        </div>
+        <p id="pptOut" class="muted"></p>
+        <script>
+          function pptPlay(m){
+            const ops=['piedra','papel','tijera'];
+            const bot=ops[Math.floor(Math.random()*3)];
+            let r='';
+            if(m===bot) r='Empate, yo también '+bot;
+            else if(
+              (m==='piedra' && bot==='tijera') ||
+              (m==='papel' && bot==='piedra') ||
+              (m==='tijera' && bot==='papel')
+            ) r='Ganaste 🎉 yo saqué '+bot;
+            else r='Perdiste 😜 yo saqué '+bot;
+            document.getElementById('pptOut').textContent = r;
+          }
+        <\/script>
+      `;
+    }
+    // puedes seguir ampliando, dejo los otros simples
+    return `<p>Juego no montado aún.</p>`;
+  }
+  // ====== Auth listener ======
+  auth.onAuthStateChanged(async user=>{
+    currentUser = user;
+    if (!user){
+      userInfo.textContent = "No has iniciado sesión.";
+      noAuth.style.display = "block";
+      currentUserPoints = 0;
+      userUnlocked = {};
+      updateButtons();
+      return;
+    }
+    noAuth.style.display = "none";
+    userInfo.innerHTML = `Hola, <strong>${user.displayName || user.email || 'user'}</strong>`;
+    const snap = await db.ref('users/'+user.uid).get();
+    const data = snap.val() || {};
+    currentUserPoints = data.pointsTotal || 0;
+    userUnlocked = data.unlockedGames || {};
+    updateButtons();
+  });
+
+  // iniciar
+  renderGames();
+  </script>
+</body>
+</html>
