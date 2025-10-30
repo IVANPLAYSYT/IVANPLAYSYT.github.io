@@ -980,11 +980,12 @@
   renderGames();
   </script>
   
-  <!-- === MINI REPRODUCTOR RADIO IVANPLAY === -->
+  <!-- === MINI REPRODUCTOR RADIO IVANPLAY (usa ./music/playlist.json) === -->
   <div id="miniPlayer">
-    <audio id="radioAudio" src="https://stream-51.zeno.fm/zv6t4p5v31zuv?zs=xGajmYZ2TkS7Yt2o9NQyrg" preload="none"></audio>
     <button id="btnPlay">▶</button>
-    <input id="volSlider" type="range" min="0" max="1" step="0.01" value="0.6" />
+    <span id="mpTitle" style="font-size:12px;color:#e7ecf3;">Mini radio</span>
+    <input id="volSlider" type="range" min="0" max="1" step="0.01" value="0.7" />
+    <audio id="radioAudio" preload="none" crossorigin="anonymous"></audio>
   </div>
 
   <style>
@@ -992,10 +993,10 @@
     position: fixed;
     bottom: 15px;
     right: 15px;
-    background: rgba(20,20,30,0.85);
+    background: rgba(20,20,30,0.92);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 14px;
-    padding: 8px 12px;
+    padding: 6px 10px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -1008,45 +1009,119 @@
     color: #fff;
     border: none;
     border-radius: 50%;
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
+    width: 32px;
+    height: 32px;
+    font-size: 16px;
     cursor: pointer;
+    flex: 0 0 auto;
   }
-  #miniPlayer button:hover {
-    filter: brightness(1.2);
-  }
-  #volSlider {
-    width: 100px;
+  #miniPlayer input[type=range]{
+    width: 90px;
     accent-color: #8b5cf6;
-    cursor: pointer;
   }
   @media (max-width:600px){
-    #miniPlayer { bottom: 10px; right: 10px; transform: scale(0.9); }
-    #volSlider { width: 80px; }
+    #miniPlayer { right: 8px; bottom: 8px; }
+    #miniPlayer input[type=range]{ width: 70px; }
+    #mpTitle{ display:none; }
   }
   </style>
-  
-  <script>
-  const audio = document.getElementById("radioAudio");
-  const btnPlay = document.getElementById("btnPlay");
-  const volSlider = document.getElementById("volSlider");
 
-  btnPlay.onclick = () => {
-    if (audio.paused) {
-      audio.play().then(()=>{
-        btnPlay.textContent = "⏸";
-      }).catch(()=>{
-        alert("🔊 Pulsa Play para escuchar la radio IVANPLAY");
-      });
-    } else {
-      audio.pause();
-      btnPlay.textContent = "▶";
+  <script>
+  (function(){
+    const audio   = document.getElementById('radioAudio');
+    const playBtn = document.getElementById('btnPlay');
+    const vol     = document.getElementById('volSlider');
+    const titleEl = document.getElementById('mpTitle');
+
+    const PLAYLIST_URL = './music/playlist.json';
+
+    let tracks = [];
+    let idx = 0;
+    let ready = false;
+
+    async function loadPlaylist(){
+      try{
+        const r = await fetch(PLAYLIST_URL, {cache:'no-store'});
+        const j = await r.json();
+        if (Array.isArray(j) && j.length){
+          tracks = j.filter(u => /\.(mp3|ogg|m4a|aac|wav)$/i.test(u));
+          if (tracks.length){
+            ready = true;
+            setTrack(0);
+          }
+        }
+      }catch(e){
+        console.warn('miniPlayer: no pude cargar playlist', e);
+      }
     }
-  };
-  volSlider.oninput = () => {
-    audio.volume = volSlider.value;
-  };
+
+    function enc(u){
+      try{
+        const url = new URL(u, location.href);
+        url.pathname = url.pathname.split('/').map(encodeURIComponent).join('/');
+        return url.toString();
+      }catch{
+        return u;
+      }
+    }
+
+    function baseName(u){
+      try{
+        const p = u.split('?')[0].split('/');
+        return decodeURIComponent(p[p.length-1]);
+      }catch{return u;}
+    }
+
+    function setTrack(i){
+      if (!tracks.length) return;
+      idx = (i + tracks.length) % tracks.length;
+      const src = enc(tracks[idx]);
+      audio.src = src;
+      titleEl.textContent = '🎧 ' + baseName(src);
+    }
+
+    async function playCurrent(){
+     if (!ready){
+        await loadPlaylist();
+      }
+     if (!tracks.length) return;
+      try{
+        await audio.play();
+        playBtn.textContent = '⏸';
+      }catch(e){
+        // navegador pide interacción: ya la hay (click), si aún así falla mostramos aviso
+        console.warn(e);
+        alert('Pulsa otra vez para iniciar el audio (protección del navegador).');
+      }
+    }
+
+    function pauseCurrent(){
+      audio.pause();
+      playBtn.textContent = '▶';
+    }
+
+    playBtn.addEventListener('click', ()=>{
+      if (audio.paused){
+        playCurrent();
+      } else {
+        pauseCurrent();
+      }
+    });
+
+    vol.addEventListener('input', ()=>{
+      audio.volume = parseFloat(vol.value||'0.7');
+    });
+    audio.volume = parseFloat(vol.value||'0.7');
+
+    // cuando acaba una pista, pasa a la siguiente
+    audio.addEventListener('ended', ()=>{
+      setTrack(idx+1);
+      audio.play().catch(()=>{ /* si no quiere, que espere a click */ });
+    });
+
+    // precarga la lista (no reproduce hasta que cliques)
+    loadPlaylist();
+  })();
   </script>
 
 </body>
