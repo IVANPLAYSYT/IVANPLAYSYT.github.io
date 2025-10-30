@@ -980,7 +980,7 @@
   renderGames();
   </script>
   
-  <!-- === MINI REPRODUCTOR RADIO IVANPLAY (usa ./music/playlist.json) === -->
+  <!-- === MINI REPRODUCTOR RADIO IVANPLAY (usa tu playlist local) === -->
   <div id="miniPlayer">
     <button id="btnPlay">▶</button>
     <span id="mpTitle" style="font-size:12px;color:#e7ecf3;">Mini radio</span>
@@ -1033,27 +1033,12 @@
     const vol     = document.getElementById('volSlider');
     const titleEl = document.getElementById('mpTitle');
 
+    // 👇 usa la misma playlist que tu index
     const PLAYLIST_URL = './music/playlist.json';
 
     let tracks = [];
     let idx = 0;
-    let ready = false;
-
-    async function loadPlaylist(){
-      try{
-        const r = await fetch(PLAYLIST_URL, {cache:'no-store'});
-        const j = await r.json();
-        if (Array.isArray(j) && j.length){
-          tracks = j.filter(u => /\.(mp3|ogg|m4a|aac|wav)$/i.test(u));
-          if (tracks.length){
-            ready = true;
-            setTrack(0);
-          }
-        }
-      }catch(e){
-        console.warn('miniPlayer: no pude cargar playlist', e);
-      }
-    }
+    let loaded = false;
 
     function enc(u){
       try{
@@ -1064,12 +1049,26 @@
         return u;
       }
     }
-
     function baseName(u){
       try{
-        const p = u.split('?')[0].split('/');
-        return decodeURIComponent(p[p.length-1]);
+        return decodeURIComponent(u.split('?')[0].split('/').pop());
       }catch{return u;}
+    }
+
+    async function loadPlaylist(){
+      try{
+        const r = await fetch(PLAYLIST_URL, {cache:'no-store'});
+        const j = await r.json();
+        if (Array.isArray(j) && j.length){
+          tracks = j.filter(u => /\.(mp3|ogg|m4a|aac|wav)$/i.test(u));
+          if (tracks.length){
+            loaded = true;
+            setTrack(0);
+          }
+        }
+      }catch(e){
+        console.warn('miniPlayer: no se pudo cargar ./music/playlist.json', e);
+      }
     }
 
     function setTrack(i){
@@ -1081,45 +1080,42 @@
     }
 
     async function playCurrent(){
-     if (!ready){
+      if (!loaded){
         await loadPlaylist();
       }
-     if (!tracks.length) return;
+      if (!tracks.length) {
+        alert('No hay canciones en ./music/playlist.json');
+        return;
+      }
       try{
-        await audio.play();
+      await audio.play();
         playBtn.textContent = '⏸';
       }catch(e){
-        // navegador pide interacción: ya la hay (click), si aún así falla mostramos aviso
         console.warn(e);
-        alert('Pulsa otra vez para iniciar el audio (protección del navegador).');
+        alert('Pulsa de nuevo para iniciar el audio (protección del navegador).');
       }
-    }
-
-    function pauseCurrent(){
-      audio.pause();
-      playBtn.textContent = '▶';
     }
 
     playBtn.addEventListener('click', ()=>{
       if (audio.paused){
         playCurrent();
       } else {
-        pauseCurrent();
+        audio.pause();
+        playBtn.textContent = '▶';
       }
     });
 
-    vol.addEventListener('input', ()=>{
-      audio.volume = parseFloat(vol.value||'0.7');
-    });
-    audio.volume = parseFloat(vol.value||'0.7');
-
-    // cuando acaba una pista, pasa a la siguiente
     audio.addEventListener('ended', ()=>{
       setTrack(idx+1);
-      audio.play().catch(()=>{ /* si no quiere, que espere a click */ });
+      audio.play().catch(()=>{});
     });
 
-    // precarga la lista (no reproduce hasta que cliques)
+    vol.addEventListener('input', ()=>{
+      audio.volume = parseFloat(vol.value || '0.7');
+    });
+    audio.volume = parseFloat(vol.value || '0.7');
+
+      // precarga lista (no suena hasta que cliques)
     loadPlaylist();
   })();
   </script>
