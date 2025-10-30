@@ -224,7 +224,7 @@
   function updateButtons(){
     GAMES.forEach(g=>{
       const stat = document.getElementById('status-'+g.id);
-      const canPlay = !!userUnlocked[g.id];
+      const canPlay = true;
       const playBtn = grid.querySelector(`button[data-game="${g.id}"][data-action="play"]`);
       const unlockBtn = grid.querySelector(`button[data-game="${g.id}"][data-action="unlock"]`);
 
