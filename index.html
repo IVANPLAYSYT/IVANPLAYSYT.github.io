@@ -295,39 +295,6 @@
     </div>
   </header>
   
-  <!-- === [ADSTERRA] Banner superior (Native Banner) — SOLO DESKTOP === -->
-  <div id="ad-desktop-top" class="ad-slot ad-top ad-card" aria-label="Publicidad" style="text-align:center;margin:12px auto 20px">
-    <div id="container-715307b74d25ae971c432e0fec096290"></div>
-  </div>
-
-  <script>
-  (function(){
-    const UA = navigator.userAgent || "";
-    const isMobileUA = /Mobi|Android|iPhone|iPad|iPod/i.test(UA);
-    const isCoarse = matchMedia('(hover: none) and (pointer: coarse)').matches;
-    const isSmall = innerWidth <= 600;
-    const IS_MOBILE = (isMobileUA || isCoarse) && isSmall;
-
-    // ✅ Solo se carga si NO es móvil
-    if (IS_MOBILE) return;
-
-    const cont = document.getElementById("container-715307b74d25ae971c432e0fec096290");
-    if (cont) {
-      const s = document.createElement("script");
-      s.async = true;
-      s.setAttribute("data-cfasync", "false");
-      s.src = "//pl27907252.effectivegatecpm.com/715307b74d25ae971c432e0fec096290/invoke.js";
-      cont.appendChild(s);
-    }
-  })();
-  </script>
-
-  <style>
-    /* Oculta el bloque base en móvil; en móvil lo mostraremos dentro del gate */
-    @media (max-width:600px){
-      #ad-desktop-top { display:none !important; }
-    }
-  </style>
   
   <section class="grid">
     <div class="card" id="playerCard">
@@ -371,15 +338,6 @@
         <div id="emoji" class="emoji-font" style="margin-top:6px;display:grid;grid-template-columns:repeat(10,1fr);gap:6px;max-height:120px;overflow:auto"></div>
         <p class="muted">Para escribir: inicia sesión.</p>
       </div>
-
-      <section class="card" style="margin-top:12px;text-align:center">
-        <a href="#" target="_blank" rel="noopener" style="display:block">
-          <img src="./assets/ads/sidebar_300x250.jpg" alt="Publicidad" style="max-width:100%;height:auto;border-radius:12px">
-        </a>
-        <div class="adtag">Publicidad</div>
-      </section>
-    </div>
-  </section>
 
   <section class="grid" style="margin-top:18px">
     <div class="card">
