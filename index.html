@@ -39,34 +39,45 @@
   }
 
   /* ====== BANNER ====== */
-  .hero{
-    position:relative; border-radius:22px; overflow:hidden;
-    height:280px; margin:18px 0; display:grid; place-items:center;
+  .hero {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    height: 280px;
+    margin: 18px 0;
+    display: grid;
+    place-items: center;
     background:
-      linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
-      radial-gradient(1000px 600px at -10% 120%,rgba(31,182,255,.20),transparent 60%),
-      radial-gradient(900px 500px at 110% -10%,rgba(139,92,246,.25),transparent 60%),
-      var(--bg);
-    background-size:cover; background-position:center;
+      linear-gradient(180deg, rgba(0, 0, 0, .45), rgba(0, 0, 0, .65)),
+      radial-gradient(1000px 600px at -10% 120%, rgba(31,182,255,.20), transparent 60%),
+      radial-gradient(900px 500px at 110% -10%, rgba(139,92,246,.25), transparent 60%),
+      url('./assets/banner.jpg') center/cover no-repeat; /* ✅ imagen del banner */
   }
-  .hero.has-image{
-    background-image:
-      linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.65)),
-      var(--hero-image);
+
+  .hero-inner {
+    text-align: center;
+    padding: 0 16px;
   }
-  .hero-inner{ text-align:center; padding:0 16px }
-  .neon{
+
+  .neon {
     font-family: Impact, Haettenschweiler, 'Arial Black', sans-serif;
     font-size: clamp(28px, 5vw, 54px);
     color: var(--neon);
     text-shadow:
-      0 0 6px  rgba(31,182,255,.9),
+      0 0 6px rgba(31,182,255,.9),
       0 0 16px rgba(31,182,255,.7),
       0 0 36px rgba(31,182,255,.55),
       0 0 64px rgba(31,182,255,.35);
-    margin:0 0 6px; letter-spacing:.5px;
+    margin: 0 0 6px;
+    letter-spacing: .5px;
   }
-  .neon-sub{color:#cfe9ff;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+
+  .neon-sub {
+    color: #cfe9ff;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
   
   header.card{display:flex;gap:16px;align-items:center;justify-content:space-between}
   .brand{display:flex;align-items:center;gap:12px}
