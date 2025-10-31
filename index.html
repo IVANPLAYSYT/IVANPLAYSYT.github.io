@@ -337,21 +337,17 @@
         <button id="stopBtn" class="btn">■ Detener</button>
         <button id="prevBtn" class="btn">⏮</button>
         <button id="nextBtn" class="btn">⏭</button>
-        <label class="muted" style="display:flex;align-items:center;gap:8px">Volumen <input id="vol" type="range" min="0" max="1" step="0.01" value="0.8"></label>
+        <label class="muted" style="display:flex;align-items:center;gap:8px">Volumen
+          <input id="vol" type="range" min="0" max="1" step="0.01" value="0.8">
+        </label>
       </div>
       <p class="muted" id="status">Cargando playlist…</p>
       <p id="now">—</p>
       <audio id="audio" preload="none" crossorigin="anonymous"></audio>
-      <div id="gate" class="row" style="display:none;margin-top:8px"><span class="muted">Pulsa para iniciar audio</span><button id="startBtn" class="btn primary">Iniciar</button></div>
-
-      <div id="ad-mobile-bottom" style="margin:14px auto;text-align:center;">
-        <script type="text/javascript">
-          window.atOptions = {"key":"eb062868b77321037f2f1dac96cff625","format":"iframe","height":50,"width":320,"params":{}};
-        </script>
-        <script type="text/javascript" src="//www.highperformanceformat.com/eb062868b77321037f2f1dac96cff625/invoke.js"></script>
-        <div class="adtag">Publicidad</div>
+      <div id="gate" class="row" style="display:none;margin-top:8px">
+        <span class="muted">Pulsa para iniciar audio</span>
+        <button id="startBtn" class="btn primary">Iniciar</button>
       </div>
-      <style>@media (min-width:601px){ #ad-mobile-bottom{ display:none !important } }</style>
       <p class="muted" style="margin-top:10px">Este stream puede incluir mensajes promocionales (audio-ads).</p>
     </div>
 
