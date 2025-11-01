@@ -649,18 +649,42 @@ var name = user.displayName || (user.email?user.email.split('@')[0]:"Visitante")
   };
 
   async function sendFirebase(){
-    var user=auth.currentUser;
-    if(!user || user.isAnonymous){
-      var m=document.getElementById('authModal'); if(m) m.style.display='block';
+    const user = firebase.auth().currentUser;
+    if (!user) {
+      alert("Inicia sesión para chatear");
       return;
     }
-    var txt=(msg.value||"").trim(); if(!txt) return;
-    var o={ t:new Date().toLocaleTimeString(), u:getNick(), m:txt };
-    await messagesRef.push(o); msg.value="";
-    try{ window.dispatchEvent(new Event('messageSent')); }catch(e){}
+    if (user.isAnonymous) {
+      alert("Debes iniciar sesión para enviar mensajes.");
+      return;
+    }
+
+    const db = firebase.database();
+    const room = "global"; // asegúrate que coincide con tu ruta en Firebase
+    const msgTA = document.getElementById("msg");
+    let text = (msgTA.value || "").trim();
+    if (!text) return;
+
+    // nombre visible
+    const nick = getNick() || 
+      user.displayName ||
+      (user.email ? user.email.split("@")[0] : "Usuario");
+
+    const o = {
+      t: Date.now(),  // timestamp (obligatorio en rules)
+      u: nick,        // nombre (obligatorio en rules)
+      m: text,        // mensaje (obligatorio en rules)
+      sys: false
+    };
+
+    try {
+      await firebase.database().ref("rooms/" + room + "/messages").push(o);
+      msgTA.value = "";
+      window.dispatchEvent(new Event('messageSent'));
+    } catch (err) {
+      console.error("Error al enviar mensaje:", err);
+    }
   }
-  send.onclick=sendFirebase;
-  msg.onkeydown=function(e){ if((e.ctrlKey||e.metaKey) && e.key==="Enter") sendFirebase(); };
 })();
 </script>
 
