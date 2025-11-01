@@ -648,39 +648,35 @@ var name = user.displayName || (user.email?user.email.split('@')[0]:"Visitante")
     var p=document.createElement("div"); p.textContent="[Sistema] Nick guardado"; log.appendChild(p);
   };
 
-  async function sendFirebase(){
-    const user = firebase.auth().currentUser;
+  async function sendFirebase() {
+    const auth = firebase.auth();
+    const user = auth.currentUser;
     if (!user) {
       alert("Inicia sesión para chatear");
       return;
     }
-    if (user.isAnonymous) {
-      alert("Debes iniciar sesión para enviar mensajes.");
-      return;
-    }
 
     const db = firebase.database();
-    const room = "global"; // asegúrate que coincide con tu ruta en Firebase
     const msgTA = document.getElementById("msg");
-    let text = (msgTA.value || "").trim();
+    const text = (msgTA.value || "").trim();
     if (!text) return;
 
-    // nombre visible
-    const nick = getNick() || 
-      user.displayName ||
-      (user.email ? user.email.split("@")[0] : "Usuario");
+    // Nick: toma de localStorage o del usuario logueado
+    let nick = localStorage.getItem("ivanplay_nick") || user.displayName || "Usuario";
+    localStorage.setItem("ivanplay_nick", nick);
 
-    const o = {
-      t: Date.now(),  // timestamp (obligatorio en rules)
-      u: nick,        // nombre (obligatorio en rules)
-      m: text,        // mensaje (obligatorio en rules)
-      sys: false
+    // Objeto que cumpla con las rules (t, u, m)
+    const message = {
+      t: Date.now(),  // timestamp numérico
+      u: nick,
+      m: text
     };
 
     try {
-      await firebase.database().ref("rooms/" + room + "/messages").push(o);
+      const room = "global"; // o tu sala actual
+      await firebase.database().ref(`rooms/${room}/messages`).push(message);
       msgTA.value = "";
-      window.dispatchEvent(new Event('messageSent'));
+      console.log("Mensaje enviado:", message);
     } catch (err) {
       console.error("Error al enviar mensaje:", err);
     }
