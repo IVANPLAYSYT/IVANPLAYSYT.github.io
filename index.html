@@ -130,6 +130,33 @@
       <div class="neon-sub">24/7 MUSIC EXPERIENCE</div>
     </div>
   </section> 
+
+  <section class="card" style="margin-top:18px" id="bug-report">
+    <h2 style="margin:4px 0 8px">¿Has encontrado un error?</h2>
+    <p class="muted" style="margin:0 0 10px">
+      Si ves algún fallo en la web, el chat o el reproductor, puedes avisarme desde aquí. 👇
+    </p>
+
+    <div style="display:grid;gap:8px;max-width:520px">
+      <div>
+        <label class="muted" for="bugEmail">Tu correo (opcional):</label>
+        <input id="bugEmail" type="email" placeholder="tucorreo@example.com">
+      </div>
+
+      <div>
+        <label class="muted" for="bugMessage">Descripción del error:</label>
+        <textarea id="bugMessage" rows="3"
+          placeholder="Qué intentabas hacer, qué ha pasado, en qué parte de la web…"></textarea>
+      </div>
+
+      <button id="bugSend" class="btn primary" style="justify-self:flex-start">
+        📩 Enviar reporte
+      </button>
+
+      <p id="bugStatus" class="muted" style="margin:0"></p>
+    </div>
+  </section>
+
   
   <!-- ========== MOBILE AD-GATE v2 (sandbox, 5s) ========== -->
   <style>
