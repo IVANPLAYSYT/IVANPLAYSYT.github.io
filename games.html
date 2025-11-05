@@ -172,9 +172,7 @@
     { id:"guess", name:"Adivina el número", desc:"¿Puedes acertarlo antes de 7 intentos?", cost:80, type:"inline", inline:"guess" },
     { id:"pong-mini", name:"Pong mini", desc:"Versión sencilla de Pong.", cost:230, type:"inline", inline:"pong" },
     { id:"reflejos", name:"Reflejos", desc:"Pulsa cuando se ponga en verde.", cost:90, type:"inline", inline:"reflex" },
-    { id:"2048-mini", name:"2048", desc:"Suma hasta 2048.", cost:260, type:"iframe", src:"./games/2048.html" },
-    { id:"billar-1v1", name:"Billar americano 1 vs 1", desc:"Mesa 8-ball demo: rebotes y turnos.", cost:350, type:"inline", inline:"billar" },
-    { id:"cartas-mesa", name:"Cartas (baraja española)", desc:"1 vs máquina o hasta 4 jugadores.", cost:300, type:"inline", inline:"cartas" }
+    { id:"billar-1v1", name:"Billar americano 1 vs 1", desc:"Mesa 8-ball demo: rebotes y turnos.", cost:350, type:"inline", inline:"billar" }
   ];
 
   let currentUser = null;
@@ -837,115 +835,6 @@
         turn = (turn === 1) ? 2 : 1;
         out.textContent = 'Turno del jugador ' + turn;
       });
-
-      return;
-    }
-
-    // 9) CARTAS ESPAÑOLAS
-    if (kind === 'cartas') {
-      const p = document.createElement('p');
-      p.className = 'muted';
-      p.textContent = '🃏 Juego de cartas (baraja española 40). Elige modo:';
-      const btns = document.createElement('div');
-      btns.style.display = 'flex';
-      btns.style.gap = '6px';
-      btns.style.flexWrap = 'wrap';
-      const table = document.createElement('div');
-      table.style.minHeight = '140px';
-      table.style.background = '#111';
-      table.style.padding = '10px';
-      table.style.borderRadius = '10px';
-      table.style.marginTop = '10px';
-      container.appendChild(p);
-      container.appendChild(btns);
-      container.appendChild(table);
-
-      const PALOS = [
-        {id:'oros', icon:'🟡', cls:'oros'},
-        {id:'copas', icon:'🍷', cls:'copas'},
-        {id:'espadas', icon:'🗡️', cls:'espadas'},
-        {id:'bastos', icon:'🪵', cls:'bastos'},
-      ];
-      const VALORES = ['1','2','3','4','5','6','7','10','11','12'];
-
-      function buildDeck(){
-        const deck = [];
-        PALOS.forEach(p=>{
-          VALORES.forEach(v=>{
-            deck.push({v, palo:p.id, icon:p.icon, cls:p.cls});
-          });
-        });
-        return deck;
-      }
-
-      function renderHand(title, cards){
-        const wrap = document.createElement('div');
-        const h = document.createElement('p');
-        h.innerHTML = `<strong>${title}</strong>`;
-        const row = document.createElement('div');
-        row.className = 'cards-flex';
-        cards.forEach(c=>{
-          const card = document.createElement('div');
-          card.className = 'card-spanish '+c.cls;
-          const top = document.createElement('div');
-          top.textContent = c.v;
-          const mid = document.createElement('div');
-          mid.className = 'suit';
-          mid.textContent = c.icon;
-          const bot = document.createElement('div');
-          bot.textContent = c.v;
-          card.appendChild(top);
-          card.appendChild(mid);
-          card.appendChild(bot);
-          row.appendChild(card);
-        });
-        wrap.appendChild(h);
-        wrap.appendChild(row);
-        return wrap;
-      }
-
-      function deal(mode){
-        let players = 1;
-        let vsMachine = false;
-        if (mode === 'solo'){ vsMachine = true; players = 1; }
-        if (mode === '2'){ players = 2; }
-        if (mode === '4'){ players = 4; }
-
-        let deck = buildDeck();
-        deck.sort(()=>Math.random()-.5);
-
-        table.innerHTML = '';
-        for (let i=0;i<players;i++){
-          const hand = deck.splice(0,3);
-          table.appendChild(renderHand('Jugador '+(i+1), hand));
-        }
-        if (vsMachine){
-          const hand = deck.splice(0,3);
-          table.appendChild(renderHand('Máquina', hand));
-        }
-      }
-
-      const b1 = document.createElement('button');
-      b1.className = 'btn small';
-      b1.textContent = '1 vs máquina';
-      b1.onclick = ()=>deal('solo');
-
-      const b2 = document.createElement('button');
-      b2.className = 'btn small';
-      b2.textContent = '2 jugadores';
-      b2.onclick = ()=>deal('2');
-
-      const b4 = document.createElement('button');
-      b4.className = 'btn small';
-      b4.textContent = '4 jugadores';
-      b4.onclick = ()=>deal('4');
-
-      btns.appendChild(b1);
-      btns.appendChild(b2);
-      btns.appendChild(b4);
-
-      // primera mano
-      deal('solo');
 
       return;
     }
