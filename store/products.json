@@ -2,27 +2,28 @@
   {
     "id": "noche-encendida",
     "title": "IVANPLAY – Noche Encendía",
-    "price": 2.49,
+    "price": 2.99,
     "genre": "reggaeton",
     "bpm": 100,
     "key": "Am",
     "cover": "/assets/store/noche.jpg",
     "audio": "/music/IVANPLAY-Noche-Encendia.mp3",
-    "checkout": "https://paypal.me/ivanplays323/3.50",
+    "checkout": "https://paypal.me/ivanplays323/2.99",
     "license": "Uso personal y streaming no comercial. Licencia PRO bajo solicitud."
   },
   {
     "id": "energia-gym",
     "title": "IVANPLAY – Energía en el Gym 2.0",
-    "price": 2.49,
+    "price": 2.99,
     "genre": "EDM",
     "bpm": 128,
     "key": "F#m",
     "cover": "/assets/store/energia.jpg",
     "audio": "/music/IVANPLAY-Energia-en-el-Gym-2.0.mp3",
-    "checkout": "https://pay.stripe.com/TU_LINK_2",
+    "checkout": "https://paypal.me/ivanplays323/2.99",
     "license": "Uso personal y streaming no comercial. Licencia PRO bajo solicitud."
   }
 ]
+
 
 
